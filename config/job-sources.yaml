@@ -1,0 +1,108 @@
+# Job Sources for Mission Control
+# Companies and job boards to scan for relevant roles
+
+# ============================================================
+# TARGET COMPANIES
+# ============================================================
+# Companies from your existing tracker, prioritized
+
+companies:
+  # Top Priority (from your tracker)
+  - name: OpenAI
+    careers_url: https://openai.com/careers/search
+    api_url: https://api.lever.co/v0/postings/openai
+    priority: 1
+    
+  - name: Anthropic
+    careers_url: https://www.anthropic.com/careers
+    api_url: https://boards-api.greenhouse.io/v1/boards/anthropic/jobs
+    priority: 1
+    
+  - name: Netflix
+    careers_url: https://jobs.netflix.com/
+    api_url: https://jobs.netflix.com/api/search
+    priority: 2
+    
+  - name: Pinterest
+    careers_url: https://www.pinterestcareers.com/jobs/
+    api_url: https://boards-api.greenhouse.io/v1/boards/pinterest/jobs
+    priority: 2
+    
+  - name: Reddit
+    careers_url: https://www.redditinc.com/careers
+    api_url: https://boards-api.greenhouse.io/v1/boards/reddit/jobs
+    priority: 2
+    
+  - name: Meta
+    careers_url: https://www.metacareers.com/jobs/
+    api_url: null  # Uses custom system
+    priority: 2
+    
+  - name: Google
+    careers_url: https://careers.google.com/jobs/results/
+    api_url: null  # Uses custom system
+    priority: 2
+    
+  - name: Amazon
+    careers_url: https://www.amazon.jobs/
+    api_url: null  # Uses custom system
+    priority: 3
+
+# ============================================================
+# LINKEDIN SEARCH
+# ============================================================
+# The scanner will generate LinkedIn search URLs for your keywords
+# You can click these to see aggregated results
+
+linkedin:
+  enabled: true
+  search_keywords:
+    - "marketing science"
+    - "measurement"
+    - "attribution"
+    - "experimentation"
+    - "data science marketing"
+  location: "United States"
+  
+# ============================================================
+# JOB BOARDS (Optional)
+# ============================================================
+# Uncomment to enable tech job boards
+# Note: Indeed is intentionally excluded (low signal/noise)
+
+# boards:
+#   - name: Y Combinator
+#     url: https://www.ycombinator.com/companies/jobs
+#     category: Startups
+#     
+#   - name: AngelList
+#     url: https://angel.co/jobs
+#     category: Startups
+#     
+#   - name: RemoteOK
+#     url: https://remoteok.com/remote-data-science-jobs
+#     category: Remote
+
+# ============================================================
+# SCANNING RULES
+# ============================================================
+rules:
+  # Minimum keyword match score (0-100) to save role
+  min_match_score: 50
+  
+  # Keywords that boost relevance
+  must_have_keywords:
+    - measurement
+    - attribution
+    - experimentation
+    - incrementality
+    - marketing science
+    
+  # Skip roles containing these terms
+  exclude_keywords:
+    - junior
+    - intern
+    - entry level
+    
+  # Maximum age of posting to consider (days)
+  max_age_days: 30

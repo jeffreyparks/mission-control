@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Job Search Tracker — {{ d.date }}</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+  .tabs{display:flex;gap:8px;margin:22px 0 4px}
+  .tab{font-size:13px;padding:8px 18px;border-radius:18px;border:1px solid var(--line);
+    background:transparent;color:var(--ink-dim);cursor:pointer}
+  .tab.on{background:var(--bg-card);color:var(--ink);border-color:var(--line)}
+  .pane{display:none} .pane.on{display:block}
+  .catbars{background:var(--bg-card);border:1px solid var(--line);border-radius:8px;padding:20px}
+  .catbars .k{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink-mute);margin-bottom:14px}
+  .cb{display:grid;grid-template-columns:1fr 90px 26px;gap:10px;align-items:center;
+    font-size:12px;padding:3px 0}
+  .cb .bar{height:5px;background:var(--line);border-radius:3px;overflow:hidden}
+  .cb .bar i{display:block;height:100%;background:var(--accent)}
+  .cb .n{text-align:right;color:var(--ink-dim);font-family:var(--mono);font-size:11px}
+  .cb .lab{color:var(--ink-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .layout{display:grid;grid-template-columns:1fr 340px;gap:14px;margin:24px 0}
+  details.why{margin-top:5px}
+  details.why summary{font-size:11px;color:var(--ink-mute);cursor:pointer;font-family:var(--mono);
+    letter-spacing:.08em;text-transform:uppercase;list-style:none}
+  details.why summary::-webkit-details-marker{display:none}
+  details.why summary:hover{color:var(--accent)}
+  details.why .body{font-size:12px;color:var(--ink-dim);padding:10px 0 4px;max-width:70ch}
+  details.why .body b{color:var(--ink)}
+  .rec{font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:3px;border:1px solid var(--line)}
+  .rec.apply{color:var(--ok);border-color:#1f3d2a;background:#12211a}
+  .rec.research{color:var(--warn);border-color:#4a3a15}
+  .rec.skip{color:var(--ink-mute)}
+  .count{font-size:11px;color:var(--ink-mute);font-family:var(--mono);margin:14px 0 6px}
+  /* Machine-proposed role category. Deliberately dimmed: a proposal, not a fact. */
+  .sugg{color:var(--ink-mute);opacity:.75;font-style:italic;display:inline-block;line-height:1.5}
+  .sugg .chip-sugg{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;
+    font-style:normal;border:1px dashed var(--line);border-radius:3px;padding:1px 5px;margin-left:6px;
+    color:var(--ink-mute);vertical-align:1px}
+  .sugg.low{opacity:.5}
+  @media(max-width:1000px){.layout{grid-template-columns:1fr}}
+</style></head>
+<body>
+
+{% with page='tracker', subtitle='Job Search Tracker' %}{% include '_nav.html.j2' %}{% endwith %}
+
+<div class="wrap">
+  <header class="masthead" style="padding-bottom:22px">
+    <h1 style="font-size:40px">Job Search Tracker</h1>
+    <p class="standfirst">Every role opened for the AI &amp; measurement search, the fit read behind each one,
+    and the company directory that sits under it.</p>
+    <div class="chips" style="margin-top:18px">
+      <span class="chip on">Refreshes daily</span>
+      <span class="chip">Data as of {{ d.date }}</span>
+      <span class="chip">{{ d.llm }}</span>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab on" data-pane="roles">Roles</button>
+    <button class="tab" data-pane="orgs">Orgs</button>
+  </div>
+
+  <div class="pane on" id="roles">
+    <div class="kpis">
+      <div class="kpi"><div class="k">Tracked</div><div class="v">{{ roles|length }}</div></div>
+      <div class="kpi"><div class="k">Apply</div><div class="v" style="color:var(--ok)">{{ recs.apply }}</div></div>
+      <div class="kpi"><div class="k">Research</div><div class="v" style="color:var(--warn)">{{ recs.research }}</div></div>
+      <div class="kpi"><div class="k">Median fit</div><div class="v">{{ median_fit }}</div></div>
+    </div>
+
+    <div class="layout">
+      <div class="catbars">
+        <div class="k">By role category</div>
+        {% for c, n in cats %}
+        <div class="cb">
+          <span class="lab">{{ c }}</span>
+          <span class="bar"><i style="width:{{ (n / cats_max * 100)|round(0,'floor')|int }}%"></i></span>
+          <span class="n">{{ n }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="catbars">
+        <div class="k">By recommendation</div>
+        {% for c, n in recbars %}
+        <div class="cb">
+          <span class="lab">{{ c }}</span>
+          <span class="bar"><i style="width:{{ (n / roles|length * 100)|round(0,'floor')|int }}%"></i></span>
+          <span class="n">{{ n }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="controls">
+      <input type="search" id="q" placeholder="Search org, title, sector, or rationale…">
+      <div class="filters" id="recf">
+        <button class="f on" data-rec="">All</button>
+        <button class="f" data-rec="apply">Apply</button>
+        <button class="f" data-rec="research">Research</button>
+        <button class="f" data-rec="skip">Skip</button>
+      </div>
+    </div>
+    <div class="count"><span id="shown">{{ roles|length }}</span> of {{ roles|length }} roles</div>
+
+    <table id="rt">
+      <thead><tr>
+        <th>Org</th><th>Role</th><th>Category</th><th>Fit</th><th>Rec</th>
+        <th>Pri</th><th>Status</th><th>Outcome</th>
+      </tr></thead>
+      <tbody>
+      {% for r in roles %}
+        <tr data-rec="{{ r.recommendation or '' }}"
+            data-blob="{{ (r.org ~ ' ' ~ r.title ~ ' ' ~ (r.sector or '') ~ ' ' ~ (r.role_cat or '') ~ ' ' ~ (r.suggested_role_cat or '') ~ ' ' ~ (r.suggestion_reason or '') ~ ' ' ~ (r.why or '') ~ ' ' ~ (r.seniority_read or ''))|lower }}">
+          <td><div class="org">{{ r.org }}</div><div class="sector">{{ r.sector or '—' }}</div></td>
+          <td>
+            {% if r.url %}<a href="{{ r.url }}">{{ r.title }}</a>{% else %}{{ r.title }}{% endif %}
+            {% if r.why %}
+            <details class="why"><summary>Fit read</summary>
+              <div class="body">
+                <p><b>Seniority.</b> {{ r.seniority_read }}</p>
+                <p><b>Why.</b> {{ r.why }}</p>
+                {% if r.what_theyre_really_hiring_for %}<p><b>Really hiring for.</b> {{ r.what_theyre_really_hiring_for }}</p>{% endif %}
+                {% if r.top_gaps %}<p><b>Gaps.</b> {{ r.top_gaps|join('; ') }}</p>{% endif %}
+                {% if r.pitch_angle %}<p><b>Pitch angle.</b> {{ r.pitch_angle }}</p>{% endif %}
+              </div>
+            </details>
+            {% endif %}
+          </td>
+          <td class="sector">
+            {% if r.role_cat %}
+              {{ r.role_cat }}
+            {% elif r.suggested_role_cat %}
+              <span class="sugg {{ r.suggestion_confidence or '' }}"
+                    title="Suggested by the categoriser ({{ r.suggestion_confidence or 'unrated' }} confidence){% if r.suggestion_reason %}: {{ r.suggestion_reason }}{% endif %}">
+                {{ r.suggested_role_cat }}<span class="chip-sugg">suggested</span>
+              </span>
+            {% else %}
+              —
+            {% endif %}
+          </td>
+          <td><span class="fit {% if (r.fit_score or 0) >= 70 %}hi{% elif (r.fit_score or 0) >= 45 %}mid{% else %}lo{% endif %}">{{ r.fit_score if r.fit_score is not none else '—' }}</span></td>
+          <td>{% if r.recommendation %}<span class="rec {{ r.recommendation }}">{{ r.recommendation }}</span>{% else %}—{% endif %}</td>
+          <td>{% if r.priority %}<span class="pri p{{ r.priority|int }}">P{{ r.priority|int }}</span>{% else %}—{% endif %}</td>
+          <td><span class="dot {{ (r.status or '')|lower|replace('01 ','')|replace('02 ','')|replace('03 ','')|replace('04 ','') }}">{{ r.status or '—' }}</span></td>
+          <td>{% if r.outcome_display %}<span class="bad-chip">{{ r.outcome_display }}</span>{% else %}—{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pane" id="orgs">
+    <div class="kpis">
+      <div class="kpi"><div class="k">Organizations</div><div class="v">{{ orgs|length }}</div></div>
+      <div class="kpi"><div class="k">With an apply</div><div class="v">{{ orgs_with_apply }}</div></div>
+      <div class="kpi"><div class="k">Open roles</div><div class="v">{{ total_open }}</div></div>
+      <div class="kpi"><div class="k">Best fit</div><div class="v">{{ best_fit }}</div></div>
+    </div>
+    <table>
+      <thead><tr>
+        <th>Organization</th><th>Roles</th><th>Open</th><th>Applied</th>
+        <th>Best fit</th><th>Median</th><th>Strongest role</th><th>Outcomes</th>
+      </tr></thead>
+      <tbody>
+      {% for o in orgs %}
+        <tr>
+          <td><div class="org">{{ o.org }}</div><div class="sector">{{ o.sector or '—' }}</div></td>
+          <td>{{ o.role_count }}</td>
+          <td>{{ o.open_count }}</td>
+          <td>{{ o.applied_count }}</td>
+          <td><span class="fit {% if (o.best_fit_score or 0) >= 70 %}hi{% elif (o.best_fit_score or 0) >= 45 %}mid{% else %}lo{% endif %}">{{ o.best_fit_score if o.best_fit_score is not none else '—' }}</span></td>
+          <td class="sector">{{ o.median_fit_score if o.median_fit_score is not none else '—' }}</td>
+          <td class="sector">{% if o.best_role %}{% if o.best_role.url %}<a href="{{ o.best_role.url }}">{{ o.best_role.title }}</a>{% else %}{{ o.best_role.title }}{% endif %}{% else %}—{% endif %}</td>
+          <td>{% if o.outcomes %}{% for x in o.outcomes %}<span class="bad-chip" title="{{ x.title }}">{{ x.outcome }}</span> {% endfor %}{% else %}—{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <footer>
+    <span>Source of record: artifacts/jobs/org-roles-tracker.xlsx · intel-{{ d.date }}.json</span>
+    <span>Mission Control · Job Search Tracker</span>
+  </footer>
+</div>
+
+<script>
+document.querySelectorAll('.tab').forEach(function(t){
+  t.onclick=function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on')});
+    document.querySelectorAll('.pane').forEach(function(x){x.classList.remove('on')});
+    t.classList.add('on');
+    document.getElementById(t.dataset.pane).classList.add('on');
+  };
+});
+var rec='', q=document.getElementById('q');
+function apply(){
+  var term=q.value.trim().toLowerCase(), n=0;
+  document.querySelectorAll('#rt tbody tr').forEach(function(tr){
+    var okRec = !rec || tr.dataset.rec===rec;
+    var okQ = !term || tr.dataset.blob.indexOf(term)!==-1;
+    var show = okRec && okQ;
+    tr.style.display = show ? '' : 'none';
+    if(show) n++;
+  });
+  document.getElementById('shown').textContent=n;
+}
+q.oninput=apply;
+document.querySelectorAll('#recf .f').forEach(function(b){
+  b.onclick=function(){
+    document.querySelectorAll('#recf .f').forEach(function(x){x.classList.remove('on')});
+    b.classList.add('on'); rec=b.dataset.rec; apply();
+  };
+});
+</script>
+</body></html>

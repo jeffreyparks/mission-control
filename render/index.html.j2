@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mission Control</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+  /* page-specific only; theme.css is shared and not edited */
+  .chg .v b{color:var(--ink)}
+  .chg .up{color:var(--ok)}
+  .chg .down{color:var(--bad)}
+  .chg .gone{color:var(--idle)}
+  .chg .quiet{font-family:var(--serif);font-style:italic;font-size:16px;
+    color:var(--ink-dim);margin:14px 0 0}
+  .chg .line{margin:0 0 6px;font-size:14px;color:var(--ink-dim)}
+  .chg .line:last-child{margin-bottom:0}
+  .chg .arrow{font-family:var(--mono);font-size:12px;color:var(--ink-mute);margin:0 6px}
+</style></head>
+<body>
+
+{% with page='home', subtitle='Daily brief' %}{% include '_nav.html.j2' %}{% endwith %}
+
+<div class="wrap">
+  <header class="masthead">
+    <div class="eyebrow">Career operations &nbsp;·&nbsp; one desk, two feeds</div>
+    <h1>Mission Control</h1>
+    <p class="standfirst">The job search and the content pipeline, refreshed on their own cadences
+    and judged by the same standard: say it plainly, or say nothing.</p>
+    <div class="chips" style="margin-top:18px">
+      <span class="chip on">Built {{ built }}</span>
+      {% if intel %}<span class="chip">Tracker {{ intel.date }}</span>{% endif %}
+      {% if radar %}<span class="chip">Radar {{ radar.date }}</span>{% endif %}
+    </div>
+  </header>
+
+  <div class="homegrid">
+    <a class="homecard" href="job-tracker.html">
+      <div class="k">Daily</div>
+      <h3>Job Tracker</h3>
+      {% if intel %}
+      <p>{{ intel.counts.roles }} roles judged across {{ intel.counts.orgs }} orgs.
+      {{ intel.counts.apply }} worth applying to, {{ intel.counts.skip }} honestly not.</p>
+      <div class="kpis">
+        <div class="kpi"><div class="k">Apply</div><div class="v" style="color:var(--ok)">{{ intel.counts.apply }}</div></div>
+        <div class="kpi"><div class="k">Research</div><div class="v" style="color:var(--warn)">{{ intel.counts.research }}</div></div>
+        <div class="kpi"><div class="k">Median fit</div><div class="v">{{ median_fit }}</div></div>
+      </div>
+      {% else %}
+      <p class="empty">No intel file yet. Run <code>agents/job_intel.py</code>.</p>
+      {% endif %}
+    </a>
+
+    <a class="homecard" href="content-radar.html">
+      <div class="k">Weekly</div>
+      <h3>Content Radar</h3>
+      {% if radar %}
+      <p>{{ picks|length }} pick{{ '' if picks|length == 1 else 's' }} cleared the bar from
+      {{ radar.stats.articles_fetched }} articles read.</p>
+      <div class="kpis">
+        <div class="kpi"><div class="k">Picks</div><div class="v">{{ picks|length }}</div></div>
+        <div class="kpi"><div class="k">Read</div><div class="v">{{ radar.stats.articles_fetched }}</div></div>
+        <div class="kpi"><div class="k">Sources</div><div class="v">{{ radar.stats.sources_with_entries }}</div></div>
+      </div>
+      {% else %}
+      <p class="empty">No radar file yet. Run <code>agents/content_radar.py</code>.</p>
+      {% endif %}
+    </a>
+  </div>
+
+  <section class="chg">
+    <div class="sec-label"><b>01</b>What changed</div>
+    <h2>Since the last run</h2>
+    {% if not deltas or not deltas.date %}
+    <p class="quiet">No history yet. The first snapshot lands after the next run.</p>
+    {% elif not deltas.prev_date %}
+    <p class="quiet">Only one snapshot so far ({{ deltas.date }}). Nothing to compare against yet.</p>
+    {% elif not deltas.has_changes %}
+    <p class="quiet">Nothing moved since {{ deltas.prev_date }}. No new roles, no score changes, no
+    status changes. That is the honest answer.</p>
+    {% else %}
+    <div class="chips" style="margin-bottom:4px">
+      <span class="chip on">{{ deltas.prev_date }} &rarr; {{ deltas.date }}</span>
+      {% if deltas.days_between %}<span class="chip">{{ deltas.days_between }}d apart</span>{% endif %}
+    </div>
+
+    {% if deltas.new_roles %}
+    <div class="row">
+      <div class="k">New roles</div>
+      <div class="v">
+        {% for r in deltas.new_roles[:6] %}
+        <p class="line"><b>{{ r.org }}</b> &mdash; {{ r.title }}
+          {% if r.fit_score is not none %}<span class="arrow">fit</span>{{ r.fit_score }}{% endif %}
+          {% if r.recommendation %}<span class="chip">{{ r.recommendation }}</span>{% endif %}</p>
+        {% endfor %}
+        {% if deltas.new_roles|length > 6 %}
+        <p class="line">and {{ deltas.new_roles|length - 6 }} more.</p>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if deltas.gone_roles %}
+    <div class="row">
+      <div class="k">No longer listed</div>
+      <div class="v">
+        {% for r in deltas.gone_roles[:6] %}
+        <p class="line gone"><b>{{ r.org }}</b> &mdash; {{ r.title }}</p>
+        {% endfor %}
+        {% if deltas.gone_roles|length > 6 %}
+        <p class="line gone">and {{ deltas.gone_roles|length - 6 }} more.</p>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if deltas.fit_changes %}
+    <div class="row">
+      <div class="k">Fit moved</div>
+      <div class="v">
+        {% for c in deltas.fit_changes[:6] %}
+        <p class="line"><b>{{ c.org }}</b> &mdash; {{ c.title }}
+          <span class="arrow">{{ c.old }} &rarr; {{ c.new }}</span>
+          <span class="{{ 'up' if c.change > 0 else 'down' }}">
+            {{ '+' if c.change > 0 else '' }}{{ c.change }}</span></p>
+        {% endfor %}
+        {% if deltas.fit_changes|length > 6 %}
+        <p class="line">and {{ deltas.fit_changes|length - 6 }} more.</p>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if deltas.rec_changes %}
+    <div class="row">
+      <div class="k">Verdict moved</div>
+      <div class="v">
+        {% for c in deltas.rec_changes[:6] %}
+        <p class="line"><b>{{ c.org }}</b> &mdash; {{ c.title }}
+          <span class="arrow">{{ c.old or 'none' }} &rarr; {{ c.new or 'none' }}</span></p>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if deltas.status_changes %}
+    <div class="row">
+      <div class="k">Status moved</div>
+      <div class="v">
+        {% for c in deltas.status_changes[:6] %}
+        <p class="line"><b>{{ c.org }}</b> &mdash; {{ c.title }}
+          <span class="arrow">{{ c.old or 'none' }} &rarr; {{ c.new or 'none' }}</span></p>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if deltas.coverage and deltas.coverage.change %}
+    <div class="row">
+      <div class="k">LinkedIn keywords</div>
+      <div class="v">
+        <p class="line"><b>{{ deltas.coverage.pct }}%</b> coverage
+          <span class="arrow">was {{ deltas.coverage.prev_pct }}% on {{ deltas.coverage.prev_date }}</span>
+          <span class="{{ 'up' if deltas.coverage.change > 0 else 'down' }}">
+            {{ '+' if deltas.coverage.change > 0 else '' }}{{ deltas.coverage.change }}pt</span></p>
+      </div>
+    </div>
+    {% endif %}
+    {% endif %}
+  </section>
+
+  <section>
+    <div class="sec-label"><b>02</b>Act on this</div>
+    <h2>The short list, both feeds</h2>
+    {% if shortlist %}
+    <table>
+      <thead><tr><th>Org</th><th>Role</th><th>Fit</th><th>Lead with</th></tr></thead>
+      <tbody>
+      {% for r in shortlist %}
+        <tr>
+          <td><div class="org">{{ r.org }}</div><div class="sector">{{ r.sector or '—' }}</div></td>
+          <td>{% if r.url %}<a href="{{ r.url }}">{{ r.title }}</a>{% else %}{{ r.title }}{% endif %}</td>
+          <td><span class="fit hi">{{ r.fit_score }}</span></td>
+          <td class="sector">{{ r.pitch_angle or '—' }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="empty">Nothing is worth applying to today. That is a real answer, not a gap.</p>
+    {% endif %}
+
+    {% if top_picks %}
+    <div class="grid" style="margin-top:18px">
+      {% for p in top_picks %}
+      <article class="card">
+        <div class="tag"><b>{{ p.tier }}</b> &nbsp;·&nbsp; {{ p.theme }}</div>
+        <h3>{{ p.headline }}</h3>
+        <p>{{ p.angle }}</p>
+        <div class="srcline"><a href="content-radar.html">Open the radar</a></div>
+      </article>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </section>
+
+  <footer>
+    <span>artifacts/jobs/intel-*.json · artifacts/content/radar-*.json</span>
+    <span>Mission Control</span>
+  </footer>
+</div>
+</body></html>

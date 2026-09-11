@@ -1,0 +1,452 @@
+{
+  "abridge-abridge-hiring-head-of-data-science": {
+    "fingerprint": "945d6135ddad41fb",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "abridge-abridge-hiring-head-of-data-science-in-san-francisco-ca-linkedin": {
+    "fingerprint": "91025c170ae44d5a",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "amazon-jobs-director-analytics-and-decision-science": {
+    "fingerprint": "355aba84c3229e41",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-applied-ai-architect": {
+    "fingerprint": "a5da39116101f511",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "titled Applied AI Architect"
+  },
+  "anthropic-applied-ai-architect-beneficial-deployments-life-sciences": {
+    "fingerprint": "4ef52b95c8306e53",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Applied AI Architect for life sciences deployments"
+  },
+  "anthropic-applied-ai-architect-commercial": {
+    "fingerprint": "b8f878bd18001d15",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Applied AI Architect, Commercial segment"
+  },
+  "anthropic-applied-ai-architect-cyber": {
+    "fingerprint": "e3b72245024f3df3",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Applied AI Architect, Cyber specialization"
+  },
+  "anthropic-applied-ai-architect-digital-natives-business": {
+    "fingerprint": "ec11a35794333d6c",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Applied AI Architect for digital natives"
+  },
+  "anthropic-applied-ai-architect-enterprise-tech": {
+    "fingerprint": "26c63c878c6e25a4",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Applied AI Architect, Enterprise Tech"
+  },
+  "anthropic-applied-ai-architect-industries": {
+    "fingerprint": "dea11f8cc873be67",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Applied AI Architect, Industries"
+  },
+  "anthropic-applied-ai-architect-partnerships": {
+    "fingerprint": "03e90f7e9b54b90c",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Applied AI Architect, Partnerships"
+  },
+  "anthropic-applied-ai-architect-public-sector-national-security": {
+    "fingerprint": "ec088bad2da81d2b",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Applied AI Architect, Public Sector/National Security"
+  },
+  "anthropic-applied-ai-architect-startups": {
+    "fingerprint": "e9ca3fe7678f35dd",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Applied AI Architect, Startups"
+  },
+  "anthropic-applied-ai-architect-strategic-enterprise-tech": {
+    "fingerprint": "064aa05162f0ce2a",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Applied AI Architect, Strategic Enterprise Tech"
+  },
+  "anthropic-applied-ai-engineer": {
+    "fingerprint": "b001e4bfa866b189",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "medium",
+    "suggestion_reason": "hands-on applied AI deployment engineer"
+  },
+  "anthropic-applied-ai-engineer-beneficial-deployments-life-sciences": {
+    "fingerprint": "3e9e560b3f329109",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "medium",
+    "suggestion_reason": "applied AI deployment engineer, life sciences"
+  },
+  "anthropic-applied-ai-engineer-enterprise": {
+    "fingerprint": "d40ece27423a394f",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "medium",
+    "suggestion_reason": "applied AI deployment engineer, enterprise"
+  },
+  "anthropic-applied-ai-engineer-enterprise-tech": {
+    "fingerprint": "561ca0e6d7312bee",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "medium",
+    "suggestion_reason": "applied AI deployment engineer, enterprise tech"
+  },
+  "anthropic-applied-ai-research-engineer": {
+    "fingerprint": "07147df049774b21",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-applied-ai-security-architect": {
+    "fingerprint": "ad487de14a7a2ee2",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Applied AI Architect specialized in security"
+  },
+  "anthropic-applied-ai-strategist-emea": {
+    "fingerprint": "6e85df3c37e3fde8",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "medium",
+    "suggestion_reason": "regional applied AI deployment strategist"
+  },
+  "anthropic-applied-ai-technical-evangelist-startup-ecosystem": {
+    "fingerprint": "ab0f4a16df34ec6c",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "medium",
+    "suggestion_reason": "technical evangelist driving AI deployment in startup ecosystem"
+  },
+  "anthropic-brand-marketing-lead-enterprise": {
+    "fingerprint": "61d53831345f821e",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-customer-marketing-manager-industries": {
+    "fingerprint": "5d054897483fb72f",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-customer-programs-manager-co-marketing-measurement": {
+    "fingerprint": "061fb21a180b2a39",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-data-science-finance-strategy": {
+    "fingerprint": "be8b138c4ae045a2",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-data-scientist-developer-productivity": {
+    "fingerprint": "ef44f597fe105061",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-data-scientist-policy": {
+    "fingerprint": "9638ce9085ed1ef3",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-data-scientist-product": {
+    "fingerprint": "5b2773a6a540d1f2",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-data-scientist-safeguards": {
+    "fingerprint": "e5cf784bd9655fde",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-field-marketing-lead-public-sector": {
+    "fingerprint": "1c308ac420db6335",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-field-marketing-manager-apac": {
+    "fingerprint": "131711e2e88fb9ea",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-front-end-engineer-marketing": {
+    "fingerprint": "89a4238aa7d4b249",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-head-of-community-enterprise-marketing": {
+    "fingerprint": "25b67b46a7ea34f3",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-partner-marketing-lead-cloud": {
+    "fingerprint": "ef1e540c92b8b649",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-partner-marketing-manager-launches": {
+    "fingerprint": "4246227984710d23",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-solutions-marketing-lead-public-sector": {
+    "fingerprint": "14b7fe546ceba65f",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-solutions-marketing-manager-cybersecurity": {
+    "fingerprint": "f331d2b25f78c2ed",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-solutions-marketing-manager-healthcare-science": {
+    "fingerprint": "5fefae1c526a034c",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-staff-software-engineer-experimentation": {
+    "fingerprint": "b6867ef711dfacde",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-strategy-operations-lead-enterprise-marketing": {
+    "fingerprint": "f197c5ec50cf7ee7",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-strategy-operations-lead-marketing": {
+    "fingerprint": "a08dff0d6d691720",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "attentive-attentive-hiring-applied-science-data-science-leader": {
+    "fingerprint": "b9a6dd4e69469a2f",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "medium",
+    "suggestion_reason": "applied/data science leadership at Attentive, an AI-driven marketing platform"
+  },
+  "attentive-attentive-hiring-applied-science-data-science-leader-in-san-francisco-ca-linkedin": {
+    "fingerprint": "a46eff0e5c9a3b6e",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "medium",
+    "suggestion_reason": "Data Science Leader role at Attentive, an AI-driven marketing platform"
+  },
+  "audible-director-analytics-and-decision-science": {
+    "fingerprint": "885d086af982c19a",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "beam-head-of-marketing-intelligence-beam-organics-career-page": {
+    "fingerprint": "54a33c4b9c3c8626",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "chewy-director-data-science": {
+    "fingerprint": "db7fdc7fa1db8d80",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "citi-vp-marketing-data-science": {
+    "fingerprint": "e17536f9a6abcc04",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "doordash-director-analytics-new-verticals-consumer": {
+    "fingerprint": "cc835aa7825e0c62",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "faire-director-of-applied-ai-ml-science-ads": {
+    "fingerprint": "bb7dc486606512c9",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Director of Applied AI/ML Science for Ads at a marketplace platform"
+  },
+  "faire-faire-hiring-director-of-applied-ai-ml-science-ads-in-san-francisco-ca-linkedin": {
+    "fingerprint": "54847d8920260bb1",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "medium",
+    "suggestion_reason": "Director of Applied AI/ML Science for Ads platform, a marketing science leadership role"
+  },
+  "major-league-soccer-senior-director-marketing-science": {
+    "fingerprint": "0514b8c3224938e2",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "mls-senior-director-marketing-science-at-major-league-soccer-new-york-ny-linkedin-jobs": {
+    "fingerprint": "4cceaf8d8e3e29bd",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "navan-sr-director-data": {
+    "fingerprint": "e23323986299fa40",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "paramount-paramount-hiring-senior-director-data-science-in-new-york-ny-linkedin": {
+    "fingerprint": "aa1412c14792fa8b",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "pinterest-director-marketing-technology-innovation": {
+    "fingerprint": "5ca74655afdde985",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "pinterest-head-of-business-marketing-australia": {
+    "fingerprint": "121a43d2f32a39c4",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "pinterest-lead-ads-product-marketing-manager": {
+    "fingerprint": "e29e6a7ac52d462e",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "pinterest-measurement-partner-ii-tvscientific": {
+    "fingerprint": "f85698477021172e",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "pinterest-senior-manager-measurement-apac": {
+    "fingerprint": "4d6e46cee30f28a0",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Senior Manager, Measurement at Pinterest ad platform"
+  },
+  "pinterest-sr-ads-product-marketing-manager-ads-delivery": {
+    "fingerprint": "5cf2d3473ecbe59f",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "pinterest-sr-data-scientist-marketing": {
+    "fingerprint": "f8b0bd181d6535d5",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "medium",
+    "suggestion_reason": "senior marketing data scientist at Pinterest ad platform"
+  },
+  "pinterest-sr-systems-engineer-sales-marketing": {
+    "fingerprint": "8ba1ee6b7e4ef769",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "pinterest-staff-data-scientist-forecasting": {
+    "fingerprint": "9911b9ce5972be86",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "pinterest-staff-product-manager-ads-measurement": {
+    "fingerprint": "876a0e7bac1894bd",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "pinterest-staff-software-engineer-ads-measurement-signal": {
+    "fingerprint": "9af98d2640ca2245",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "pinterest-staff-software-engineer-growth-performance-marketing": {
+    "fingerprint": "9e0124ba2ce5b0b4",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "professional-vp-marketing-data-science": {
+    "fingerprint": "69388da0f6663a07",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "prophet-partner-insights-analytics": {
+    "fingerprint": "36add92be7db8ab3",
+    "suggested_role_cat": "05 Practice Lead at Consultancy",
+    "suggestion_confidence": "medium",
+    "suggestion_reason": "Partner leading Insights & Analytics practice at a consultancy, not AI-specific"
+  },
+  "reddit-country-lead-business-marketing-uk": {
+    "fingerprint": "0733e10ab702dccb",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "reddit-senior-staff-data-scientist-consumer-experimentation": {
+    "fingerprint": "5d048326d973de65",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "reddit-sr-staff-data-scientist-ads-measurement-signals-privacy": {
+    "fingerprint": "8ccfb809f587917c",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Sr Staff DS leading ads measurement/signals/privacy at Reddit"
+  },
+  "reddit-staff-data-scientist-ads-measurement-signals-privacy": {
+    "fingerprint": "cb8641a1ec41d71f",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Staff DS in ads measurement/signals/privacy at Reddit"
+  },
+  "reddit-staff-data-scientist-marketing": {
+    "fingerprint": "afec16fc62fd7ec7",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "zocdoc-director-marketing-ds": {
+    "fingerprint": "30d168ec0fb827d9",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  }
+}

@@ -1,0 +1,106 @@
+# Content Sources for Mission Control
+# RSS feeds to scan for trending topics aligned with career goals
+#
+# Format:
+#   - name: Display name
+#     url: RSS feed URL
+#     category: Category for grouping (AI/ML, Measurement, Data Science, Tech)
+#
+# To add a source:
+#   1. Find the RSS feed URL (usually /feed, /rss, or /rss.xml)
+#   2. Add it below with a descriptive name and category
+#   3. Run: uv run run_daily.py
+#
+# To remove a source:
+#   1. Delete or comment out the entry
+#   2. Run again
+
+sources:
+  # AI & Machine Learning
+  - name: OpenAI Blog
+    url: https://openai.com/blog/rss.xml
+    category: AI/ML
+    
+  - name: Anthropic News
+    url: https://www.anthropic.com/news/rss.xml
+    category: AI/ML
+    
+  # Tech Engineering Blogs (Measurement & Experimentation)
+  - name: Netflix Tech Blog
+    url: https://netflixtechblog.com/feed
+    category: Measurement
+    
+  - name: Meta Engineering
+    url: https://engineering.fb.com/feed/
+    category: Measurement
+    
+  - name: Uber Engineering
+    url: https://eng.uber.com/feed/
+    category: Data Science
+    
+  - name: Spotify Engineering
+    url: https://engineering.atspotify.com/feed/
+    category: Measurement
+    
+  # Data Science & Analytics
+  - name: Towards Data Science
+    url: https://towardsdatascience.com/feed
+    category: Data Science
+    
+  # General Tech News
+  - name: Hacker News Best
+    url: https://hnrss.org/best
+    category: Tech
+
+# ============================================================
+# SUGGESTED SOURCES TO ADD
+# ============================================================
+# Uncomment and add sources relevant to your focus areas
+#
+Marketing Science & Attribution:
+- name: Google Ads Developer Blog
+  url: https://ads-developers.googleblog.com/feeds/posts/default
+  category: Measurement
+
+- name: Google Analytics Blog
+  url: https://blog.google/products/marketingplatform/analytics/feed/
+  category: Measurement
+
+ML & AI Research:
+- name: Google AI Blog
+  url: https://ai.googleblog.com/feeds/posts/default
+  category: AI/ML
+
+- name: DeepMind Blog
+  url: https://www.deepmind.com/blog/rss.xml
+  category: AI/ML
+
+More Engineering Blogs:
+- name: LinkedIn Engineering
+  url: https://engineering.linkedin.com/blog.rss
+  category: Data Science
+
+- name: Airbnb Engineering
+  url: https://medium.com/feed/airbnb-engineering
+  category: Data Science
+
+Industry News:
+- name: TechCrunch
+  url: https://techcrunch.com/feed/
+  category: Tech
+
+- name: VentureBeat AI
+  url: https://venturebeat.com/category/ai/feed/
+  category: AI/ML
+
+# ============================================================
+# CATEGORIES EXPLAINED
+# ============================================================
+# Use these categories to group sources:
+#
+# - AI/ML: General AI/ML content, LLMs, research
+# - Measurement: Marketing measurement, attribution, experimentation
+# - Data Science: Data infrastructure, analytics, modeling
+# - Tech: General tech news and trends
+#
+# Add your own categories as needed!

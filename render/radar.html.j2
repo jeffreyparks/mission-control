@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Content Radar — {{ d.date }}</title>
+<link rel="stylesheet" href="theme.css"></head>
+<body>
+
+{% with page='radar', subtitle='Content Radar' %}{% include '_nav.html.j2' %}{% endwith %}
+
+<div class="wrap">
+  <header class="masthead">
+    <div class="eyebrow">Weekly content intelligence &nbsp;·&nbsp; positioning framework companion</div>
+    <h1>Content Radar</h1>
+    <p class="standfirst">What is genuinely worth writing about right now, sorted into what earns a post,
+    a comment, a technical note — or nothing at all.</p>
+  </header>
+
+  <dl class="metastrip">
+    <div><dt>Picks this week</dt><dd>{{ picks|length }}</dd></div>
+    <div><dt>Articles read</dt><dd>{{ d.stats.articles_fetched }}</dd></div>
+    <div><dt>Live sources</dt><dd>{{ d.stats.sources_with_entries }} / {{ d.stats.sources_configured }}</dd></div>
+    <div><dt>Window</dt><dd>{{ d.window_days }} days</dd></div>
+    <div><dt>Refreshed</dt><dd>{{ d.date }}</dd></div>
+  </dl>
+
+  <section>
+    <div class="sec-label"><b>00</b>The filter every pick ran through</div>
+    <div class="pull"><p>{{ d.sections['00_filter'].text }}</p></div>
+  </section>
+
+  <section>
+    <div class="sec-label"><b>01</b>This week's pillar picks</div>
+    <h2>What is worth writing about right now</h2>
+    {% if picks %}
+    <div class="grid">
+      {% for p in picks %}
+      <article class="card">
+        <div class="tag"><b>{{ p.tier }}</b> &nbsp;·&nbsp; {{ p.theme }}</div>
+        <h3>{{ p.headline }}</h3>
+        <p>{{ p.why_it_matters }}</p>
+        <div class="angle">
+          <div class="lbl">Angle</div>
+          <p>{{ p.angle }}</p>
+        </div>
+        <div class="chips">
+          {% for f in p.formats %}<span class="chip on">{{ f }}</span>{% endfor %}
+        </div>
+        <div class="srcline"><a href="{{ p.source_url }}">{{ p.source_name }}</a> · {{ p.source_date }}</div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="empty">Nothing cleared the bar this week. That is a real answer, not a gap.</p>
+    {% endif %}
+  </section>
+
+  <section>
+    <div class="sec-label"><b>02</b>Network signal this week</div>
+    <h2>Who these picks give you a reason to engage</h2>
+    <div class="pull"><p>{{ d.sections['02_network_signal'].summary }}</p></div>
+    {% for r in d.sections['02_network_signal'].rows %}
+    <div class="row"><div class="k">{{ r.label }}</div>
+      <div class="v">{{ r.note }}
+        {% if r.chips %}<div class="chips">{% for c in r.chips %}<span class="chip">{{ c }}</span>{% endfor %}</div>{% endif %}
+      </div></div>
+    {% endfor %}
+  </section>
+
+  <section>
+    <div class="sec-label"><b>03</b>Repo signal this week</div>
+    <h2>Whether anything earns a commit</h2>
+    <div class="pull"><p>{{ d.sections['03_repo_signal'].summary }}</p></div>
+    {% for r in d.sections['03_repo_signal'].repos|sort(attribute='verdict') %}
+    <div class="row">
+      <div class="k">{{ r.name }}</div>
+      <div class="v">
+        <span class="chip {% if r.verdict == 'light-touch' %}on{% endif %}">{{ r.verdict }}</span>
+        &nbsp; {{ r.reason }}
+      </div>
+    </div>
+    {% endfor %}
+  </section>
+
+  <section>
+    <div class="sec-label"><b>04</b>This week's queue</div>
+    <h2>The short list to actually act on</h2>
+    {% for i in d.sections['04_queue']['items'] %}
+    <div class="check"><span class="box"></span><span>{{ i }}</span></div>
+    {% endfor %}
+  </section>
+
+  <footer>
+    <span>Source of record: artifacts/content/radar-{{ d.date }}.json</span>
+    <span>Mission Control · Content Radar</span>
+  </footer>
+</div>
+</body></html>

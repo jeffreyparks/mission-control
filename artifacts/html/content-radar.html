@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Content Radar — 2026-09-11</title>
+<link rel="stylesheet" href="theme.css"></head>
+<body>
+
+<div class="topbar"><div class="wrap">
+  <nav class="nav">
+    <a href="index.html" class="">Mission Control</a>
+    <a href="content-radar.html" class="on">Content Radar</a>
+    <a href="job-tracker.html" class="">Job Tracker</a>
+  </nav>
+  <span>Content Radar</span>
+</div></div>
+<div class="wrap">
+  <header class="masthead">
+    <div class="eyebrow">Weekly content intelligence &nbsp;·&nbsp; positioning framework companion</div>
+    <h1>Content Radar</h1>
+    <p class="standfirst">What is genuinely worth writing about right now, sorted into what earns a post,
+    a comment, a technical note — or nothing at all.</p>
+  </header>
+
+  <dl class="metastrip">
+    <div><dt>Picks this week</dt><dd>3</dd></div>
+    <div><dt>Articles read</dt><dd>18</dd></div>
+    <div><dt>Live sources</dt><dd>6 / 8</dd></div>
+    <div><dt>Window</dt><dd>14 days</dd></div>
+    <div><dt>Refreshed</dt><dd>2026-09-11</dd></div>
+  </dl>
+
+  <section>
+    <div class="sec-label"><b>00</b>The filter every pick ran through</div>
+    <div class="pull"><p>This week was dominated by AI-product launches (ChatGPT Data agent, Agents API, financial-services ChatGPT), coding-agent benchmarks, and infra engineering deep dives (ZippyDB proxy, Netflix asset embeddings, mobile stack rewrites) that have no real connection to causal measurement or marketing science, so we left those out rather than force a stretch. We kept only pieces that engage directly with experimentation design, model-assumption generalizability, or self-serve analytics tooling, since those are the three places this candidate can defend a specific, opinionated take.</p></div>
+  </section>
+
+  <section>
+    <div class="sec-label"><b>01</b>This week's pillar picks</div>
+    <h2>What is worth writing about right now</h2>
+    <div class="grid">
+      <article class="card">
+        <div class="tag"><b>primary</b> &nbsp;·&nbsp; Measurement Craft</div>
+        <h3>Bayesian A/B Testing Isn't a Free Lunch</h3>
+        <p>Spotify's argument, that 'Bayesian vs. frequentist' is a false frame because Bayesian configurations vary wildly in what they actually guarantee, mirrors a conversation this candidate has had directly: adjudicating conflicting vendor MMM outputs and building a backtesting harness to validate forecast methodology before it reaches planning. The mistake Spotify is calling out (picking a tool before naming the goal) is the same one clients make when they ask for 'incrementality testing' without specifying what error rate or precision they actually need.</p>
+        <div class="angle">
+          <div class="lbl">Angle</div>
+          <p>The real failure isn't Bayesian vs. frequentist, it's skipping the step of defining what the experimentation program needs to guarantee (false-positive control, estimation precision, or a cost function) before picking a statistical configuration, which is the same due-diligence gap he's seen when marketing teams shop for a new testing platform.</p>
+        </div>
+        <div class="chips">
+<span class="chip on">LinkedIn post</span><span class="chip on">Short technical post</span>        </div>
+        <div class="srcline"><a href="https://engineering.atspotify.com/2026/9/why-spotify-is-not-using-bayesian-a-b-testing/">Spotify Engineering (Measurement)</a> · 2026-09-08</div>
+      </article>
+      <article class="card">
+        <div class="tag"><b>secondary</b> &nbsp;·&nbsp; Causal Generalizability</div>
+        <h3>When Should a Marketing Mix Model Distrust Itself?</h3>
+        <p>The article's central question, whether relationships learned from Drug A still hold for Drug B, is literally the transferability problem behind MMM and geo-lift work: whether channel elasticities learned in one brand, market, or media environment still apply after the mix, pricing, or seasonality shifts. This candidate has sat exactly at that friction point, reconciling two vendors' MMMs with conflicting channel ROI into a single view for annual budget allocation.</p>
+        <div class="angle">
+          <div class="lbl">Angle</div>
+          <p>Vendors defend an MMM by pointing to backtested accuracy, but the harder and more useful question is when the model's underlying assumptions about channel relationships stopped matching the current media environment, not whether last quarter's forecast happened to land.</p>
+        </div>
+        <div class="chips">
+<span class="chip on">LinkedIn post</span><span class="chip on">LinkedIn comment + reply</span>        </div>
+        <div class="srcline"><a href="https://towardsdatascience.com/who-questions-what-works-when-should-we-retest-our-assumptions/">Towards Data Science (Data Science)</a> · 2026-09-10</div>
+      </article>
+      <article class="card">
+        <div class="tag"><b>supporting</b> &nbsp;·&nbsp; Self-Serve Analytics</div>
+        <h3>A Chat Box Doesn't Replace Your Metrics Layer</h3>
+        <p>OpenAI is selling the same promise this candidate already shipped at OMD: let planners run their own scenario and budget questions instead of filing a request. The product's own vendor quotes make clear it only works when it's grounded in a governed semantic layer (dbt, Genie Ontology, BI metric definitions), which is precisely the guardrail-metrics discipline that determines whether self-serve tooling produces trustworthy answers or just faster wrong ones.</p>
+        <div class="angle">
+          <div class="lbl">Angle</div>
+          <p>Shipping a self-serve tool doesn't remove the need for a rigorous metric definition layer, it just moves the fight over 'whose number is right' earlier and makes its absence more visible, which is exactly what determined whether his own forecasting app actually cut routine requests or just relocated them.</p>
+        </div>
+        <div class="chips">
+<span class="chip on">LinkedIn post</span><span class="chip on">Short technical post</span>        </div>
+        <div class="srcline"><a href="https://openai.com/index/put-data-to-work">OpenAI Blog (AI/ML)</a> · 2026-09-10</div>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label"><b>02</b>Network signal this week</div>
+    <h2>Who these picks give you a reason to engage</h2>
+    <div class="pull"><p>No network signal this week. These are engineering-blog and commentary pieces from Spotify, an independent data-science writer, and OpenAI, not posts from warm contacts or people in his measurement/agency network, so there's no specific person to tag or reply to here.</p></div>
+  </section>
+
+  <section>
+    <div class="sec-label"><b>03</b>Repo signal this week</div>
+    <h2>Whether anything earns a commit</h2>
+    <div class="pull"><p>Repos are stable this week; only the incrementality and revenue-forecasting harnesses have a small, defensible reason to touch given this week's picks.</p></div>
+    <div class="row">
+      <div class="k">incrementality-framework</div>
+      <div class="v">
+        <span class="chip on">light-touch</span>
+        &nbsp; Add note: pick the guarantee (FPR, precision, cost) before choosing test config, per Bayesian A/B pick.
+      </div>
+    </div>
+    <div class="row">
+      <div class="k">media-revenue-forecasting</div>
+      <div class="v">
+        <span class="chip on">light-touch</span>
+        &nbsp; Backtesting harness is the exact case the MMM pick argues against trusting alone.
+      </div>
+    </div>
+    <div class="row">
+      <div class="k">bytebusker</div>
+      <div class="v">
+        <span class="chip ">no-change</span>
+        &nbsp; Generic R helper functions, no tie to experimentation or MMM picks.
+      </div>
+    </div>
+    <div class="row">
+      <div class="k">cohort-analysis</div>
+      <div class="v">
+        <span class="chip ">no-change</span>
+        &nbsp; No description or activity signal tying it to this week's filter.
+      </div>
+    </div>
+    <div class="row">
+      <div class="k">data-science-resources</div>
+      <div class="v">
+        <span class="chip ">no-change</span>
+        &nbsp; General reading list; no specific tie to this week's three picks.
+      </div>
+    </div>
+    <div class="row">
+      <div class="k">gitwhisper</div>
+      <div class="v">
+        <span class="chip ">no-change</span>
+        &nbsp; Git/LLM tooling, no connection to measurement or marketing science picks.
+      </div>
+    </div>
+    <div class="row">
+      <div class="k">mathsidian</div>
+      <div class="v">
+        <span class="chip ">no-change</span>
+        &nbsp; Obsidian utility, unrelated to measurement or marketing science positioning.
+      </div>
+    </div>
+    <div class="row">
+      <div class="k">mmm-adstock</div>
+      <div class="v">
+        <span class="chip ">no-change</span>
+        &nbsp; Stale 2021 repo, no connection to this week's experimentation or MMM angles.
+      </div>
+    </div>
+    <div class="row">
+      <div class="k">mmm-cost-forecasting</div>
+      <div class="v">
+        <span class="chip ">no-change</span>
+        &nbsp; Cost-input focus, not channel-assumption drift; no clean tie to this week's MMM angle.
+      </div>
+    </div>
+    <div class="row">
+      <div class="k">obsidian-pal</div>
+      <div class="v">
+        <span class="chip ">no-change</span>
+        &nbsp; Notes-search tool, unrelated to causal measurement or self-serve analytics angle.
+      </div>
+    </div>
+    <div class="row">
+      <div class="k">sim-ev-chargers</div>
+      <div class="v">
+        <span class="chip ">no-change</span>
+        &nbsp; Discrete-event simulation demo, unrelated to this week's editorial focus.
+      </div>
+    </div>
+    <div class="row">
+      <div class="k">x-community-notes-effectiveness</div>
+      <div class="v">
+        <span class="chip ">no-change</span>
+        &nbsp; Elections/misinformation topic unrelated to measurement or self-serve picks this week.
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label"><b>04</b>This week's queue</div>
+    <h2>The short list to actually act on</h2>
+    <div class="check"><span class="box"></span><span>Add guarantee-first README note to incrementality-framework before test config choice.</span></div>
+    <div class="check"><span class="box"></span><span>Add assumption-drift caveat to media-revenue-forecasting backtesting docs.</span></div>
+    <div class="check"><span class="box"></span><span>Write short take on Bayesian A/B testing's skipped due-diligence step.</span></div>
+    <div class="check"><span class="box"></span><span>Write take on MMM assumption drift vs backtested accuracy.</span></div>
+    <div class="check"><span class="box"></span><span>Draft post on self-serve tools needing a metrics-definition layer.</span></div>
+  </section>
+
+  <footer>
+    <span>Source of record: artifacts/content/radar-2026-09-11.json</span>
+    <span>Mission Control · Content Radar</span>
+  </footer>
+</div>
+</body></html>

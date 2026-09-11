@@ -1,0 +1,223 @@
+#!/usr/bin/env python3
+"""
+Synthesizer Agent
+Combines all scan results into a weekly strategic summary
+"""
+import pandas as pd
+from pathlib import Path
+from datetime import datetime, timedelta
+from collections import Counter
+import re
+
+class Synthesizer:
+    def __init__(self, base_dir):
+        self.base_dir = Path(base_dir)
+        self.artifacts_dir = self.base_dir / "artifacts"
+        
+    def load_career_goals(self):
+        """Parse career goals from config"""
+        goals_path = self.base_dir / "config/career-goals.md"
+        if not goals_path.exists():
+            return {"keywords": [], "roles": []}
+        
+        content = goals_path.read_text()
+        keywords = []
+        
+        in_keywords = False
+        for line in content.split("\n"):
+            if "## Keywords to Track" in line:
+                in_keywords = True
+                continue
+            if in_keywords:
+                if line.startswith("##"):
+                    break
+                if line.strip().startswith("-"):
+                    keyword = line.strip().lstrip("-").strip().lower()
+                    if keyword and not keyword.startswith("<!--"):
+                        keywords.append(keyword)
+        
+        return {"keywords": keywords}
+    
+    def find_latest_reports(self, days=7):
+        """Find all scan reports from last N days"""
+        cutoff = datetime.now() - timedelta(days=days)
+        reports = {"profiles": [], "content": [], "jobs": []}
+        
+        profile_dir = self.artifacts_dir / "profiles"
+        if profile_dir.exists():
+            for file in profile_dir.glob("*.md"):
+                if file.stat().st_mtime > cutoff.timestamp():
+                    reports["profiles"].append(file)
+        
+        content_dir = self.artifacts_dir / "content"
+        if content_dir.exists():
+            for file in content_dir.glob("*.md"):
+                if file.stat().st_mtime > cutoff.timestamp():
+                    reports["content"].append(file)
+        
+        jobs_dir = self.artifacts_dir / "jobs"
+        if jobs_dir.exists():
+            for file in jobs_dir.glob("scan-*.md"):
+                if file.stat().st_mtime > cutoff.timestamp():
+                    reports["jobs"].append(file)
+        
+        return reports
+    
+    def parse_profile_coverage(self, report_path):
+        """Extract keyword coverage from profile report"""
+        content = report_path.read_text()
+        
+        match = re.search(r'Keyword Coverage: (\d+)%', content)
+        coverage = int(match.group(1)) if match else 0
+        
+        matched = []
+        in_matched = False
+        for line in content.split("\n"):
+            if "**Matched Keywords:**" in line:
+                in_matched = True
+                continue
+            if in_matched:
+                if "**Missing Keywords:**" in line:
+                    break
+                if line.strip().startswith("- ✓"):
+                    keyword = line.strip().replace("- ✓", "").strip()
+                    matched.append(keyword)
+        
+        platform = "Unknown"
+        if "github" in report_path.name.lower():
+            platform = "GitHub"
+        elif "linkedin" in report_path.name.lower():
+            platform = "LinkedIn"
+        elif "bluesky" in report_path.name.lower():
+            platform = "BlueSky"
+        
+        return {"platform": platform, "coverage": coverage, "matched": matched}
+    
+    def load_job_tracker(self):
+        """Load current job tracker"""
+        tracker_path = self.artifacts_dir / "jobs/org-roles-tracker.xlsx"
+        if not tracker_path.exists():
+            return pd.DataFrame()
+        return pd.read_excel(tracker_path)
+    
+    def analyze_all(self, reports, tracker_df, goals):
+        """Analyze all data sources"""
+        # Profile analysis
+        profiles = []
+        for report in reports["profiles"]:
+            data = self.parse_profile_coverage(report)
+            profiles.append(data)
+        
+        latest_by_platform = {}
+        for p in profiles:
+            if p["platform"] not in latest_by_platform:
+                latest_by_platform[p["platform"]] = p
+        
+        avg_coverage = 0
+        if latest_by_platform:
+            avg_coverage = sum(p["coverage"] for p in latest_by_platform.values()) / len(latest_by_platform)
+        
+        all_matched = []
+        for p in latest_by_platform.values():
+            all_matched.extend(p["matched"])
+        
+        # Job analysis
+        total_roles = len(tracker_df)
+        open_roles = len(tracker_df[tracker_df['Status'] == '01 Open']) if not tracker_df.empty else 0
+        
+        return {
+            "profiles": latest_by_platform,
+            "avg_coverage": round(avg_coverage),
+            "all_keywords": set(all_matched),
+            "total_roles": total_roles,
+            "open_roles": open_roles
+        }
+    
+    def generate_report(self, analysis):
+        """Generate synthesis report"""
+        today = datetime.now().strftime("%Y-%m-%d")
+        
+        lines = []
+        lines.append("# Mission Control Weekly Synthesis")
+        lines.append("**Date:** " + today)
+        lines.append("")
+        lines.append("## Executive Summary")
+        lines.append("")
+        lines.append("Average profile coverage: **{}%**".format(analysis["avg_coverage"]))
+        lines.append("Total roles tracked: **{}**".format(analysis["total_roles"]))
+        lines.append("Open roles: **{}**".format(analysis["open_roles"]))
+        lines.append("")
+        lines.append("---")
+        lines.append("")
+        lines.append("## Profile Coverage by Platform")
+        lines.append("")
+        
+        for platform, data in sorted(analysis["profiles"].items(), key=lambda x: x[1]["coverage"], reverse=True):
+            status = "🟢" if data["coverage"] >= 40 else "🟡" if data["coverage"] >= 20 else "🔴"
+            line = "- **{}**: {} {}% ({} keywords)".format(
+                platform, status, data["coverage"], len(data["matched"])
+            )
+            lines.append(line)
+        
+        lines.append("")
+        lines.append("## Keywords Represented")
+        lines.append("")
+        
+        for kw in sorted(list(analysis["all_keywords"]))[:10]:
+            lines.append("- " + kw)
+        
+        lines.append("")
+        lines.append("## Action Items")
+        lines.append("")
+        
+        if analysis["avg_coverage"] < 50:
+            lines.append("- 🔴 **Priority**: Increase keyword coverage across platforms")
+        
+        if analysis["open_roles"] > 5:
+            lines.append("- 🟡 **Review**: {} open roles need attention".format(analysis["open_roles"]))
+        
+        lines.append("")
+        lines.append("---")
+        lines.append("")
+        lines.append("*Generated by Mission Control Synthesizer*")
+        
+        return "\n".join(lines)
+    
+    def run(self):
+        """Execute synthesis"""
+        print("Running Synthesizer...")
+        
+        try:
+            goals = self.load_career_goals()
+            print("✓ Loaded {} career keywords".format(len(goals['keywords'])))
+            
+            reports = self.find_latest_reports(days=7)
+            print("✓ Found {} profile, {} content, {} job scans".format(
+                len(reports['profiles']), len(reports['content']), len(reports['jobs'])
+            ))
+            
+            tracker_df = self.load_job_tracker()
+            print("✓ Loaded tracker: {} roles".format(len(tracker_df)))
+            
+            analysis = self.analyze_all(reports, tracker_df, goals)
+            report = self.generate_report(analysis)
+            
+            today = datetime.now().strftime("%Y-%m-%d")
+            output_path = self.base_dir / "artifacts/synthesis" / ("weekly-" + today + ".md")
+            output_path.parent.mkdir(exist_ok=True)
+            output_path.write_text(report)
+            
+            print("✓ Synthesis saved to {}".format(output_path))
+            print("  Avg coverage: {}%".format(analysis["avg_coverage"]))
+            
+            return output_path
+            
+        except Exception as e:
+            print("✗ Synthesis failed: {}".format(e))
+            import traceback
+            traceback.print_exc()
+            return None
+
+if __name__ == "__main__":
+    synthesizer = Synthesizer(Path(__file__).parent.parent)
+    synthesizer.run()

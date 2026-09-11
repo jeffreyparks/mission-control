@@ -1,0 +1,544 @@
+#!/usr/bin/env python3
+"""
+Mission Control Dashboard
+Streamlit app for visualizing career management data
+"""
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+from pathlib import Path
+from datetime import datetime
+import re
+
+# Page config
+st.set_page_config(
+    page_title="Mission Control",
+    page_icon="🚀",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# Custom CSS for sparkle
+st.markdown("""
+<style>
+    .main {
+        padding: 2rem;
+    }
+    .stMetric {
+        background-color: #f0f2f6;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        border-left: 4px solid #1f77b4;
+    }
+    .stMetric:hover {
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+        transition: all 0.3s ease;
+    }
+    h1 {
+        color: #1f77b4;
+    }
+    h2 {
+        color: #2c3e50;
+        border-bottom: 2px solid #1f77b4;
+        padding-bottom: 0.5rem;
+    }
+    .success-card {
+        background-color: #d4edda;
+        border-left: 4px solid #28a745;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin: 1rem 0;
+    }
+    .warning-card {
+        background-color: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin: 1rem 0;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# Initialize paths
+BASE_DIR = Path(__file__).parent
+ARTIFACTS = BASE_DIR / "artifacts"
+
+@st.cache_data(ttl=300)  # Cache for 5 minutes
+def load_profile_data():
+    """Load latest profile scan data"""
+    profiles_dir = ARTIFACTS / "profiles"
+    if not profiles_dir.exists():
+        return {}
+    
+    # Find latest scans
+    latest = {}
+    for platform in ["github", "linkedin", "bluesky"]:
+        files = sorted(profiles_dir.glob(f"*{platform}*.md"), key=lambda x: x.stat().st_mtime, reverse=True)
+        if files:
+            content = files[0].read_text()
+            # Parse coverage
+            match = re.search(r'Keyword Coverage: (\d+)%', content)
+            coverage = int(match.group(1)) if match else 0
+            
+            # Parse matched keywords
+            matched = []
+            in_matched = False
+            for line in content.split("\n"):
+                if "**Matched Keywords:**" in line:
+                    in_matched = True
+                    continue
+                if in_matched:
+                    if "**Missing Keywords:**" in line:
+                        break
+                    if line.strip().startswith("- ✓"):
+                        keyword = line.strip().replace("- ✓", "").strip()
+                        matched.append(keyword)
+            
+            latest[platform] = {
+                "coverage": coverage,
+                "keywords": matched,
+                "file": files[0]
+            }
+    
+    return latest
+
+@st.cache_data(ttl=300)
+def load_job_tracker():
+    """Load job tracker Excel"""
+    tracker_path = ARTIFACTS / "jobs/org-roles-tracker.xlsx"
+    if not tracker_path.exists():
+        return pd.DataFrame()
+    return pd.read_excel(tracker_path)
+
+@st.cache_data(ttl=300)
+def load_content_data():
+    """Load latest content radar scan"""
+    content_dir = ARTIFACTS / "content"
+    if not content_dir.exists():
+        return {}
+    
+    files = sorted(content_dir.glob("radar-*.md"), key=lambda x: x.stat().st_mtime, reverse=True)
+    if not files:
+        return {}
+    
+    content = files[0].read_text()
+    
+    # Parse trending keywords
+    trends = []
+    in_trends = False
+    for line in content.split("\n"):
+        if "### Trending Keywords" in line:
+            in_trends = True
+            continue
+        if in_trends:
+            if line.startswith("##"):
+                break
+            if line.strip().startswith("-"):
+                match = re.search(r'\*\*(.+?)\*\*: (\d+)', line)
+                if match:
+                    trends.append({"keyword": match.group(1), "mentions": int(match.group(2))})
+    
+    return {"trends": trends, "file": files[0]}
+
+@st.cache_data(ttl=300)
+def load_synthesis():
+    """Load latest synthesis"""
+    synthesis_dir = ARTIFACTS / "synthesis"
+    if not synthesis_dir.exists():
+        return None
+    
+    files = sorted(synthesis_dir.glob("weekly-*.md"), key=lambda x: x.stat().st_mtime, reverse=True)
+    if not files:
+        return None
+    
+    return files[0].read_text()
+
+def render_overview():
+    """Render overview tab"""
+    st.title("🚀 Mission Control")
+    st.markdown("### Career Management Command Center")
+    
+    # Load all data
+    profiles = load_profile_data()
+    tracker_df = load_job_tracker()
+    content = load_content_data()
+    
+    # Key metrics in columns
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        avg_coverage = sum(p["coverage"] for p in profiles.values()) / len(profiles) if profiles else 0
+        st.metric(
+            "Avg Profile Coverage",
+            f"{int(avg_coverage)}%",
+            delta=None,
+            help="Average keyword coverage across GitHub, LinkedIn, BlueSky"
+        )
+    
+    with col2:
+        total_roles = len(tracker_df) if not tracker_df.empty else 0
+        st.metric(
+            "Total Roles",
+            total_roles,
+            help="Total roles tracked in Excel"
+        )
+    
+    with col3:
+        open_roles = len(tracker_df[tracker_df['Status'] == '01 Open']) if not tracker_df.empty else 0
+        st.metric(
+            "Open Roles",
+            open_roles,
+            help="Roles currently open and not yet applied"
+        )
+    
+    with col4:
+        trending = len(content.get("trends", []))
+        st.metric(
+            "Trending Topics",
+            trending,
+            help="Keywords trending in industry content"
+        )
+    
+    st.markdown("---")
+    
+    # Quick stats
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.subheader("📊 Platform Coverage")
+        if profiles:
+            # Create bar chart
+            df_coverage = pd.DataFrame([
+                {"Platform": k.title(), "Coverage": v["coverage"]}
+                for k, v in profiles.items()
+            ])
+            fig = px.bar(
+                df_coverage,
+                x="Platform",
+                y="Coverage",
+                color="Coverage",
+                color_continuous_scale=["red", "yellow", "green"],
+                range_color=[0, 100],
+                text="Coverage"
+            )
+            fig.update_layout(
+                showlegend=False,
+                height=300,
+                yaxis_title="Coverage %",
+                xaxis_title=""
+            )
+            fig.update_traces(texttemplate='%{text}%', textposition='outside')
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("No profile data available yet. Run `uv run run_daily.py`")
+    
+    with col2:
+        st.subheader("💼 Job Status")
+        if not tracker_df.empty:
+            status_counts = tracker_df['Status'].value_counts()
+            fig = px.pie(
+                values=status_counts.values,
+                names=status_counts.index,
+                hole=0.4,
+                color_discrete_sequence=px.colors.qualitative.Set3
+            )
+            fig.update_layout(height=300)
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("No job data available yet.")
+
+def render_profiles():
+    """Render profile analysis tab"""
+    st.title("👤 Public Profile Analysis")
+    
+    profiles = load_profile_data()
+    
+    if not profiles:
+        st.warning("No profile data available. Run `uv run run_daily.py` first.")
+        return
+    
+    # Platform selector
+    platform = st.selectbox(
+        "Select Platform",
+        options=list(profiles.keys()),
+        format_func=lambda x: x.title()
+    )
+    
+    data = profiles[platform]
+    
+    # Coverage gauge
+    col1, col2 = st.columns([1, 2])
+    
+    with col1:
+        st.metric("Coverage", f"{data['coverage']}%")
+        
+        # Status indicator
+        if data['coverage'] >= 40:
+            st.success("🟢 Strong coverage")
+        elif data['coverage'] >= 20:
+            st.warning("🟡 Moderate coverage")
+        else:
+            st.error("🔴 Low coverage")
+    
+    with col2:
+        # Gauge chart
+        fig = go.Figure(go.Indicator(
+            mode="gauge+number",
+            value=data['coverage'],
+            domain={'x': [0, 1], 'y': [0, 1]},
+            title={'text': f"{platform.title()} Coverage"},
+            gauge={
+                'axis': {'range': [None, 100]},
+                'bar': {'color': "darkblue"},
+                'steps': [
+                    {'range': [0, 20], 'color': "lightcoral"},
+                    {'range': [20, 40], 'color': "lightyellow"},
+                    {'range': [40, 100], 'color': "lightgreen"}
+                ],
+                'threshold': {
+                    'line': {'color': "red", 'width': 4},
+                    'thickness': 0.75,
+                    'value': 40
+                }
+            }
+        ))
+        fig.update_layout(height=250)
+        st.plotly_chart(fig, use_container_width=True)
+    
+    st.markdown("---")
+    
+    # Keywords
+    st.subheader("🔑 Matched Keywords")
+    if data['keywords']:
+        # Display as tags
+        keywords_html = " ".join([
+            f'<span style="background-color: #1f77b4; color: white; padding: 0.3rem 0.6rem; '
+            f'border-radius: 1rem; margin: 0.2rem; display: inline-block;">{kw}</span>'
+            for kw in data['keywords']
+        ])
+        st.markdown(keywords_html, unsafe_allow_html=True)
+    else:
+        st.info("No keywords matched yet")
+
+def render_content():
+    """Render content radar tab"""
+    st.title("📡 Content Radar")
+    
+    content = load_content_data()
+    
+    if not content:
+        st.warning("No content data available. Run `uv run run_daily.py` first.")
+        return
+    
+    trends = content.get("trends", [])
+    
+    if trends:
+        st.subheader("🔥 Trending Keywords")
+        
+        # Bar chart
+        df_trends = pd.DataFrame(trends)
+        fig = px.bar(
+            df_trends,
+            x="keyword",
+            y="mentions",
+            color="mentions",
+            color_continuous_scale="Blues",
+            text="mentions"
+        )
+        fig.update_layout(
+            xaxis_title="Keyword",
+            yaxis_title="Mentions",
+            showlegend=False,
+            height=400
+        )
+        fig.update_traces(textposition='outside')
+        st.plotly_chart(fig, use_container_width=True)
+        
+        st.markdown("---")
+        
+        # Trend table
+        st.subheader("📊 Trend Details")
+        st.dataframe(
+            df_trends.style.background_gradient(subset=['mentions'], cmap='Blues'),
+            use_container_width=True
+        )
+    else:
+        st.info("No trending keywords found in latest scan")
+
+def render_jobs():
+    """Render job search tab"""
+    st.title("💼 Job Search Dashboard")
+    
+    tracker_df = load_job_tracker()
+    
+    if tracker_df.empty:
+        st.warning("No job data available. Add roles to artifacts/jobs/org-roles-tracker.xlsx")
+        return
+    
+    # Summary metrics
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.metric("Total Roles", len(tracker_df))
+    
+    with col2:
+        open_count = len(tracker_df[tracker_df['Status'] == '01 Open'])
+        st.metric("Open", open_count)
+    
+    with col3:
+        applied_count = len(tracker_df[tracker_df['Status'] == '03 Applied'])
+        st.metric("Applied", applied_count)
+    
+    with col4:
+        avg_score = tracker_df['Match Score'].mean() if 'Match Score' in tracker_df.columns else 0
+        st.metric("Avg Match", f"{int(avg_score)}%")
+    
+    st.markdown("---")
+    
+    # Charts
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.subheader("🏢 Top Companies")
+        top_companies = tracker_df['Org'].value_counts().head(10)
+        fig = px.bar(
+            x=top_companies.values,
+            y=top_companies.index,
+            orientation='h',
+            color=top_companies.values,
+            color_continuous_scale="Viridis"
+        )
+        fig.update_layout(
+            xaxis_title="Roles",
+            yaxis_title="",
+            showlegend=False,
+            height=400
+        )
+        st.plotly_chart(fig, use_container_width=True)
+    
+    with col2:
+        st.subheader("📊 Status Breakdown")
+        status_counts = tracker_df['Status'].value_counts()
+        fig = px.pie(
+            values=status_counts.values,
+            names=status_counts.index,
+            hole=0.4,
+            color_discrete_sequence=px.colors.qualitative.Pastel
+        )
+        fig.update_layout(height=400)
+        st.plotly_chart(fig, use_container_width=True)
+    
+    st.markdown("---")
+    
+    # Filter and display roles
+    st.subheader("🔍 Role Explorer")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        status_filter = st.multiselect(
+            "Filter by Status",
+            options=tracker_df['Status'].unique(),
+            default=['01 Open']
+        )
+    
+    with col2:
+        if 'Match Score' in tracker_df.columns:
+            min_score = st.slider("Minimum Match Score", 0, 100, 40)
+        else:
+            min_score = 0
+    
+    # Apply filters
+    filtered_df = tracker_df
+    if status_filter:
+        filtered_df = filtered_df[filtered_df['Status'].isin(status_filter)]
+    if 'Match Score' in tracker_df.columns:
+        filtered_df = filtered_df[filtered_df['Match Score'] >= min_score]
+    
+    # Display table
+    display_cols = ['Org', 'Title', 'Status', 'Priority', 'Match Score', 'Keywords Matched']
+    display_cols = [col for col in display_cols if col in filtered_df.columns]
+    
+    st.dataframe(
+        filtered_df[display_cols].sort_values('Match Score', ascending=False) if 'Match Score' in display_cols else filtered_df[display_cols],
+        use_container_width=True,
+        height=400
+    )
+
+def render_synthesis():
+    """Render weekly synthesis tab"""
+    st.title("📋 Weekly Synthesis")
+    
+    synthesis = load_synthesis()
+    
+    if not synthesis:
+        st.warning("No synthesis available. Run `uv run run_daily.py` first.")
+        return
+    
+    # Display markdown
+    st.markdown(synthesis)
+
+def main():
+    """Main dashboard"""
+    
+    # Sidebar
+    with st.sidebar:
+        st.title("🚀 Mission Control")
+        st.markdown("---")
+        
+        # Last updated
+        profiles_dir = ARTIFACTS / "profiles"
+        if profiles_dir.exists():
+            files = list(profiles_dir.glob("*.md"))
+            if files:
+                latest = max(files, key=lambda x: x.stat().st_mtime)
+                update_time = datetime.fromtimestamp(latest.stat().st_mtime)
+                st.info(f"📅 Last scan: {update_time.strftime('%Y-%m-%d %H:%M')}")
+        
+        st.markdown("---")
+        
+        # Quick actions
+        st.markdown("### Quick Actions")
+        if st.button("🔄 Refresh Data", use_container_width=True):
+            st.cache_data.clear()
+            st.rerun()
+        
+        st.markdown("---")
+        st.markdown("### About")
+        st.markdown("""
+        Mission Control automates your career management:
+        - Profile scanning
+        - Content monitoring
+        - Job tracking
+        - Weekly synthesis
+        
+        Run daily: `uv run run_daily.py`
+        """)
+    
+    # Main tabs
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+        "🏠 Overview",
+        "👤 Profiles",
+        "📡 Content",
+        "💼 Jobs",
+        "📋 Synthesis"
+    ])
+    
+    with tab1:
+        render_overview()
+    
+    with tab2:
+        render_profiles()
+    
+    with tab3:
+        render_content()
+    
+    with tab4:
+        render_jobs()
+    
+    with tab5:
+        render_synthesis()
+
+if __name__ == "__main__":
+    main()
