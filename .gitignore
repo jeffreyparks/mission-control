@@ -1,0 +1,34 @@
+# Agents + Misc
+.DS_Store
+.agents/
+.claude/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+.Python
+
+# IDE
+.vscode/
+.idea/
+
+# Mission Control
+artifacts/content/*
+artifacts/history/*
+data/linkedin/extracted/
+data/linkedin/*.zip
+data/linkedin/*.pdf
+data/llm-cache/*.json
+data/resumes/*.pdf
+data/resumes/*.docx
+data/resumes/*.txt
+history.db
+
+
+# Credentials (NEVER COMMIT)
+config/*.conf
+config/*credentials*
+config/*password*
+*.env
