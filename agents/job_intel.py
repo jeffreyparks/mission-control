@@ -132,6 +132,15 @@ KEEP_BACKUPS = 7
 AUTO_ADD_LIVE = True
 NEW_FIND_STATUS = "00 New find"
 
+# The live-scan judging queue is dominated by whichever source has the most
+# volume, and that is usually the priority-1 aggregators (Built In). This
+# reserves a floor of the daily cap for everything else - named companies at
+# priority > 1 - so they are never fully crowded out. If the lower tiers do
+# not have enough candidates to fill their reserve, aggregator postings take
+# the unused slots instead, and the cap stays fully used either way.
+AGGREGATOR_PRIORITY = 1
+LOWER_TIER_RESERVE_FRACTION = 0.25
+
 # Only prune backups this agent made. Anything else in that folder is left alone.
 BACKUP_RE = re.compile(r"^org-roles-tracker-backup-\d{8}-\d{6}\.xlsx$")
 
@@ -383,7 +392,7 @@ def make_sector_validator(orgs):
 
 
 class JobIntel:
-    def __init__(self, base_dir, batch_size=16, max_live_roles=100, model=None, refresh=False):
+    def __init__(self, base_dir, batch_size=16, max_live_roles=200, model=None, refresh=False):
         self.refresh = refresh
         self._jd_cache = None
         self._store = None
@@ -502,7 +511,13 @@ class JobIntel:
         return raw
 
     def prefilter_live(self, raw, tracker_ids):
-        """Cheap, honest prefilter. Only shrinks the batch bill; no scoring claims."""
+        """Cheap, honest prefilter. Only shrinks the batch bill; no scoring claims.
+
+        Reserves LOWER_TIER_RESERVE_FRACTION of max_live_roles for sources below
+        AGGREGATOR_PRIORITY, so a high-volume aggregator can't take every slot on
+        its own. Either side backfills the other's unused capacity, so the cap
+        stays fully used whenever there are enough candidates somewhere.
+        """
         seen, kept = set(), []
         for job in raw:
             title = (job.get("title") or "").strip()
@@ -516,6 +531,27 @@ class JobIntel:
             tier = 1 if TIER_1.search(title) else (2 if TIER_2.search(title) else 3)
             kept.append((tier, job.get("priority") or 5, rid, job))
 
+        kept.sort(key=lambda item: (item[0], item[1], item[2]))
+
+        aggregator_pool = [c for c in kept if c[1] <= AGGREGATOR_PRIORITY]
+        lower_pool = [c for c in kept if c[1] > AGGREGATOR_PRIORITY]
+
+        lower_quota = round(self.max_live_roles * LOWER_TIER_RESERVE_FRACTION)
+        chosen_lower = lower_pool[:lower_quota]
+        chosen_agg = aggregator_pool[: self.max_live_roles - len(chosen_lower)]
+
+        # Either side backfills the other's shortfall so the cap stays full.
+        remaining = self.max_live_roles - len(chosen_lower) - len(chosen_agg)
+        if remaining > 0:
+            extra = aggregator_pool[len(chosen_agg): len(chosen_agg) + remaining]
+            chosen_agg += extra
+            remaining -= len(extra)
+        if remaining > 0:
+            extra = lower_pool[len(chosen_lower): len(chosen_lower) + remaining]
+            chosen_lower += extra
+            remaining -= len(extra)
+
+        kept = chosen_lower + chosen_agg
         kept.sort(key=lambda item: (item[0], item[1], item[2]))
         kept = kept[: self.max_live_roles]
 
@@ -1335,7 +1371,7 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description="Honest LLM fit analysis for tracked and live roles.")
     ap.add_argument("--refresh", action="store_true",
                     help="re-judge every role, ignoring stored verdicts (costs full price)")
-    ap.add_argument("--max-live", type=int, default=100, help="cap on live postings judged")
+    ap.add_argument("--max-live", type=int, default=200, help="cap on live postings judged")
     ap.add_argument("--add", metavar="URL",
                     help="add one posting from a public URL, then judge it")
     ap.add_argument("--org", help="override the org name when using --add")
