@@ -126,6 +126,12 @@ PROMPT_VERSION = 1
 # Tracker backups kept on disk, newest first. One is written per run.
 KEEP_BACKUPS = 7
 
+# Live finds are appended to the tracker automatically under this status, so the
+# spreadsheet stays a complete physical record. Set AUTO_ADD_LIVE = False to keep
+# the tracker hand-curated.
+AUTO_ADD_LIVE = True
+NEW_FIND_STATUS = "00 New find"
+
 # Only prune backups this agent made. Anything else in that folder is left alone.
 BACKUP_RE = re.compile(r"^org-roles-tracker-backup-\d{8}-\d{6}\.xlsx$")
 
@@ -291,10 +297,96 @@ def load_archetypes(base_dir, tracker_df=None):
 # agent
 # --------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# response validators
+#
+# These run inside LLM.complete_json. A cheap model that returns the wrong
+# shape, drops roles, or invents a score outside the band is rejected exactly
+# like unparseable output: retried once, then escalated up the tier ladder to
+# the frontier model. This is what makes cheap routing safe.
+# ---------------------------------------------------------------------------
+
+_SECTOR_RE = re.compile(r"^[\w &.+/'-]{1,30} - [\w &.+/'-]{1,30}$")
+
+FIT_REQUIRED = ("id", "fit_score", "seniority_read", "why", "top_gaps",
+                "what_theyre_really_hiring_for", "recommendation")
+
+
+def _as_list(data):
+    if isinstance(data, dict):
+        for key in ("roles", "results", "data"):
+            if isinstance(data.get(key), list):
+                return data[key]
+        return None
+    return data if isinstance(data, list) else None
+
+
+def make_fit_validator(batch):
+    wanted = {role["id"] for role in batch}
+
+    def validate(data):
+        rows = _as_list(data)
+        if not rows:
+            return False
+        seen = set()
+        for row in rows:
+            if not isinstance(row, dict) or not all(f in row for f in FIT_REQUIRED):
+                return False
+            score = row.get("fit_score")
+            if not isinstance(score, int) or not 0 <= score <= 100:
+                return False
+            if row.get("recommendation") not in ("apply", "research", "skip"):
+                return False
+            seen.add(row.get("id"))
+        # Allow a couple of dropped roles on a big batch, but not a gutted answer.
+        return len(wanted & seen) >= max(1, int(len(wanted) * 0.8))
+
+    return validate
+
+
+def make_cat_validator(batch, valid_ids):
+    wanted = {role["id"] for role in batch}
+    allowed = set(valid_ids) | {"none"}
+
+    def validate(data):
+        rows = _as_list(data)
+        if not rows:
+            return False
+        seen = set()
+        for row in rows:
+            if not isinstance(row, dict):
+                return False
+            if str(row.get("archetype")) not in allowed:
+                return False
+            if row.get("confidence") not in ("high", "medium", "low"):
+                return False
+            seen.add(row.get("id"))
+        return len(wanted & seen) >= max(1, int(len(wanted) * 0.8))
+
+    return validate
+
+
+def make_sector_validator(orgs):
+    wanted = set(orgs)
+
+    def validate(data):
+        if not isinstance(data, dict) or not data:
+            return False
+        hits = 0
+        for org in wanted:
+            value = data.get(org)
+            if isinstance(value, str) and _SECTOR_RE.match(value.strip()):
+                hits += 1
+        return hits >= max(1, int(len(wanted) * 0.8))
+
+    return validate
+
+
 class JobIntel:
     def __init__(self, base_dir, batch_size=16, max_live_roles=45, model=None, refresh=False):
         self.refresh = refresh
         self._jd_cache = None
+        self._store = None
         self.base_dir = Path(base_dir)
         self.tracker_path = self.base_dir / "artifacts/jobs/org-roles-tracker.xlsx"
         self.sector_cache_path = self.base_dir / "data/org-sectors.json"
@@ -306,10 +398,27 @@ class JobIntel:
 
     # ---------------- role universe ----------------
 
+    @property
+    def store(self):
+        """The SQLite source of record. Created lazily so a bare JobIntel() used
+        for prompt inspection never touches the database."""
+        if self._store is None:
+            from store import Store
+            self._store = Store(self.base_dir)
+        return self._store
+
     def load_tracker(self):
-        if not self.tracker_path.exists():
+        """Roles from the database, seeded from the spreadsheet on first run and
+        refreshed from it whenever the file was hand-edited since the last export."""
+        if not self.tracker_path.exists() and self.store.is_empty():
             return pd.DataFrame()
-        return pd.read_excel(self.tracker_path)
+        return self.store.load()
+
+    def save_tracker(self, df, actor="pipeline"):
+        """Persist to the database, then re-export the spreadsheet backup."""
+        summary = self.store.save_df(df, actor=actor)
+        self.store.export_xlsx()
+        return summary
 
     def tracker_roles(self, df):
         roles, cache = [], self.load_jd_cache()
@@ -581,7 +690,9 @@ Return ONLY a JSON array, one object per role, echoing the id exactly:
         for num, batch in enumerate(batches, 1):
             print(f"  fit batch {num}/{len(batches)} ({len(batch)} roles)...", flush=True)
             try:
-                data = self.llm.complete_json(self._fit_prompt(batch), tag=f"job-fit-{len(batch)}")
+                data = self.llm.complete_json(self._fit_prompt(batch),
+                                              tag=f"job-fit-{len(batch)}",
+                                              validate=make_fit_validator(batch))
             except LLMError as exc:
                 print(f"    ! batch {num} failed: {exc}")
                 continue
@@ -726,7 +837,8 @@ Return ONLY a JSON array, one object per role, echoing the id exactly:
         by_id = {a["id"]: a["label"] for a in archetypes}
         try:
             data = self.llm.complete_json(self._cat_prompt(todo, archetypes),
-                                          tag=f"role-cat-{len(todo)}")
+                                          tag=f"role-cat-{len(todo)}",
+                                          validate=make_cat_validator(todo, valid_ids))
         except LLMError as exc:
             print(f"    ! categorisation failed: {exc}")
             return 0
@@ -850,7 +962,7 @@ Return ONLY a JSON array, one object per role, echoing the id exactly:
             df = pd.concat([df, pd.DataFrame([{c: row.get(c) for c in df.columns}])],
                            ignore_index=True)
             assert len(df) == before + 1, "append did not add exactly one row"
-        df.to_excel(self.tracker_path, index=False)
+        self.save_tracker(df, actor="add_role")
 
         got = [k for k in ("location", "comp_range", "jd") if cache[rid].get(k)]
         return rid, (f"added {org} - {title} (via {posting.get('source')}; "
@@ -892,7 +1004,8 @@ Return ONLY a JSON object mapping each company name exactly as given to its sect
 {{"Company Name": "Industry - Niche"}}"""
             print(f"  sector enrichment for {len(missing)} new orgs...", flush=True)
             try:
-                data = self.llm.complete_json(prompt, tag="org-sectors")
+                data = self.llm.complete_json(prompt, tag="org-sectors",
+                                              validate=make_sector_validator(missing))
                 if isinstance(data, dict):
                     for org, sector in data.items():
                         if isinstance(sector, str) and sector.strip():
@@ -979,6 +1092,84 @@ Return ONLY a JSON object mapping each company name exactly as given to its sect
             print(f"  pruned {len(dropped)} old backup(s), kept newest {keep}")
         return dropped
 
+    def append_new_finds(self, df, roles):
+        """Append live-scan roles that are not in the tracker yet.
+
+        The spreadsheet is the physical record, so anything the pipeline has seen
+        belongs in it - not only the rows typed by hand. New rows land as
+        NEW_FIND_STATUS so they are obviously machine-added and can be filtered
+        out; every manual column except Status is left blank for the user.
+
+        Returns (df, number_appended). Mutates each appended role's row_index so
+        update_tracker fills its intel columns in the same pass.
+        """
+        if df.empty or not AUTO_ADD_LIVE:
+            return df, 0
+
+        known_ids = {
+            _slug(_clean(row.get("Org")) or "Unknown", _clean(row.get("Title")) or "Untitled")
+            for _, row in df.iterrows()
+        }
+        known_urls = {
+            _clean(row.get("Role Link")) for _, row in df.iterrows() if _clean(row.get("Role Link"))
+        }
+
+        pending = []
+        for role in roles:
+            if role.get("row_index") is not None:
+                continue
+            url = _clean(role.get("url"))
+            if role["id"] in known_ids or (url and url in known_urls):
+                continue
+            known_ids.add(role["id"])
+            if url:
+                known_urls.add(url)
+            pending.append(role)
+
+        if not pending:
+            return df, 0
+
+        today = datetime.now().strftime("%Y-%m-%d")
+        cache = self.load_jd_cache()
+        rows = []
+        for role in pending:
+            # Keep the scan's location / range / JD in the jd cache under the same
+            # id. tracker_roles reads it back, so the text the judge sees is
+            # identical before and after the row is appended - without this the
+            # fingerprint changes and every appended role is re-judged at full
+            # price on the next run. Notes stays empty: it belongs to the user.
+            cache.setdefault(role["id"], {
+                "url": _clean(role.get("url")),
+                "location": _clean(role.get("location")),
+                "comp_range": _clean(role.get("comp_range")),
+                "jd": role.get("jd") or None,
+                "source": role.get("source") or "live",
+                "added": today,
+            })
+            row = {column: pd.NA for column in df.columns}
+            row.update({
+                "Org": role.get("org"),
+                "Title": role.get("title"),
+                "Status": NEW_FIND_STATUS,
+                "Source": role.get("source") or "live",
+                "Role Link": _clean(role.get("url")),
+                "Date Opened": today,
+                "Last Updated": today,
+            })
+            if _clean(role.get("comp_range")):
+                row["Range"] = _clean(role.get("comp_range"))
+            rows.append(row)
+        self.save_jd_cache()
+
+        start = len(df)
+        df = pd.concat([df, pd.DataFrame(rows, columns=df.columns)], ignore_index=True)
+        for offset, role in enumerate(pending):
+            role["row_index"] = start + offset
+            role["status"] = NEW_FIND_STATUS
+
+        print(f"  appended {len(rows)} new find(s) to the tracker as '{NEW_FIND_STATUS}'")
+        return df, len(rows)
+
     def update_tracker(self, df, roles):
         """Add the 5 intel columns. Existing values and manual columns are untouched."""
         before_shape = df.shape
@@ -1014,15 +1205,18 @@ Return ONLY a JSON object mapping each company name exactly as given to its sect
                 confidence = role.get("suggestion_confidence") or "?"
                 df.at[idx, SUGGESTED_CAT_COLUMN] = f"{role['suggested_role_cat']} ({confidence})"
 
-        # Safety: no row loss, no manual-column mutation.
-        assert len(df) == before_shape[0], "row count changed"
+        # Safety: rows may be APPENDED, never lost or reordered, and the manual
+        # columns of rows that already existed must come out byte-identical.
+        assert len(df) >= before_shape[0], "rows were lost"
+        kept = df.iloc[:before_shape[0]]
         for column in MANUAL_COLUMNS:
             if column in before.columns:
-                same = before[column].astype(str).equals(df[column].astype(str))
+                same = before[column].astype(str).equals(kept[column].astype(str))
                 assert same, f"manual column mutated: {column}"
 
-        df.to_excel(self.tracker_path, index=False)
-        print(f"  tracker {before_shape} -> {df.shape}")
+        summary = self.save_tracker(df)
+        print(f"  tracker {before_shape} -> {df.shape} "
+              f"(db: +{summary['inserted']} rows, {summary['fields']} field(s) changed)")
         return df
 
     # ---------------- run ----------------
@@ -1078,6 +1272,7 @@ Return ONLY a JSON object mapping each company name exactly as given to its sect
 
         if not df.empty:
             self.backup_tracker()
+            df, _added = self.append_new_finds(df, roles)
             self.update_tracker(df, roles)
 
         for role in roles:
