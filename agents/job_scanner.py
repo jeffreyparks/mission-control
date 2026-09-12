@@ -6,6 +6,7 @@ import requests
 import yaml
 import pandas as pd
 from datetime import datetime, timedelta
+from job_fetch import _html_to_text
 from pathlib import Path
 from urllib.parse import quote_plus
 import re
@@ -102,6 +103,39 @@ class JobScanner:
             print(f"  ✗ {company_name}: {e}")
             return []
     
+    def fetch_ashby_jobs(self, company_name, api_url):
+        """Fetch jobs from an Ashby job-board listing API.
+
+        api_url is the public board endpoint, e.g.
+        https://api.ashbyhq.com/posting-api/job-board/<org-slug>
+        - no auth, same shape job_fetch.py already reads for a single posting.
+        """
+        try:
+            response = requests.get(api_url, timeout=10)
+            response.raise_for_status()
+            data = response.json()
+
+            jobs = []
+            for job in data.get('jobs', []):
+                if not job.get('isListed', True):
+                    continue
+                location = job.get('location') or (
+                    job.get('address', {}).get('postalAddress', {}).get('addressLocality')
+                )
+                jobs.append({
+                    'company': company_name,
+                    'title': job.get('title', ''),
+                    'url': job.get('jobUrl', ''),
+                    'location': location or '',
+                    'description': f"{job.get('title', '')} {_html_to_text(job.get('descriptionHtml')) or ''}",
+                    'posted': job.get('publishedAt', ''),
+                })
+
+            return jobs
+        except Exception as e:
+            print(f"  ✗ {company_name}: {e}")
+            return []
+
     def calculate_match_score(self, job_text, keywords, rules):
         """Calculate how well a job matches career goals"""
         job_lower = job_text.lower()
@@ -193,6 +227,8 @@ class JobScanner:
                 jobs = self.fetch_greenhouse_jobs(name, api_url)
             elif 'lever' in api_url:
                 jobs = self.fetch_lever_jobs(name, api_url)
+            elif 'ashbyhq' in api_url:
+                jobs = self.fetch_ashby_jobs(name, api_url)
             
             if not jobs:
                 continue

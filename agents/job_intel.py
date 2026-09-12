@@ -478,6 +478,8 @@ class JobIntel:
                 jobs = self.scanner.fetch_greenhouse_jobs(name, api_url)
             elif "lever" in api_url:
                 jobs = self.scanner.fetch_lever_jobs(name, api_url)
+            elif "ashbyhq" in api_url:
+                jobs = self.scanner.fetch_ashby_jobs(name, api_url)
             else:
                 continue
             for job in jobs:

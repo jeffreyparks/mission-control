@@ -10,7 +10,7 @@ companies:
   # Top Priority (from your tracker)
   - name: OpenAI
     careers_url: https://openai.com/careers/search
-    api_url: https://api.lever.co/v0/postings/openai
+    api_url: https://api.ashbyhq.com/posting-api/job-board/openai
     priority: 1
     
   - name: Anthropic
