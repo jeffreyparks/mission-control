@@ -48,7 +48,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Media - Media Agency"
+      "sector": "Media - Media Agency",
+      "store_id": "horizon-media-evp-analytics"
     },
     {
       "id": "major-league-soccer-senior-director-marketing-science",
@@ -83,7 +84,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "0514b8c3224938e2",
-      "sector": "Sports - Sports League"
+      "sector": "Sports - Sports League",
+      "store_id": "major-league-soccer-senior-director-marketing-science"
     },
     {
       "id": "gusto-growth-ds-leader",
@@ -117,7 +119,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - HR & Payroll SaaS"
+      "sector": "Tech - HR & Payroll SaaS",
+      "store_id": "gusto-growth-ds-leader"
     },
     {
       "id": "beam-head-of-marketing-intelligence",
@@ -152,7 +155,8 @@
       "suggestion_confidence": "medium",
       "suggestion_reason": "Head of Marketing Intelligence maps to measurement/marketing science lead",
       "cat_fingerprint": "9207451d57196c5e",
-      "sector": "Unknown - Unknown"
+      "sector": "Unknown - Unknown",
+      "store_id": "beam-head-of-marketing-intelligence"
     },
     {
       "id": "goodrx-vp-marketing-science-analytics",
@@ -186,7 +190,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Healthcare - Prescription Savings"
+      "sector": "Healthcare - Prescription Savings",
+      "store_id": "goodrx-vp-marketing-science-analytics"
     },
     {
       "id": "zocdoc-director-marketing-ds",
@@ -221,7 +226,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "30d168ec0fb827d9",
-      "sector": "Healthcare - Health Tech"
+      "sector": "Healthcare - Health Tech",
+      "store_id": "zocdoc-director-marketing-ds"
     },
     {
       "id": "netflix-ads-measurement-lead-ucan-scaled-solutions",
@@ -255,7 +261,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Media - Streaming"
+      "sector": "Media - Streaming",
+      "store_id": "netflix-ads-measurement-lead-ucan-scaled-solutions"
     },
     {
       "id": "reddit-sr-lead-marketing-science-partnerships-insights",
@@ -289,7 +296,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "reddit-sr-lead-marketing-science-partnerships-insights"
     },
     {
       "id": "pinterest-measurement-lead-tvscientific",
@@ -323,7 +331,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-measurement-lead-tvscientific"
     },
     {
       "id": "attentive-applied-science-data-science-leader",
@@ -358,7 +367,8 @@
       "suggestion_confidence": "medium",
       "suggestion_reason": "applied/data science leadership at AI-driven marketing platform",
       "cat_fingerprint": "3d11d638041d87de",
-      "sector": "Tech - Marketing SaaS"
+      "sector": "Tech - Marketing SaaS",
+      "store_id": "attentive-applied-science-data-science-leader"
     },
     {
       "id": "paramount-senior-director-data-science",
@@ -393,7 +403,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "05dcbec1e8d97bce",
-      "sector": "Media - Entertainment"
+      "sector": "Media - Entertainment",
+      "store_id": "paramount-senior-director-data-science"
     },
     {
       "id": "reddit-senior-gtm-insights-automation-manager",
@@ -429,7 +440,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "03e832039a3972ca",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "reddit-senior-gtm-insights-automation-manager"
     },
     {
       "id": "audible-director-analytics-and-decision-science",
@@ -464,7 +476,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "885d086af982c19a",
-      "sector": "Media - Audiobooks & Podcasts"
+      "sector": "Media - Audiobooks & Podcasts",
+      "store_id": "audible-director-analytics-and-decision-science"
     },
     {
       "id": "anthropic-strategy-operations-lead-enterprise-marketing",
@@ -500,7 +513,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "dda90172c7c7471b",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-strategy-operations-lead-enterprise-marketing"
     },
     {
       "id": "anthropic-data-scientist-marketing",
@@ -534,7 +548,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-data-scientist-marketing"
     },
     {
       "id": "pinterest-director-marketing-technology-innovation",
@@ -570,7 +585,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "d51435657f9d8b99",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-director-marketing-technology-innovation"
     },
     {
       "id": "anthropic-manager-of-applied-ai-architecture-commercial",
@@ -605,7 +621,8 @@
       "suggestion_confidence": "high",
       "suggestion_reason": "Manager of Applied AI Architecture, commercial matches archetype 04",
       "cat_fingerprint": "2982df10a47ab5b7",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-manager-of-applied-ai-architecture-commercial"
     },
     {
       "id": "anthropic-strategy-operations-lead-marketing",
@@ -641,7 +658,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "a156bf5d3886baa6",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-strategy-operations-lead-marketing"
     },
     {
       "id": "reddit-staff-data-scientist-ads",
@@ -677,7 +695,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "aa4b31c767d9d088",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "reddit-staff-data-scientist-ads"
     },
     {
       "id": "anthropic-applied-ai-architect-industries",
@@ -747,7 +766,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - HR & Payroll SaaS"
+      "sector": "Tech - HR & Payroll SaaS",
+      "store_id": "gusto-head-of-sales-ds-analytics"
     },
     {
       "id": "openai-applied-ds-insights-leader-gtim-intelligence-solution-technical-success",
@@ -781,7 +801,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "openai-applied-ds-insights-leader-gtim-intelligence-solution-technical-success"
     },
     {
       "id": "anthropic-applied-ai-architect-commercial",
@@ -851,7 +872,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "a14d6c5c4dfd35ab",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-sr-data-scientist-tvscientific"
     },
     {
       "id": "anthropic-strategy-operations-applied-ai-amer",
@@ -886,7 +908,8 @@
       "suggestion_confidence": "high",
       "suggestion_reason": "Strategy & Operations for Applied AI, AMER matches archetype 04",
       "cat_fingerprint": "08fb645eb458b622",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-strategy-operations-applied-ai-amer"
     },
     {
       "id": "openai-marketing-scientist",
@@ -920,7 +943,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "openai-marketing-scientist"
     },
     {
       "id": "reddit-staff-data-scientist-marketing",
@@ -956,7 +980,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "afec16fc62fd7ec7",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "reddit-staff-data-scientist-marketing"
     },
     {
       "id": "citi-vp-marketing-data-science",
@@ -991,7 +1016,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "e17536f9a6abcc04",
-      "sector": "Finance - Banking"
+      "sector": "Finance - Banking",
+      "store_id": "citi-vp-marketing-data-science"
     },
     {
       "id": "pinterest-sr-data-scientist-marketing",
@@ -1026,7 +1052,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "9b5eba14e9668d20",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-sr-data-scientist-marketing"
     },
     {
       "id": "anthropic-manager-applied-ai-architect-enterprise-tech",
@@ -1062,7 +1089,8 @@
       "suggestion_confidence": "high",
       "suggestion_reason": "Manager of Applied AI Architect, enterprise tech matches archetype 04",
       "cat_fingerprint": "cfa97fdc492b4ff7",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-manager-applied-ai-architect-enterprise-tech"
     },
     {
       "id": "chewy-director-data-science",
@@ -1097,7 +1125,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "db7fdc7fa1db8d80",
-      "sector": "Retail - E-commerce"
+      "sector": "Retail - E-commerce",
+      "store_id": "chewy-director-data-science"
     },
     {
       "id": "navan-sr-director-data",
@@ -1132,7 +1161,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "e23323986299fa40",
-      "sector": "Tech - Travel & Expense"
+      "sector": "Tech - Travel & Expense",
+      "store_id": "navan-sr-director-data"
     },
     {
       "id": "openai-data-scientist-b2b-demand-generation-growth-measurement",
@@ -1166,7 +1196,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "openai-data-scientist-b2b-demand-generation-growth-measurement"
     },
     {
       "id": "pinterest-sr-data-scientist-monetization",
@@ -1201,7 +1232,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "369df33224522053",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-sr-data-scientist-monetization"
     },
     {
       "id": "reddit-principal-data-scientist-ads",
@@ -1235,7 +1267,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "reddit-principal-data-scientist-ads"
     },
     {
       "id": "reddit-staff-data-scientist-ads-measurement-signals-privacy",
@@ -1271,7 +1304,8 @@
       "suggestion_confidence": "high",
       "suggestion_reason": "Staff DS in ads measurement/signals/privacy at Reddit",
       "cat_fingerprint": "cb8641a1ec41d71f",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "reddit-staff-data-scientist-ads-measurement-signals-privacy--2"
     },
     {
       "id": "anthropic-data-scientist-gtm",
@@ -1305,7 +1339,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-data-scientist-gtm"
     },
     {
       "id": "faire-director-of-applied-ai-ml-science-ads",
@@ -1340,7 +1375,8 @@
       "suggestion_confidence": "high",
       "suggestion_reason": "Director of Applied AI/ML Science for Ads at a marketplace platform",
       "cat_fingerprint": "bb7dc486606512c9",
-      "sector": "Retail - Wholesale Marketplace"
+      "sector": "Retail - Wholesale Marketplace",
+      "store_id": "faire-director-of-applied-ai-ml-science-ads"
     },
     {
       "id": "anthropic-lead-data-scientist-platform-product",
@@ -1375,7 +1411,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "4c3e6a1d003c1a67",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-lead-data-scientist-platform-product"
     },
     {
       "id": "doordash-director-analytics-new-verticals-consumer",
@@ -1411,7 +1448,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "cc835aa7825e0c62",
-      "sector": "Tech - Food Delivery"
+      "sector": "Tech - Food Delivery",
+      "store_id": "doordash-director-analytics-new-verticals-consumer"
     },
     {
       "id": "pinterest-staff-ds-ads-product",
@@ -1445,7 +1483,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-staff-ds-ads-product"
     },
     {
       "id": "pinterest-staff-ds-forecasting",
@@ -1479,7 +1518,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-staff-ds-forecasting"
     },
     {
       "id": "reddit-senior-data-scientist-ads",
@@ -1515,7 +1555,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "2204563bc813fe80",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "reddit-senior-data-scientist-ads"
     },
     {
       "id": "reddit-sr-staff-ds-consumer-experimentation",
@@ -1549,7 +1590,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "reddit-sr-staff-ds-consumer-experimentation"
     },
     {
       "id": "reddit-staff-data-scientist-ads-measurement-signals-privacy",
@@ -1585,7 +1627,8 @@
       "suggestion_confidence": "high",
       "suggestion_reason": "Staff DS in ads measurement/signals/privacy at Reddit",
       "cat_fingerprint": "cb8641a1ec41d71f",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "reddit-staff-data-scientist-ads-measurement-signals-privacy--2"
     },
     {
       "id": "anthropic-aaa-commercial",
@@ -1619,7 +1662,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-aaa-commercial"
     },
     {
       "id": "anthropic-aaa-enterprise-tech",
@@ -1653,7 +1697,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-aaa-enterprise-tech"
     },
     {
       "id": "openai-ml-data-scientist-forecasting",
@@ -1687,7 +1732,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "openai-ml-data-scientist-forecasting"
     },
     {
       "id": "pinterest-senior-manager-measurement-apac",
@@ -1722,7 +1768,8 @@
       "suggestion_confidence": "high",
       "suggestion_reason": "Senior Manager, Measurement at Pinterest ad platform",
       "cat_fingerprint": "4d6e46cee30f28a0",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-senior-manager-measurement-apac"
     },
     {
       "id": "pinterest-staff-ds-marketing",
@@ -1756,7 +1803,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-staff-ds-marketing"
     },
     {
       "id": "pinterest-staff-data-scientist-forecasting",
@@ -1791,7 +1839,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "9911b9ce5972be86",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-staff-data-scientist-forecasting"
     },
     {
       "id": "adonis-director-of-ds-ml",
@@ -1825,7 +1874,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Healthcare - Revenue Cycle"
+      "sector": "Healthcare - Revenue Cycle",
+      "store_id": "adonis-director-of-ds-ml"
     },
     {
       "id": "anthropic-aaa-industries",
@@ -1859,7 +1909,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-aaa-industries"
     },
     {
       "id": "anthropic-applied-ai-architect-enterprise-tech",
@@ -1929,7 +1980,8 @@
       "suggestion_confidence": "high",
       "suggestion_reason": "Applied AI Architect in strategic enterprise tech matches archetype 03",
       "cat_fingerprint": "d81e632fca2639f9",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-applied-ai-architect-strategic-enterprise-tech"
     },
     {
       "id": "anthropic-applied-ai-strategist-emea",
@@ -1965,7 +2017,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "eeeef9fd6a976832",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-applied-ai-strategist-emea"
     },
     {
       "id": "cvs-health-aetna-lead-decison-scientist-product-analytics",
@@ -1999,7 +2052,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Healthcare - Pharmacy & Insurance"
+      "sector": "Healthcare - Pharmacy & Insurance",
+      "store_id": "cvs-health-aetna-lead-decison-scientist-product-analytics"
     },
     {
       "id": "reddit-senior-staff-data-scientist-consumer-experimentation",
@@ -2034,7 +2088,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "5d048326d973de65",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "reddit-senior-staff-data-scientist-consumer-experimentation"
     },
     {
       "id": "anthropic-aaa-partnerships",
@@ -2068,7 +2123,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-aaa-partnerships"
     },
     {
       "id": "anthropic-aaa-startups",
@@ -2102,7 +2158,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-aaa-startups"
     },
     {
       "id": "anthropic-applied-ai-architect-startups",
@@ -2137,7 +2194,8 @@
       "suggestion_confidence": "high",
       "suggestion_reason": "Applied AI Architect for startups matches archetype 03",
       "cat_fingerprint": "07e6eb55a97bcd4b",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-applied-ai-architect-startups"
     },
     {
       "id": "anthropic-manager-applied-ai-architecture-healthcare-life-sciences",
@@ -2172,7 +2230,8 @@
       "suggestion_confidence": "high",
       "suggestion_reason": "Manager of Applied AI Architecture in healthcare & life sciences matches archetype 04",
       "cat_fingerprint": "69d249e0a66c6b39",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-manager-applied-ai-architecture-healthcare-life-sciences"
     },
     {
       "id": "hightouch-head-of-ml",
@@ -2206,7 +2265,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - Data Infrastructure"
+      "sector": "Tech - Data Infrastructure",
+      "store_id": "hightouch-head-of-ml"
     },
     {
       "id": "pinterest-sr-data-scientist-core",
@@ -2241,7 +2301,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "08849be17de571a1",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-sr-data-scientist-core"
     },
     {
       "id": "pinterest-staff-data-scientist-ads-product",
@@ -2276,7 +2337,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "04186a3e23ac769c",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-staff-data-scientist-ads-product"
     },
     {
       "id": "prophet-partner-insights-analytics",
@@ -2312,7 +2374,8 @@
       "suggestion_confidence": "medium",
       "suggestion_reason": "Partner leading Insights & Analytics practice at a consultancy, not AI-specific",
       "cat_fingerprint": "36add92be7db8ab3",
-      "sector": "Consulting - Brand Strategy"
+      "sector": "Consulting - Brand Strategy",
+      "store_id": "prophet-partner-insights-analytics"
     },
     {
       "id": "reddit-sr-staff-ds-ads-measurement-signals-privacy",
@@ -2346,7 +2409,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "reddit-sr-staff-ds-ads-measurement-signals-privacy"
     },
     {
       "id": "reddit-staff-data-scientist-consumer",
@@ -2382,7 +2446,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "1b42364299ad5e50",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "reddit-staff-data-scientist-consumer"
     },
     {
       "id": "gusto-head-of-ai-and-ml-data-engineering",
@@ -2416,7 +2481,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - HR & Payroll SaaS"
+      "sector": "Tech - HR & Payroll SaaS",
+      "store_id": "gusto-head-of-ai-and-ml-data-engineering"
     },
     {
       "id": "abridge-head-of-data-science",
@@ -2451,7 +2517,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "7a75669b61b018da",
-      "sector": "Healthcare - Clinical AI"
+      "sector": "Healthcare - Clinical AI",
+      "store_id": "abridge-head-of-data-science"
     },
     {
       "id": "anthropic-data-scientist-product",
@@ -2487,7 +2554,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "718724348c0b2bae",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-data-scientist-product"
     },
     {
       "id": "anthropic-product-marketing-lead-gtm-strategy-claude-for-knowledge-work",
@@ -2523,7 +2591,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "6fc136903a4976b8",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-product-marketing-lead-gtm-strategy-claude-for-knowledge-work"
     },
     {
       "id": "reddit-emea-insights-lead-consumer-and-commercial-strategy",
@@ -2559,7 +2628,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "8b1590b155d633e2",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "reddit-emea-insights-lead-consumer-and-commercial-strategy"
     },
     {
       "id": "reddit-sr-staff-data-scientist-ads-measurement-signals-privacy",
@@ -2594,7 +2664,8 @@
       "suggestion_confidence": "high",
       "suggestion_reason": "Sr Staff DS leading ads measurement/signals/privacy at Reddit",
       "cat_fingerprint": "8ccfb809f587917c",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "reddit-sr-staff-data-scientist-ads-measurement-signals-privacy"
     },
     {
       "id": "amazon-applied-scientist-ads-measurement-science",
@@ -2628,7 +2699,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - E-commerce & Cloud"
+      "sector": "Tech - E-commerce & Cloud",
+      "store_id": "amazon-applied-scientist-ads-measurement-science"
     },
     {
       "id": "pinterest-staff-ds-notifications",
@@ -2662,7 +2734,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-staff-ds-notifications"
     },
     {
       "id": "pinterest-staff-data-scientist-ads-delivery",
@@ -2697,7 +2770,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "87d9b596d032c2b9",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-staff-data-scientist-ads-delivery"
     },
     {
       "id": "pinterest-staff-technical-program-manager-monetization-data-science",
@@ -2733,7 +2807,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "a5077e632154d461",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-staff-technical-program-manager-monetization-data-science"
     },
     {
       "id": "reddit-senior-data-scientist-consumer",
@@ -2769,7 +2844,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "46d124e584094626",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "reddit-senior-data-scientist-consumer"
     },
     {
       "id": "anthropic-manager-applied-ai-architecture-financial-services",
@@ -2804,7 +2880,8 @@
       "suggestion_confidence": "high",
       "suggestion_reason": "Manager of Applied AI Architecture in financial services matches archetype 04",
       "cat_fingerprint": "6ddc2eb3f16171ce",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-manager-applied-ai-architecture-financial-services"
     },
     {
       "id": "anthropic-applied-ai-architect",
@@ -2839,7 +2916,8 @@
       "suggestion_confidence": "high",
       "suggestion_reason": "Applied AI Architect title matches archetype 03",
       "cat_fingerprint": "0933cc1ef5ce5959",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-applied-ai-architect"
     },
     {
       "id": "anthropic-manager-applied-ai-engineering-beneficial-deployments-life-sciences",
@@ -2874,7 +2952,8 @@
       "suggestion_confidence": "high",
       "suggestion_reason": "Manager of Applied AI Engineering in life sciences matches archetype 04",
       "cat_fingerprint": "048fc49a4863ecd1",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-manager-applied-ai-engineering-beneficial-deployments-life-sciences"
     },
     {
       "id": "anthropic-manager-forward-deployed-engineering",
@@ -2909,7 +2988,8 @@
       "suggestion_confidence": "high",
       "suggestion_reason": "Manager of Forward Deployed Engineering matches archetype 04",
       "cat_fingerprint": "360bffd2a4a0600e",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-manager-forward-deployed-engineering"
     },
     {
       "id": "openai-data-scientist-ads-demand",
@@ -2943,7 +3023,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "openai-data-scientist-ads-demand"
     },
     {
       "id": "openai-data-scientist-smb-ads-growth",
@@ -2977,7 +3058,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "openai-data-scientist-smb-ads-growth"
     },
     {
       "id": "pinterest-staff-technical-program-manager-data-science",
@@ -3013,7 +3095,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "45c103639b436ff0",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-staff-technical-program-manager-data-science"
     },
     {
       "id": "reddit-senior-data-scientist-ads-integrity",
@@ -3049,7 +3132,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "58ea1da8ec1e0276",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "reddit-senior-data-scientist-ads-integrity"
     },
     {
       "id": "anthropic-forward-deployed-engineer",
@@ -3084,7 +3168,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "5831d2a8986f2d62",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-forward-deployed-engineer"
     },
     {
       "id": "anthropic-pre-sales-program-lead-forward-deployed-engineering",
@@ -3119,7 +3204,8 @@
       "suggestion_confidence": "high",
       "suggestion_reason": "Pre-sales program lead for forward deployed engineering matches archetype 04",
       "cat_fingerprint": "a734f4fc671c6e45",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-pre-sales-program-lead-forward-deployed-engineering"
     },
     {
       "id": "anthropic-solutions-marketing-lead-public-sector",
@@ -3155,7 +3241,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "9c179ddeb1d4440d",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-solutions-marketing-lead-public-sector"
     },
     {
       "id": "openai-data-scientist-business",
@@ -3189,7 +3276,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "openai-data-scientist-business"
     },
     {
       "id": "pinterest-staff-data-scientist-finance-business-ops",
@@ -3225,7 +3313,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "1230e15b16477ccb",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-staff-data-scientist-finance-business-ops"
     },
     {
       "id": "pinterest-staff-data-scientist-notifications",
@@ -3261,7 +3350,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "6ec021448c000780",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-staff-data-scientist-notifications"
     },
     {
       "id": "pinterest-staff-product-manager-ads-measurement",
@@ -3296,7 +3386,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "876a0e7bac1894bd",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-staff-product-manager-ads-measurement"
     },
     {
       "id": "anthropic-applied-ai-architect-digital-natives-business",
@@ -3331,7 +3422,8 @@
       "suggestion_confidence": "high",
       "suggestion_reason": "Applied AI Architect in digital natives business matches archetype 03",
       "cat_fingerprint": "ec5798b7e20f1848",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-applied-ai-architect-digital-natives-business"
     },
     {
       "id": "anthropic-applied-ai-engineer-enterprise-tech",
@@ -3366,7 +3458,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "566627721d449132",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-applied-ai-engineer-enterprise-tech"
     },
     {
       "id": "anthropic-customer-programs-manager-co-marketing-measurement",
@@ -3401,7 +3494,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "061fb21a180b2a39",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-customer-programs-manager-co-marketing-measurement"
     },
     {
       "id": "anthropic-data-scientist-developer-productivity",
@@ -3436,7 +3530,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "8508ea6ce696e891",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-data-scientist-developer-productivity"
     },
     {
       "id": "netflix-ml-scientist-6-ads-member-understanding",
@@ -3470,7 +3565,8 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Media - Streaming"
+      "sector": "Media - Streaming",
+      "store_id": "netflix-ml-scientist-6-ads-member-understanding"
     },
     {
       "id": "anthropic-applied-ai-architect-cyber",
@@ -3505,7 +3601,8 @@
       "suggestion_confidence": "high",
       "suggestion_reason": "Applied AI Architect in cyber domain matches archetype 03",
       "cat_fingerprint": "e410d58eb245cea7",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-applied-ai-architect-cyber"
     },
     {
       "id": "anthropic-applied-ai-architect-partnerships",
@@ -3540,7 +3637,8 @@
       "suggestion_confidence": "high",
       "suggestion_reason": "Applied AI Architect in partnerships matches archetype 03",
       "cat_fingerprint": "b60d6476e57c1d18",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-applied-ai-architect-partnerships"
     },
     {
       "id": "anthropic-applied-ai-engineer-enterprise",
@@ -3576,7 +3674,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "fbab34e2985fb44e",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-applied-ai-engineer-enterprise"
     },
     {
       "id": "anthropic-customer-marketing-manager-industries",
@@ -3612,7 +3711,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "ca12d1546ff96472",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-customer-marketing-manager-industries"
     },
     {
       "id": "anthropic-field-marketing-lead-public-sector",
@@ -3648,7 +3748,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "57371440c5e92356",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-field-marketing-lead-public-sector"
     },
     {
       "id": "anthropic-head-of-community-enterprise-marketing",
@@ -3684,7 +3785,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "fe52aad692c42eb8",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-head-of-community-enterprise-marketing"
     },
     {
       "id": "anthropic-partner-marketing-lead-cloud",
@@ -3720,7 +3822,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "dfe4b63cc4ddb3a1",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-partner-marketing-lead-cloud"
     },
     {
       "id": "anthropic-product-manager-growth",
@@ -3755,7 +3858,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "ddaee8c496227495",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-product-manager-growth"
     },
     {
       "id": "anthropic-product-marketing-manager-knowledge-work-core-products",
@@ -3791,7 +3895,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "c71fcbded410695d",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-product-marketing-manager-knowledge-work-core-products"
     },
     {
       "id": "pinterest-measurement-partner-ii-tvscientific",
@@ -3826,7 +3931,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "f85698477021172e",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-measurement-partner-ii-tvscientific"
     },
     {
       "id": "pinterest-sr-data-scientist-infrastructure",
@@ -3861,7 +3967,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "5d8ebc8bccfbd1dd",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-sr-data-scientist-infrastructure"
     },
     {
       "id": "reddit-country-lead-business-marketing-uk",
@@ -3896,7 +4003,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "5442ef8b14e2a387",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "reddit-country-lead-business-marketing-uk"
     },
     {
       "id": "reddit-senior-business-analyst-revenue-analytics",
@@ -3932,7 +4040,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "c3967fd8c5fcfc8f",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "reddit-senior-business-analyst-revenue-analytics"
     },
     {
       "id": "anthropic-applied-ai-architect-beneficial-deployments-life-sciences",
@@ -3967,7 +4076,8 @@
       "suggestion_confidence": "high",
       "suggestion_reason": "Applied AI Architect with domain focus matches archetype 03",
       "cat_fingerprint": "739880504e59e01d",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-applied-ai-architect-beneficial-deployments-life-sciences"
     },
     {
       "id": "anthropic-applied-ai-engineer-beneficial-deployments-life-sciences",
@@ -4002,7 +4112,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "d432433fbfee6e41",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-applied-ai-engineer-beneficial-deployments-life-sciences"
     },
     {
       "id": "anthropic-applied-ai-technical-evangelist-startup-ecosystem",
@@ -4037,7 +4148,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "92f5cf02887d8a42",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-applied-ai-technical-evangelist-startup-ecosystem"
     },
     {
       "id": "anthropic-data-scientist-policy",
@@ -4072,7 +4184,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "d6fd0d9ce7dd8391",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-data-scientist-policy"
     },
     {
       "id": "anthropic-partner-marketing-manager-launches",
@@ -4108,7 +4221,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "7055fa4cab40f525",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-partner-marketing-manager-launches"
     },
     {
       "id": "anthropic-product-manager-multi-cloud-growth-google",
@@ -4143,7 +4257,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "0a9b76d255e2f43a",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-product-manager-multi-cloud-growth-google"
     },
     {
       "id": "anthropic-solutions-marketing-manager-cybersecurity",
@@ -4179,7 +4294,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "48091defae66e1ff",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-solutions-marketing-manager-cybersecurity"
     },
     {
       "id": "anthropic-solutions-marketing-manager-healthcare-science",
@@ -4215,7 +4331,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "f892e7fe9fd70bab",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-solutions-marketing-manager-healthcare-science"
     },
     {
       "id": "pinterest-data-scientist-ii-infrastructure",
@@ -4250,7 +4367,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "a5e30182e2673aee",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-data-scientist-ii-infrastructure"
     },
     {
       "id": "pinterest-data-scientist-ii-ml-infrastructure",
@@ -4285,7 +4403,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "52edc0c9047b3777",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-data-scientist-ii-ml-infrastructure"
     },
     {
       "id": "pinterest-insights-solutions-partner-ii",
@@ -4320,7 +4439,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "a1557380e4fac215",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-insights-solutions-partner-ii"
     },
     {
       "id": "pinterest-lead-ads-product-marketing-manager",
@@ -4355,7 +4475,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "aae9603593edfc30",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-lead-ads-product-marketing-manager"
     },
     {
       "id": "anthropic-applied-ai-architect-public-sector-national-security",
@@ -4390,7 +4511,8 @@
       "suggestion_confidence": "high",
       "suggestion_reason": "Applied AI Architect in public sector and national security matches archetype 03",
       "cat_fingerprint": "9777c8a0efef216b",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-applied-ai-architect-public-sector-national-security"
     },
     {
       "id": "anthropic-applied-ai-engineer",
@@ -4425,7 +4547,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "a2e092e734f322c1",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-applied-ai-engineer"
     },
     {
       "id": "anthropic-data-scientist-safeguards",
@@ -4459,7 +4582,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "eaec501c1fd9c38e",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-data-scientist-safeguards"
     },
     {
       "id": "anthropic-engineering-manager-growth",
@@ -4495,7 +4619,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "9ff83be1cc4a4a98",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-engineering-manager-growth"
     },
     {
       "id": "anthropic-machine-learning-infrastructure-engineer-safeguards-research",
@@ -4531,7 +4656,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "f25b0920e8b2b302",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-machine-learning-infrastructure-engineer-safeguards-research"
     },
     {
       "id": "pinterest-head-of-business-marketing-australia",
@@ -4567,7 +4693,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "7012e9a27df8748b",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-head-of-business-marketing-australia"
     },
     {
       "id": "pinterest-sr-ads-product-marketing-manager-ads-delivery",
@@ -4602,7 +4729,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "8d9dbaed6301c768",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-sr-ads-product-marketing-manager-ads-delivery"
     },
     {
       "id": "anthropic-applied-ai-research-engineer",
@@ -4637,7 +4765,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "550820316fd1bc2a",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-applied-ai-research-engineer"
     },
     {
       "id": "anthropic-field-marketing-manager-apac",
@@ -4673,7 +4802,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "436414a3a591d2ec",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-field-marketing-manager-apac"
     },
     {
       "id": "anthropic-manager-growth-sales-ai-native",
@@ -4708,7 +4838,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "fdb28665005632be",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-manager-growth-sales-ai-native"
     },
     {
       "id": "anthropic-regional-research-economist-economic-research",
@@ -4743,7 +4874,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "42504b110dcced27",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-regional-research-economist-economic-research"
     },
     {
       "id": "anthropic-research-economist-economic-research",
@@ -4778,7 +4910,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "453ec283bd3dfffb",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-research-economist-economic-research"
     },
     {
       "id": "anthropic-staff-software-engineer-experimentation",
@@ -4813,7 +4946,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "b6867ef711dfacde",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-staff-software-engineer-experimentation"
     },
     {
       "id": "anthropic-transformative-ai-research-economist-economic-research",
@@ -4848,7 +4982,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "a14e70043ff56126",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-transformative-ai-research-economist-economic-research"
     },
     {
       "id": "pinterest-sr-systems-engineer-sales-marketing",
@@ -4883,7 +5018,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "b43529227aa3e1a1",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-sr-systems-engineer-sales-marketing"
     },
     {
       "id": "pinterest-staff-software-engineer-ads-measurement-signal",
@@ -4918,7 +5054,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "9af98d2640ca2245",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-staff-software-engineer-ads-measurement-signal"
     },
     {
       "id": "pinterest-staff-software-engineer-growth-performance-marketing",
@@ -4953,7 +5090,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "2227174e5f76ffba",
-      "sector": "Tech - Social Media"
+      "sector": "Tech - Social Media",
+      "store_id": "pinterest-staff-software-engineer-growth-performance-marketing"
     },
     {
       "id": "anthropic-people-research-scientist-recruiting",
@@ -4988,7 +5126,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "17b0ab85f3a8807e",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-people-research-scientist-recruiting"
     },
     {
       "id": "anthropic-applied-ai-security-architect",
@@ -5022,7 +5161,8 @@
       "suggestion_confidence": "high",
       "suggestion_reason": "Applied AI Security Architect title matches archetype 03",
       "cat_fingerprint": "cda49ac244f446e0",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-applied-ai-security-architect"
     },
     {
       "id": "anthropic-growth-account-executive-ai-native",
@@ -5058,7 +5198,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "a565bd16a216ec4f",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-growth-account-executive-ai-native"
     },
     {
       "id": "anthropic-growth-account-executive-startups",
@@ -5093,7 +5234,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "ac141c0f6cfb61f0",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-growth-account-executive-startups"
     },
     {
       "id": "anthropic-front-end-engineer-marketing",
@@ -5129,7 +5271,8 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "5fbb5a6b19c2d434",
-      "sector": "Tech - AI Lab"
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-front-end-engineer-marketing"
     }
   ],
   "orgs": [

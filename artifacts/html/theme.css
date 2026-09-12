@@ -150,3 +150,12 @@ footer{padding:36px 0 64px;font-size:11px;color:var(--ink-mute);
 .f i{font-style:normal;font-family:var(--mono);font-size:10px;color:var(--ink-mute);margin-left:3px}
 .f.on i{color:var(--bg)}
 @media(max-width:700px){.fgroup{align-items:flex-start;flex-direction:column;gap:4px}}
+
+/* writeback: status dropdown, only rendered when serve.py is reachable */
+.statussel{background:var(--bg-card);color:var(--ink);border:1px solid var(--line);
+  border-radius:4px;padding:4px 6px;font-size:11px;font-family:var(--mono);max-width:150px}
+.statussel:hover{border-color:var(--accent)}
+.statussel:disabled{opacity:.5}
+.chip.live{border-color:#1f3d2a;background:#12211a;color:var(--ok)}
+.flash{font-family:var(--mono);font-size:9px;margin-left:6px;letter-spacing:.1em;text-transform:uppercase}
+.flash.saved{color:var(--ok)} .flash.failed{color:#ff6b6b}
