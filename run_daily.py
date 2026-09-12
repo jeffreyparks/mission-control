@@ -47,6 +47,18 @@ def stage(name, fn):
         return False
 
 
+def log_routing():
+    """One line per routed LLM call, so every run records where inference went."""
+    try:
+        import routing
+    except Exception:  # noqa: BLE001
+        return
+    for tag in ("job-fit", "role-cat", "org-sectors", "content-radar"):
+        ladder = routing.ladder_for_tag(tag)
+        target = ladder[0].split("/", 1)[-1] if ladder else "claude CLI default"
+        log(f"   route: {tag:14s} -> {target}")
+
+
 def radar_is_due():
     files = sorted((BASE / "artifacts/content").glob("radar-*.json"))
     if not files:
@@ -141,6 +153,7 @@ def main():
     log("Mission Control run started")
     log(f"   jobs: {'intel' + (' (refresh)' if args.refresh_intel else '')}" if args.intel
         else "   jobs: legacy keyword scan")
+    log_routing()
 
     if args.only:
         ok = stage(args.only, STAGES[args.only])
