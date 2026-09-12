@@ -129,3 +129,19 @@ rules:
     
   # Maximum age of posting to consider (days)
   max_age_days: 30
+
+  # Title heuristics for the LIVE SCAN only (agents/job_intel.py): a brand-new
+  # live find whose title matches one of these (case-insensitive, whole-phrase)
+  # is closed immediately - Status "04 Closed", recommendation "skip" - with NO
+  # LLM fit call spent on it. Existing tracker rows are never touched by this,
+  # regardless of title, so a role you added or edited yourself is safe.
+  # Add or remove phrases freely; each is a substring match with word
+  # boundaries, so "Machine Learning Engineer" also matches "Senior Machine
+  # Learning Engineer" but not "Machine Learning Engineering Manager"'s
+  # "Engineering".
+  auto_close_titles:
+    - "machine learning engineer"
+    - "research scientist"
+    - "software engineer"
+    - "account executive"
+    - "strategist"

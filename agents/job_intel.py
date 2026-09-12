@@ -149,6 +149,26 @@ FIT_FIELDS = [
     "fit_score", "seniority_read", "why", "top_gaps",
     "what_theyre_really_hiring_for", "pitch_angle", "recommendation",
 ]
+
+def load_auto_close_titles(scanner):
+    """Title phrases that skip the LLM fit call entirely for a brand-new live
+    find, closing it immediately. Editable in config/job-sources.yaml under
+    rules.auto_close_titles - reuses JobScanner's own YAML loader rather than
+    parsing the file a second time."""
+    config = scanner.load_sources() or {}
+    titles = (config.get("rules") or {}).get("auto_close_titles") or []
+    return [str(t).strip() for t in titles if str(t).strip()]
+
+
+def matched_auto_close_title(title, patterns):
+    """The first pattern that matches (case-insensitive, whole-phrase), or
+    None. Word-boundaried so "Machine Learning Engineer" matches "Senior
+    Machine Learning Engineer" but not the "Engineer" inside "Engineering"."""
+    text = title or ""
+    for pattern in patterns:
+        if re.search(rf"\b{re.escape(pattern)}\b", text, re.I):
+            return pattern
+    return None
 NEW_COLUMNS = ["Fit Score", "Fit Rationale", "Recommendation", "Sector", "Days To Outcome",
                SUGGESTED_CAT_COLUMN]
 
@@ -509,6 +529,37 @@ class JobIntel:
 
         print(f"  fetched {len(raw)} live postings")
         return raw
+
+    def apply_auto_close(self, role, matched_pattern):
+        """Deterministic 'verdict' for a title-heuristic match - no LLM call
+        spent on something already decided. fit_fingerprint is still set, so
+        this is cached exactly like any other verdict: a repeat sighting is a
+        normal reuse, not a special case."""
+        role["fit_fingerprint"] = self.fingerprint(role)
+        role["fit_score"] = 0
+        role["seniority_read"] = None
+        role["why"] = (f'Auto-closed by title heuristic (matched "{matched_pattern}"). '
+                        f"Edit rules.auto_close_titles in config/job-sources.yaml to change this.")
+        role["top_gaps"] = []
+        role["what_theyre_really_hiring_for"] = None
+        role["pitch_angle"] = None
+        role["recommendation"] = "skip"
+        role["status"] = "04 Closed"
+
+    def partition_auto_closed(self, live_roles):
+        """Split fresh live finds into (auto_closed, kept). A title heuristic
+        match is closed immediately with no LLM call; an existing tracker row
+        is never passed to this - only ever fresh live finds are."""
+        patterns = load_auto_close_titles(self.scanner)
+        auto_closed, kept = [], []
+        for role in live_roles:
+            matched = matched_auto_close_title(role.get("title"), patterns)
+            if matched:
+                self.apply_auto_close(role, matched)
+                auto_closed.append(role)
+            else:
+                kept.append(role)
+        return auto_closed, kept
 
     def prefilter_live(self, raw, tracker_ids):
         """Cheap, honest prefilter. Only shrinks the batch bill; no scoring claims.
@@ -1204,7 +1255,10 @@ Return ONLY a JSON object mapping each company name exactly as given to its sect
             row.update({
                 "Org": role.get("org"),
                 "Title": role.get("title"),
-                "Status": NEW_FIND_STATUS,
+                # A title-heuristic match already decided "04 Closed" (see
+                # apply_auto_close); anything else gets the normal new-find
+                # status regardless of whatever prefilter_live defaulted it to.
+                "Status": "04 Closed" if role.get("status") == "04 Closed" else NEW_FIND_STATUS,
                 "Source": role.get("source") or "live",
                 "Role Link": _clean(role.get("url")),
                 "Date Opened": today,
@@ -1219,9 +1273,17 @@ Return ONLY a JSON object mapping each company name exactly as given to its sect
         df = pd.concat([df, pd.DataFrame(rows, columns=df.columns)], ignore_index=True)
         for offset, role in enumerate(pending):
             role["row_index"] = start + offset
-            role["status"] = NEW_FIND_STATUS
+            # Mirror the tracker row's own Status exactly (see above): a
+            # title-heuristic close must survive on the role dict too, since
+            # that is what gets serialized into today's intel.json.
+            role["status"] = "04 Closed" if role.get("status") == "04 Closed" else NEW_FIND_STATUS
 
-        print(f"  appended {len(rows)} new find(s) to the tracker as '{NEW_FIND_STATUS}'")
+        closed_count = sum(1 for role in pending if role["status"] == "04 Closed")
+        if closed_count:
+            print(f"  appended {len(rows)} new find(s) to the tracker "
+                  f"({closed_count} as '04 Closed', {len(rows) - closed_count} as '{NEW_FIND_STATUS}')")
+        else:
+            print(f"  appended {len(rows)} new find(s) to the tracker as '{NEW_FIND_STATUS}'")
         return df, len(rows)
 
     def update_tracker(self, df, roles):
@@ -1283,9 +1345,12 @@ Return ONLY a JSON object mapping each company name exactly as given to its sect
         print(f"  tracker: {len(tracked)} roles")
 
         live = self.prefilter_live(self.fetch_live_roles(), {r["id"] for r in tracked})
-        roles = tracked + live
+        auto_closed, live_kept = self.partition_auto_closed(live)
+        if auto_closed:
+            print(f"  auto-closed {len(auto_closed)} live role(s) by title heuristic, no LLM call")
 
-        fresh, reused = self.split_by_freshness(roles, seed=seed_fits)
+        judged_pool = tracked + live_kept
+        fresh, reused = self.split_by_freshness(judged_pool, seed=seed_fits)
         if reused:
             print(f"  reusing {reused} unchanged verdict(s); judging {len(fresh)} new or edited")
             for role in fresh[:5]:
@@ -1315,6 +1380,8 @@ Return ONLY a JSON object mapping each company name exactly as given to its sect
         else:
             print("  nothing new to judge")
 
+        roles = judged_pool + auto_closed
+
         for role in roles:
             for field in CAT_FIELDS:
                 role.setdefault(field, None)
@@ -1328,6 +1395,23 @@ Return ONLY a JSON object mapping each company name exactly as given to its sect
             self.backup_tracker()
             df, _added = self.append_new_finds(df, roles)
             self.update_tracker(df, roles)
+
+            # append_new_finds could not know the store's assigned id for a
+            # brand-new row - that assignment happens inside save_tracker, one
+            # call later. Without this backfill, a role appended THIS run has
+            # no store_id in today's intel.json, so the dashboard has nothing
+            # to address it by and silently renders it without any of the
+            # edit controls - it would only become editable starting with the
+            # NEXT day's render, once tracker_roles() re-reads the store.
+            if _added:
+                store_df = self.store.to_df()
+                for role in roles:
+                    if role.get("store_id") or role.get("row_index") is None:
+                        continue
+                    try:
+                        role["store_id"] = _clean(store_df.iloc[role["row_index"]]["_id"])
+                    except IndexError:
+                        pass
 
         for role in roles:
             role.pop("_tier", None)
