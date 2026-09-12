@@ -141,3 +141,12 @@ footer{padding:36px 0 64px;font-size:11px;color:var(--ink-mute);
 .homecard .k{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
   color:var(--ink-mute)}
 @media(max-width:1000px){.homegrid{grid-template-columns:1fr}}
+
+/* stacked filter rows (rec, status) */
+.filterbar{display:flex;flex-direction:column;gap:8px;margin:14px 0 4px}
+.fgroup{display:flex;align-items:center;gap:10px}
+.flabel{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-mute);width:52px;flex:none}
+.f i{font-style:normal;font-family:var(--mono);font-size:10px;color:var(--ink-mute);margin-left:3px}
+.f.on i{color:var(--bg)}
+@media(max-width:700px){.fgroup{align-items:flex-start;flex-direction:column;gap:4px}}

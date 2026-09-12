@@ -1,5 +1,5 @@
 # BlueSky Profile Scan: @jeff.at.arjentic.ai
-**Date:** 2026-09-11
+**Date:** 2026-09-12
 **Profile:** https://bsky.app/profile/jeff.at.arjentic.ai
 
 ## Profile Summary
@@ -47,25 +47,25 @@
 - ✓ measurement
 
 **Missing Keywords:**
-- ✗ clean-rooms
-- ✗ forecasting
-- ✗ incrementality
-- ✗ self-serve
-- ✗ experimentation
-- ✗ mta
-- ✗ marketing-mix-modeling
-- ✗ media-mix
-- ✗ causal-inference
-- ✗ attribution
-- ✗ multi-touch-attribution
-- ✗ incrementality-testing
 - ✗ marketing-science
-- ✗ geo-experiments
-- ✗ synthetic-control
-- ✗ holdout-testing
-- ✗ geo-lift
-- ✗ mmm
+- ✗ multi-touch-attribution
+- ✗ self-serve
 - ✗ guardrail-metrics
+- ✗ geo-experiments
+- ✗ attribution
+- ✗ holdout-testing
+- ✗ causal-inference
+- ✗ media-mix
+- ✗ mmm
+- ✗ incrementality-testing
+- ✗ incrementality
+- ✗ geo-lift
+- ✗ forecasting
+- ✗ experimentation
+- ✗ clean-rooms
+- ✗ mta
+- ✗ synthetic-control
+- ✗ marketing-mix-modeling
 
 ## Recommendations
 - 🔴 **Low keyword coverage** - Post more about missing topics

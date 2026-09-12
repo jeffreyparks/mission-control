@@ -1,5 +1,5 @@
 # LinkedIn Profile Scan (PDF)
-**Date:** 2026-09-11
+**Date:** 2026-09-12
 **Source:** Quick PDF export
 
 ## Profile Summary
@@ -29,28 +29,28 @@
 ### Keyword Coverage: 40%
 
 **Matched Keywords:**
-- ✓ forecasting
-- ✓ incrementality
 - ✓ self-serve
-- ✓ experimentation
 - ✓ attribution
+- ✓ mmm
+- ✓ incrementality
+- ✓ forecasting
+- ✓ experimentation
 - ✓ synthetic-control
 - ✓ measurement
-- ✓ mmm
 
 **Missing Keywords:**
+- ✗ marketing-science
+- ✗ multi-touch-attribution
+- ✗ guardrail-metrics
+- ✗ geo-experiments
+- ✗ holdout-testing
+- ✗ causal-inference
+- ✗ media-mix
+- ✗ incrementality-testing
+- ✗ geo-lift
 - ✗ clean-rooms
 - ✗ mta
 - ✗ marketing-mix-modeling
-- ✗ media-mix
-- ✗ causal-inference
-- ✗ multi-touch-attribution
-- ✗ incrementality-testing
-- ✗ marketing-science
-- ✗ geo-experiments
-- ✗ holdout-testing
-- ✗ geo-lift
-- ✗ guardrail-metrics
 
 ## Recommendations
 - 🔴 **Low keyword coverage** - Update headline, summary, or experience descriptions

@@ -15,6 +15,446 @@
     "source": "html",
     "url": "https://www.amazon.jobs/en/jobs/10442437/director-analytics-and-decision-science"
   },
+  "anthropic-applied-ai-architect": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Applied AI Architect",
+    "location": "Singapore",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5390742008"
+  },
+  "anthropic-applied-ai-architect-beneficial-deployments-life-sciences": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Applied AI Architect, Beneficial Deployments (Life Sciences)",
+    "location": "London, UK",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5413642008"
+  },
+  "anthropic-applied-ai-architect-cyber": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Applied AI Architect, Cyber",
+    "location": "San Francisco, CA | New York City, NY",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5387733008"
+  },
+  "anthropic-applied-ai-architect-digital-natives-business": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Applied AI Architect, Digital Natives Business",
+    "location": "Munich, Germany",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5226862008"
+  },
+  "anthropic-applied-ai-architect-partnerships": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Applied AI Architect, Partnerships",
+    "location": "Bangalore, India",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5390750008"
+  },
+  "anthropic-applied-ai-architect-public-sector-national-security": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Applied AI Architect, Public Sector (National Security)",
+    "location": "Washington, DC",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5390877008"
+  },
+  "anthropic-applied-ai-architect-startups": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Applied AI Architect, Startups",
+    "location": "San Francisco, CA | New York City, NY",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5406982008"
+  },
+  "anthropic-applied-ai-architect-strategic-enterprise-tech": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Applied AI Architect, Strategic Enterprise Tech",
+    "location": "San Francisco, CA | New York City, NY | Seattle, WA",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5409008008"
+  },
+  "anthropic-applied-ai-engineer": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Applied AI Engineer",
+    "location": "Tokyo, Japan",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5390799008"
+  },
+  "anthropic-applied-ai-engineer-beneficial-deployments-life-sciences": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Applied AI Engineer, Beneficial Deployments (Life Sciences)",
+    "location": "San Francisco, CA | New York City, NY",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5021015008"
+  },
+  "anthropic-applied-ai-engineer-enterprise": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Applied AI Engineer, Enterprise",
+    "location": "Paris, France",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5390754008"
+  },
+  "anthropic-applied-ai-engineer-enterprise-tech": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Applied AI Engineer, Enterprise Tech",
+    "location": "San Francisco, CA | New York City, NY | Seattle, WA",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5057647008"
+  },
+  "anthropic-applied-ai-research-engineer": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Applied AI, Research Engineer",
+    "location": "San Francisco, CA | New York City, NY",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5390811008"
+  },
+  "anthropic-applied-ai-security-architect": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Applied AI Security Architect",
+    "location": "London, UK",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5227641008"
+  },
+  "anthropic-applied-ai-strategist-emea": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Applied AI Strategist, EMEA",
+    "location": "London, UK",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5390791008"
+  },
+  "anthropic-applied-ai-technical-evangelist-startup-ecosystem": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Applied AI Technical Evangelist, Startup Ecosystem",
+    "location": "San Francisco, CA",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5116927008"
+  },
+  "anthropic-customer-marketing-manager-industries": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Customer Marketing Manager, Industries",
+    "location": "San Francisco, CA | New York City, NY",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5390155008"
+  },
+  "anthropic-data-scientist-developer-productivity": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Data Scientist, Developer Productivity",
+    "location": "San Francisco, CA | New York City, NY",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5197529008"
+  },
+  "anthropic-data-scientist-policy": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Data Scientist, Policy",
+    "location": "New York City, NY; San Francisco, CA | New York City, NY; Washington, DC",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5232055008"
+  },
+  "anthropic-data-scientist-product": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Data Scientist, Product",
+    "location": "New York City, NY; San Francisco, CA; Seattle, WA",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5182605008"
+  },
+  "anthropic-data-scientist-safeguards": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Data Scientist, Safeguards",
+    "location": "New York City, NY; San Francisco, CA; Seattle, WA",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5209196008"
+  },
+  "anthropic-engineering-manager-growth": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Engineering Manager, Growth",
+    "location": "San Francisco, CA | New York City, NY | Seattle, WA",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5361472008"
+  },
+  "anthropic-field-marketing-lead-public-sector": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Field Marketing Lead, Public Sector",
+    "location": "San Francisco, CA | Washington, DC",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5344577008"
+  },
+  "anthropic-field-marketing-manager-apac": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Field Marketing Manager, APAC",
+    "location": "Singapore",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5393720008"
+  },
+  "anthropic-forward-deployed-engineer": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Forward Deployed Engineer",
+    "location": "Paris, France",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5391021008"
+  },
+  "anthropic-front-end-engineer-marketing": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Front End Engineer, Marketing",
+    "location": "San Francisco, CA | New York City, NY",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5386971008"
+  },
+  "anthropic-growth-account-executive-ai-native": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Growth Account Executive, AI Native",
+    "location": "San Francisco, CA | New York City, NY",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/4423394008"
+  },
+  "anthropic-growth-account-executive-startups": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Growth Account Executive, Startups",
+    "location": "New York City, NY; San Francisco, CA",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5079916008"
+  },
+  "anthropic-head-of-community-enterprise-marketing": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Head of Community, Enterprise Marketing",
+    "location": "San Francisco, CA | New York City, NY",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5388719008"
+  },
+  "anthropic-lead-data-scientist-platform-product": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Lead Data Scientist, Platform Product",
+    "location": "New York City, NY | Seattle, WA; San Francisco, CA",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5116820008"
+  },
+  "anthropic-machine-learning-infrastructure-engineer-safeguards-research": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Machine Learning Infrastructure Engineer, Safeguards Research",
+    "location": "San Francisco, CA | New York City, NY",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5364804008"
+  },
+  "anthropic-manager-applied-ai-architect-enterprise-tech": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Manager, Applied AI Architect, Enterprise Tech",
+    "location": "San Francisco, CA | New York City, NY",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5387754008"
+  },
+  "anthropic-manager-applied-ai-architecture-financial-services": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Manager Applied AI Architecture, Financial Services",
+    "location": "New York City, NY; San Francisco, CA | New York City, NY",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5390894008"
+  },
+  "anthropic-manager-applied-ai-architecture-healthcare-life-sciences": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Manager Applied AI Architecture, Healthcare & Life Sciences",
+    "location": "New York City, NY; San Francisco, CA | New York City, NY",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5390890008"
+  },
+  "anthropic-manager-applied-ai-engineering-beneficial-deployments-life-sciences": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Manager, Applied AI Engineering, Beneficial Deployments (Life Sciences)",
+    "location": "San Francisco, CA | New York City, NY",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5277834008"
+  },
+  "anthropic-manager-forward-deployed-engineering": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Manager, Forward Deployed Engineering",
+    "location": "New York City, NY",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5099753008"
+  },
+  "anthropic-manager-growth-sales-ai-native": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Manager\u2013 Growth Sales (AI-Native)",
+    "location": "San Francisco, CA",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/4976328008"
+  },
+  "anthropic-manager-of-applied-ai-architecture-commercial": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Manager of Applied AI Architecture, Commercial",
+    "location": "San Francisco, CA | New York City, NY",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5390865008"
+  },
+  "anthropic-partner-marketing-lead-cloud": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Partner Marketing Lead, Cloud",
+    "location": "San Francisco, CA | Seattle, WA",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5406113008"
+  },
+  "anthropic-partner-marketing-manager-launches": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Partner Marketing Manager, Launches",
+    "location": "San Francisco, CA | Seattle, WA",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5388667008"
+  },
+  "anthropic-people-research-scientist-recruiting": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "People Research Scientist, Recruiting",
+    "location": "San Francisco, CA | New York City, NY | Seattle, WA",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5362838008"
+  },
+  "anthropic-pre-sales-program-lead-forward-deployed-engineering": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Pre-Sales Program Lead, Forward Deployed Engineering",
+    "location": "San Francisco, CA | New York City, NY",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5391012008"
+  },
+  "anthropic-product-manager-growth": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Product Manager, Growth",
+    "location": "San Francisco, CA | New York City, NY | Seattle, WA",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5406106008"
+  },
+  "anthropic-product-manager-multi-cloud-growth-google": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Product Manager, Multi-Cloud Growth - Google",
+    "location": "San Francisco, CA",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5153924008"
+  },
+  "anthropic-product-marketing-lead-gtm-strategy-claude-for-knowledge-work": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Product Marketing Lead, GTM Strategy - Claude for Knowledge Work",
+    "location": "San Francisco, CA | New York City, NY",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5385602008"
+  },
+  "anthropic-product-marketing-manager-knowledge-work-core-products": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Product Marketing Manager, Knowledge Work - Core Products",
+    "location": "San Francisco, CA | New York City, NY",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5385651008"
+  },
+  "anthropic-regional-research-economist-economic-research": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Regional Research Economist, Economic Research",
+    "location": "Singapore",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5231205008"
+  },
+  "anthropic-research-economist-economic-research": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Research Economist, Economic Research",
+    "location": "San Francisco, CA",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5018472008"
+  },
+  "anthropic-solutions-marketing-lead-public-sector": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Solutions Marketing Lead, Public Sector",
+    "location": "San Francisco, CA | New York City, NY; San Francisco, CA | New York City, NY | Washington, DC",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5385586008"
+  },
+  "anthropic-solutions-marketing-manager-cybersecurity": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Solutions Marketing Manager, Cybersecurity",
+    "location": "San Francisco, CA; Washington, DC",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5420245008"
+  },
+  "anthropic-solutions-marketing-manager-healthcare-science": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Solutions Marketing Manager, Healthcare & Science",
+    "location": "San Francisco, CA",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5420232008"
+  },
+  "anthropic-strategy-operations-applied-ai-amer": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Strategy & Operations, Applied AI - AMER",
+    "location": "San Francisco, CA | New York City, NY",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5284500008"
+  },
+  "anthropic-strategy-operations-lead-enterprise-marketing": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Strategy & Operations Lead, Enterprise Marketing",
+    "location": "San Francisco, CA | New York City, NY",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5389945008"
+  },
+  "anthropic-strategy-operations-lead-marketing": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Strategy & Operations Lead, Marketing",
+    "location": "San Francisco, CA | New York City, NY",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5248946008"
+  },
+  "anthropic-transformative-ai-research-economist-economic-research": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Transformative AI Research Economist, Economic Research",
+    "location": "San Francisco, CA",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5149802008"
+  },
   "attentive-attentive-hiring-applied-science-data-science-leader-in-san-francisco-ca-linkedin": {
     "added": "2026-09-11",
     "comp_range": "$320,000 - $380,000",
@@ -63,6 +503,166 @@
     "source": "html",
     "url": "https://www.linkedin.com/jobs/view/4462035439/"
   },
+  "pinterest-data-scientist-ii-infrastructure": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Data Scientist II, Infrastructure",
+    "location": "San Francisco, CA, US; Remote, US",
+    "source": "live",
+    "url": "https://www.pinterestcareers.com/jobs/?gh_jid=7816424"
+  },
+  "pinterest-data-scientist-ii-ml-infrastructure": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Data Scientist II, ML Infrastructure",
+    "location": "Palo Alto, CA, US; Remote, US",
+    "source": "live",
+    "url": "https://www.pinterestcareers.com/jobs/?gh_jid=8071670"
+  },
+  "pinterest-director-marketing-technology-innovation": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Director, Marketing Technology & Innovation",
+    "location": "San Francisco, CA, US; Remote, US",
+    "source": "live",
+    "url": "https://www.pinterestcareers.com/jobs/?gh_jid=7648650"
+  },
+  "pinterest-head-of-business-marketing-australia": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Head of Business Marketing, Australia",
+    "location": "Sydney, AU",
+    "source": "live",
+    "url": "https://www.pinterestcareers.com/jobs/?gh_jid=8154435"
+  },
+  "pinterest-insights-solutions-partner-ii": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Insights Solutions Partner II",
+    "location": "Mexico City, MX",
+    "source": "live",
+    "url": "https://www.pinterestcareers.com/jobs/?gh_jid=7678372"
+  },
+  "pinterest-lead-ads-product-marketing-manager": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Lead Ads Product Marketing Manager",
+    "location": "San Francisco, CA, US; Remote, US",
+    "source": "live",
+    "url": "https://www.pinterestcareers.com/jobs/?gh_jid=8130606"
+  },
+  "pinterest-sr-ads-product-marketing-manager-ads-delivery": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Sr. Ads Product Marketing Manager- Ads Delivery",
+    "location": "Chicago, IL, US; New York, NY, US; San Francisco, CA, US; Los Angeles, CA, US; Atlanta, GA, US; Seattle, WA, US",
+    "source": "live",
+    "url": "https://www.pinterestcareers.com/jobs/?gh_jid=8082503"
+  },
+  "pinterest-sr-data-scientist-core": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Sr. Data Scientist, Core",
+    "location": "San Francisco, CA, US; Remote, US",
+    "source": "live",
+    "url": "https://www.pinterestcareers.com/jobs/?gh_jid=6087213"
+  },
+  "pinterest-sr-data-scientist-infrastructure": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Sr. Data Scientist, Infrastructure",
+    "location": "San Francisco, CA, US; Remote, US",
+    "source": "live",
+    "url": "https://www.pinterestcareers.com/jobs/?gh_jid=8024966"
+  },
+  "pinterest-sr-data-scientist-marketing": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Sr. Data Scientist, Marketing",
+    "location": "San Francisco, CA, US; Remote, US",
+    "source": "live",
+    "url": "https://www.pinterestcareers.com/jobs/?gh_jid=8011376"
+  },
+  "pinterest-sr-data-scientist-monetization": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Sr. Data Scientist, Monetization",
+    "location": "San Francisco, CA, US; Seattle, WA, US",
+    "source": "live",
+    "url": "https://www.pinterestcareers.com/jobs/?gh_jid=5740948"
+  },
+  "pinterest-sr-data-scientist-tvscientific": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Sr. Data Scientist, tvScientific",
+    "location": "San Francisco, CA, US; Remote, US",
+    "source": "live",
+    "url": "https://www.pinterestcareers.com/jobs/?gh_jid=7642251"
+  },
+  "pinterest-sr-systems-engineer-sales-marketing": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Sr. Systems Engineer, Sales & Marketing",
+    "location": "San Francisco, CA, US; Remote, US",
+    "source": "live",
+    "url": "https://www.pinterestcareers.com/jobs/?gh_jid=8011573"
+  },
+  "pinterest-staff-data-scientist-ads-delivery": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Staff Data Scientist, Ads Delivery",
+    "location": "San Francisco, CA, US; Remote, US",
+    "source": "live",
+    "url": "https://www.pinterestcareers.com/jobs/?gh_jid=8026607"
+  },
+  "pinterest-staff-data-scientist-ads-product": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Staff Data Scientist, Ads Product",
+    "location": "San Francisco, CA, US; Seattle, WA, US",
+    "source": "live",
+    "url": "https://www.pinterestcareers.com/jobs/?gh_jid=7963755"
+  },
+  "pinterest-staff-data-scientist-finance-business-ops": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Staff Data Scientist, Finance & Business Ops",
+    "location": "San Francisco, CA, US; Remote, US",
+    "source": "live",
+    "url": "https://www.pinterestcareers.com/jobs/?gh_jid=8036273"
+  },
+  "pinterest-staff-data-scientist-notifications": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Staff Data Scientist, Notifications",
+    "location": "San Francisco, CA, US; Remote, US",
+    "source": "live",
+    "url": "https://www.pinterestcareers.com/jobs/?gh_jid=8095343"
+  },
+  "pinterest-staff-software-engineer-growth-performance-marketing": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Staff Software Engineer- Growth Performance Marketing",
+    "location": "San Francisco, CA, US; Remote, US",
+    "source": "live",
+    "url": "https://www.pinterestcareers.com/jobs/?gh_jid=7874931"
+  },
+  "pinterest-staff-technical-program-manager-data-science": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Staff Technical Program Manager, Data Science",
+    "location": "San Francisco, CA, US; Remote, US",
+    "source": "live",
+    "url": "https://www.pinterestcareers.com/jobs/?gh_jid=8067933"
+  },
+  "pinterest-staff-technical-program-manager-monetization-data-science": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Staff Technical Program Manager, Monetization Data Science",
+    "location": "San Francisco, CA, US; Remote, US",
+    "source": "live",
+    "url": "https://www.pinterestcareers.com/jobs/?gh_jid=7494686"
+  },
   "professional-vp-marketing-data-science": {
     "added": "2026-09-11",
     "comp_range": "$129,840.00 - $194,760.00",
@@ -78,6 +678,78 @@
     "location": "Chicago, New York",
     "source": "greenhouse",
     "url": "https://job-boards.greenhouse.io/prophet/jobs/4618320005"
+  },
+  "reddit-country-lead-business-marketing-uk": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Country Lead, Business Marketing, UK",
+    "location": "London, United Kingdom",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/reddit/jobs/8121099"
+  },
+  "reddit-emea-insights-lead-consumer-and-commercial-strategy": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "EMEA Insights Lead, Consumer and Commercial Strategy",
+    "location": "Remote - Germany",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/reddit/jobs/7957771"
+  },
+  "reddit-senior-business-analyst-revenue-analytics": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Senior Business Analyst, Revenue Analytics",
+    "location": "Remote - United States",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/reddit/jobs/8023563"
+  },
+  "reddit-senior-data-scientist-ads": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Senior Data Scientist, Ads",
+    "location": "Remote - United States",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/reddit/jobs/8104403"
+  },
+  "reddit-senior-data-scientist-ads-integrity": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Senior Data Scientist, Ads Integrity",
+    "location": "Remote - United States",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/reddit/jobs/8157580"
+  },
+  "reddit-senior-data-scientist-consumer": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Senior Data Scientist - Consumer",
+    "location": "Remote - United States",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/reddit/jobs/8126946"
+  },
+  "reddit-senior-gtm-insights-automation-manager": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Senior GTM Insights Automation Manager",
+    "location": "Chicago, IL; Los Angeles, CA; New York City, NY; San Francisco, CA",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/reddit/jobs/8077785"
+  },
+  "reddit-staff-data-scientist-ads": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Staff Data Scientist, Ads",
+    "location": "Remote - Ontario, Canada",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/reddit/jobs/7721851"
+  },
+  "reddit-staff-data-scientist-consumer": {
+    "added": "backfill",
+    "comp_range": null,
+    "jd": "Staff Data Scientist, Consumer",
+    "location": "Remote - United States",
+    "source": "live",
+    "url": "https://job-boards.greenhouse.io/reddit/jobs/6745284"
   },
   "reddit-staff-data-scientist-marketing": {
     "added": "2026-09-11",
