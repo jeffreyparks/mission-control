@@ -143,7 +143,8 @@
             </details>
             {% endif %}
           </td>
-          <td class="sector">
+          <td class="catcell" data-role-cat="{{ r.role_cat or '' }}"
+              data-suggested="{{ r.suggested_role_cat or '' }}">
             {% if r.role_cat %}
               {{ r.role_cat }}
             {% elif r.suggested_role_cat %}
@@ -156,10 +157,10 @@
             {% endif %}
           </td>
           <td><span class="fit {% if (r.fit_score or 0) >= 70 %}hi{% elif (r.fit_score or 0) >= 45 %}mid{% else %}lo{% endif %}">{{ r.fit_score if r.fit_score is not none else '—' }}</span></td>
-          <td>{% if r.recommendation %}<span class="rec {{ r.recommendation }}">{{ r.recommendation }}</span>{% else %}—{% endif %}</td>
-          <td>{% if r.priority %}<span class="pri p{{ r.priority|int }}">P{{ r.priority|int }}</span>{% else %}—{% endif %}</td>
-          <td class="statuscell"><span class="dot {{ (r.status or '')|lower|replace('00 ','')|replace('01 ','')|replace('02 ','')|replace('03 ','')|replace('04 ','') }}">{{ r.status or '—' }}</span></td>
-          <td>{% if r.outcome_display %}<span class="bad-chip">{{ r.outcome_display }}</span>{% else %}—{% endif %}</td>
+          <td class="reccell" data-rec-value="{{ r.recommendation or '' }}">{% if r.recommendation %}<span class="rec {{ r.recommendation }}">{{ r.recommendation }}</span>{% else %}—{% endif %}</td>
+          <td class="pricell" data-pri-value="{{ r.priority|int if r.priority else '' }}">{% if r.priority %}<span class="pri p{{ r.priority|int }}">P{{ r.priority|int }}</span>{% else %}—{% endif %}</td>
+          <td class="statuscell">{% if r.store_id %}<span class="dot {{ (r.status or '')|lower|replace('00 ','')|replace('01 ','')|replace('02 ','')|replace('03 ','')|replace('04 ','') }}">{{ r.status or '—' }}</span>{% else %}<span class="dot">—</span>{% endif %}</td>
+          <td class="outcell" data-outcome-value="{{ r.outcome_label or '' }}">{% if r.outcome_display %}<span class="bad-chip">{{ r.outcome_display }}</span>{% else %}—{% endif %}</td>
         </tr>
       {% endfor %}
       </tbody>
@@ -251,53 +252,123 @@ q.oninput=apply;
   fetch(API + '/api/health').then(function(r){
     return r.ok ? r.json() : Promise.reject();
   }).then(function(health){
-    if(!health.ok || !health.editable || !health.editable.status) return;
+    if(!health.ok || !health.editable) return;
     document.body.classList.add('live');
     var banner = document.getElementById('livebadge');
     if(banner) banner.style.display = 'inline-block';
-    enableStatusEditing(health.editable.status);
+    var ed = health.editable;
+    if(ed.status) enableSelect('statuscell', 'status', ed.status, function(tr,v){ tr.dataset.status=v; apply(); },
+      function(v){ return v.replace(/^\d\d\s/, ''); }, function(tr,cell){ return tr.dataset.status || ''; });
+    if(ed.priority) enableSelect('pricell', 'priority', ed.priority, function(tr,v){},
+      function(v){ return v ? 'P'+v : '\u2014'; }, function(tr,cell){ return cell.dataset.priValue || ''; });
+    if(ed.recommendation) enableSelect('reccell', 'recommendation', ed.recommendation, function(tr,v){ tr.dataset.rec=v; apply(); },
+      function(v){ return v || '\u2014'; }, function(tr,cell){ return tr.dataset.rec || ''; });
+    if(ed.outcomes) enableSelect('outcell', 'outcomes', ed.outcomes, function(tr,v){},
+      function(v){ return v || '\u2014'; }, function(tr,cell){ return cell.dataset.outcomeValue || ''; });
+    if(ed.role_cat) enableCategoryEditing(ed.role_cat);
   }).catch(function(){ /* read-only, as designed */ });
 
-  function enableStatusEditing(options){
+  // One generic editor for a single-select field: status, priority,
+  // recommendation, outcomes. Category is different enough (freeform
+  // suggestion acceptance) to get its own function below.
+  function enableSelect(cellClass, field, options, onSaved, labelFor, currentFor){
     document.querySelectorAll('#rt tbody tr').forEach(function(tr){
       var id = tr.dataset.id;
-      var cell = tr.querySelector('.statuscell');
+      var cell = tr.querySelector('.' + cellClass);
       if(!id || !cell) return;
+      var current = currentFor(tr, cell);
 
-      var current = tr.dataset.status || '';
       var sel = document.createElement('select');
-      sel.className = 'statussel';
+      sel.className = 'fieldsel';
       options.forEach(function(value){
         var opt = document.createElement('option');
         opt.value = value;
-        opt.textContent = value.replace(/^\d\d\s/, '');
+        opt.textContent = labelFor(value);
         if(value === current) opt.selected = true;
         sel.appendChild(opt);
       });
 
       sel.onchange = function(){
-        var next = sel.value, previous = tr.dataset.status;
-        sel.disabled = true;
-        fetch(API + '/api/role/' + encodeURIComponent(id), {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({field: 'status', value: next})
-        }).then(function(r){ return r.json(); }).then(function(res){
-          sel.disabled = false;
-          if(res.error){ throw new Error(res.error); }
-          tr.dataset.status = next;
-          flash(cell, 'saved');
-          apply();                     // the status filter must stay honest
-        }).catch(function(err){
-          sel.disabled = false;
-          sel.value = previous;        // never show a value the db does not hold
-          flash(cell, 'failed');
-          console.error('writeback failed', err);
-        });
+        var next = sel.value, previous = current;
+        writeField(id, field, next, sel, cell, function(){
+          current = next;
+          onSaved(tr, next);
+        }, function(){ sel.value = previous; });
       };
 
       cell.innerHTML = '';
       cell.appendChild(sel);
+    });
+  }
+
+  // Category gets a select PLUS a one-click "use" action when the categoriser
+  // has a suggestion the user has not accepted or overridden yet.
+  function enableCategoryEditing(options){
+    document.querySelectorAll('#rt tbody tr').forEach(function(tr){
+      var id = tr.dataset.id;
+      var cell = tr.querySelector('.catcell');
+      if(!id || !cell) return;
+      var current = cell.dataset.roleCat || '';
+      var suggested = cell.dataset.suggested || '';
+
+      var wrap = document.createElement('div');
+      var sel = document.createElement('select');
+      sel.className = 'fieldsel catsel';
+      options.forEach(function(value){
+        var opt = document.createElement('option');
+        opt.value = value;
+        opt.textContent = value || '\u2014 none \u2014';
+        if(value === current) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      sel.onchange = function(){
+        var next = sel.value, previous = current;
+        writeField(id, 'role_cat', next, sel, cell, function(){
+          current = next;
+          hint.style.display = 'none';
+        }, function(){ sel.value = previous; });
+      };
+      wrap.appendChild(sel);
+
+      var hint = document.createElement('div');
+      hint.className = 'accept-hint';
+      if(!current && suggested){
+        hint.innerHTML = 'suggested: <b>' + suggested + '</b> ';
+        var use = document.createElement('button');
+        use.type = 'button';
+        use.className = 'accept-btn';
+        use.textContent = 'accept';
+        use.onclick = function(){
+          sel.value = suggested;
+          sel.dispatchEvent(new Event('change'));
+        };
+        hint.appendChild(use);
+      } else {
+        hint.style.display = 'none';
+      }
+      wrap.appendChild(hint);
+
+      cell.innerHTML = '';
+      cell.appendChild(wrap);
+    });
+  }
+
+  function writeField(id, field, value, control, cell, onSuccess, onFailure){
+    control.disabled = true;
+    fetch(API + '/api/role/' + encodeURIComponent(id), {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({field: field, value: value})
+    }).then(function(r){ return r.json(); }).then(function(res){
+      control.disabled = false;
+      if(res.error){ throw new Error(res.error); }
+      onSuccess();
+      flash(cell, 'saved');
+    }).catch(function(err){
+      control.disabled = false;
+      onFailure();
+      flash(cell, 'failed');
+      console.error('writeback failed', field, err);
     });
   }
 

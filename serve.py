@@ -30,22 +30,37 @@ BASE = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE / "agents"))
 
 from store import Store  # noqa: E402
+from job_intel import load_archetypes, OUTCOME_LABELS  # noqa: E402
 
 WEB_ROOT = BASE / "artifacts/html"
 
-# Fields the dashboard may write, and the values it may write for them.
-# A closed vocabulary keeps a stray request from inventing a status.
+# Fields the dashboard may write, and the values it may write for them. A closed
+# vocabulary keeps a stray request from inventing a status or a category that
+# does not exist. status/priority/recommendation are fixed; role_cat and
+# outcomes are computed at startup from your own data (career-goals.md and the
+# tracker's existing labels), so they can never drift from what the rest of
+# the pipeline understands.
 EDITABLE = {
     "status": ["00 New find", "01 Open", "02 Researching", "03 Applied", "04 Closed"],
     "priority": ["1", "2", "3", ""],
     "recommendation": ["apply", "research", "skip", ""],
 }
 
+
+def _outcome_options():
+    seen, options = set(), [""]
+    for _needle, pretty in OUTCOME_LABELS:
+        if pretty not in seen:
+            seen.add(pretty)
+            options.append(pretty)
+    return options
+
 _write_lock = threading.Lock()
 
 
 class Handler(SimpleHTTPRequestHandler):
     store = None
+    editable = EDITABLE
     quiet = False
 
     def __init__(self, *args, **kwargs):
@@ -79,7 +94,7 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json({
                 "ok": True,
                 "rows": self.store.count(),
-                "editable": EDITABLE,
+                "editable": self.editable,
                 "db": str(self.store.db_path.relative_to(BASE)),
             })
         if path == "/api/changes":
@@ -106,11 +121,15 @@ class Handler(SimpleHTTPRequestHandler):
 
         field = payload.get("field")
         value = payload.get("value")
-        if field not in EDITABLE:
+        if field not in self.editable:
             return self._json({"error": f"field not editable: {field}"}, 400)
-        allowed = EDITABLE[field]
+        allowed = self.editable[field]
+        # Validate against the vocabulary as text (a select element only ever
+        # sends strings), then store the type the rest of the pipeline expects.
         if allowed is not None and str(value or "") not in allowed:
             return self._json({"error": f"value not allowed for {field}: {value!r}"}, 400)
+        if field == "priority" and value not in (None, ""):
+            value = float(value)
 
         try:
             with _write_lock:
@@ -133,7 +152,17 @@ class Handler(SimpleHTTPRequestHandler):
 
 
 def serve(host="127.0.0.1", port=8787, base=BASE, quiet=False):
-    Handler.store = Store(base)
+    store = Store(base)
+    editable = dict(EDITABLE)
+    editable["outcomes"] = _outcome_options()
+    try:
+        archetypes = load_archetypes(base, store.to_df())
+        editable["role_cat"] = [""] + [a["label"] for a in archetypes]
+    except Exception:  # noqa: BLE001 - a missing career-goals.md must not break serving
+        editable["role_cat"] = [""]
+
+    Handler.store = store
+    Handler.editable = editable
     Handler.quiet = quiet
     httpd = ThreadingHTTPServer((host, port), Handler)
     return httpd
@@ -154,7 +183,7 @@ def main():
     print(f"Mission Control writeback server")
     print(f"  dashboard : http://{args.host}:{args.port}/job-tracker.html")
     print(f"  database  : {store.db_path.relative_to(BASE)} ({store.count()} roles)")
-    print(f"  editable  : {', '.join(EDITABLE)}")
+    print(f"  editable  : {', '.join(Handler.editable)}")
     print("  ctrl-c to stop")
     try:
         httpd.serve_forever()

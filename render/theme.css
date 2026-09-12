@@ -159,3 +159,16 @@ footer{padding:36px 0 64px;font-size:11px;color:var(--ink-mute);
 .chip.live{border-color:#1f3d2a;background:#12211a;color:var(--ok)}
 .flash{font-family:var(--mono);font-size:9px;margin-left:6px;letter-spacing:.1em;text-transform:uppercase}
 .flash.saved{color:var(--ok)} .flash.failed{color:#ff6b6b}
+
+/* stage 3: priority / recommendation / outcomes / category writeback */
+.fieldsel{background:var(--bg-card);color:var(--ink);border:1px solid var(--line);
+  border-radius:4px;padding:4px 6px;font-size:11px;font-family:var(--mono);max-width:190px}
+.fieldsel:hover{border-color:var(--accent)}
+.fieldsel:disabled{opacity:.5}
+.catsel{max-width:220px}
+.accept-hint{font-size:10px;color:var(--ink-mute);margin-top:4px}
+.accept-hint b{color:var(--ink-dim)}
+.accept-btn{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid var(--line);background:transparent;color:var(--accent);border-radius:3px;
+  padding:1px 6px;margin-left:4px;cursor:pointer}
+.accept-btn:hover{border-color:var(--accent);background:#12211a}

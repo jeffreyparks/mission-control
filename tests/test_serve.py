@@ -22,6 +22,7 @@ work = Path(tempfile.mkdtemp())
 (work / "artifacts/jobs").mkdir(parents=True)
 (work / "artifacts/html").mkdir(parents=True)
 (work / "data").mkdir(parents=True)
+(work / "config").mkdir(parents=True)
 
 cols = list(__import__("store").COLUMN_MAP.keys())
 rows = [
@@ -30,6 +31,7 @@ rows = [
 ]
 pd.DataFrame(rows, columns=cols).to_excel(work / "artifacts/jobs/org-roles-tracker.xlsx", index=False)
 (work / "artifacts/html/job-tracker.html").write_text("<html>stub</html>")
+shutil.copy2(REPO / "config/career-goals.md", work / "config/career-goals.md")
 
 store = Store(work)
 store.load(verbose=False)
@@ -84,6 +86,35 @@ try:
 
     fit = requests.post(f"{API}/api/role/{rid}", json={"field": "notes", "value": "x"}, timeout=5)
     check("non-allowlisted manual field rejected", fit.status_code == 400, str(fit.status_code))
+
+    check("priority is editable", "priority" in health["editable"])
+    check("recommendation is editable", "recommendation" in health["editable"])
+    check("outcomes is editable", "outcomes" in health["editable"], str(health["editable"].get("outcomes")))
+    check("role_cat is editable", "role_cat" in health["editable"], str(health["editable"].get("role_cat")))
+    check("role_cat vocabulary is populated from career-goals.md",
+          len(health["editable"].get("role_cat", [])) > 1, str(health["editable"].get("role_cat")))
+
+    pri = requests.post(f"{API}/api/role/{rid}", json={"field": "priority", "value": "2"}, timeout=5).json()
+    check("priority write succeeds", pri.get("changed") and pri.get("new") == 2.0, str(pri))
+
+    rec = requests.post(f"{API}/api/role/{rid}", json={"field": "recommendation", "value": "apply"}, timeout=5).json()
+    check("recommendation write succeeds", rec.get("changed") and rec.get("new") == "apply", str(rec))
+
+    out_ok = requests.post(f"{API}/api/role/{rid}", json={"field": "outcomes", "value": "Rejected"}, timeout=5).json()
+    check("outcomes accepts a canonical label", out_ok.get("changed") and out_ok.get("new") == "Rejected", str(out_ok))
+
+    out_bad = requests.post(f"{API}/api/role/{rid}", json={"field": "outcomes", "value": "Whatever"}, timeout=5)
+    check("outcomes rejects a free-text value", out_bad.status_code == 400, str(out_bad.status_code))
+
+    role_cat_bad = requests.post(f"{API}/api/role/{rid}", json={"field": "role_cat", "value": "Not A Real Archetype"}, timeout=5)
+    check("role_cat rejects an unknown label", role_cat_bad.status_code == 400, str(role_cat_bad.status_code))
+
+    real_label = health["editable"]["role_cat"][1]
+    role_cat_ok = requests.post(f"{API}/api/role/{rid}", json={"field": "role_cat", "value": real_label}, timeout=5).json()
+    check("role_cat accepts a real archetype label", role_cat_ok.get("changed") and role_cat_ok.get("new") == real_label, str(role_cat_ok))
+
+    role_cat_clear = requests.post(f"{API}/api/role/{rid}", json={"field": "role_cat", "value": ""}, timeout=5).json()
+    check("role_cat accepts blank (clear)", role_cat_clear.get("changed") is True, str(role_cat_clear))
 finally:
     httpd.shutdown()
     httpd.server_close()
