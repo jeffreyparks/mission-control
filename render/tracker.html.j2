@@ -93,11 +93,25 @@
 
     <div class="controls">
       <input type="search" id="q" placeholder="Search org, title, sector, or rationale…">
-      <div class="filters" id="recf">
-        <button class="f on" data-rec="">All</button>
-        <button class="f" data-rec="apply">Apply</button>
-        <button class="f" data-rec="research">Research</button>
-        <button class="f" data-rec="skip">Skip</button>
+    </div>
+    <div class="filterbar">
+      <div class="fgroup">
+        <span class="flabel">Rec</span>
+        <div class="filters" id="recf">
+          <button class="f on" data-rec="">All</button>
+          <button class="f" data-rec="apply">Apply</button>
+          <button class="f" data-rec="research">Research</button>
+          <button class="f" data-rec="skip">Skip</button>
+        </div>
+      </div>
+      <div class="fgroup">
+        <span class="flabel">Status</span>
+        <div class="filters" id="statusf">
+          <button class="f on" data-status="">All</button>
+          {% for s in statuses %}
+          <button class="f" data-status="{{ s.value }}">{{ s.label }} <i>{{ s.count }}</i></button>
+          {% endfor %}
+        </div>
       </div>
     </div>
     <div class="count"><span id="shown">{{ roles|length }}</span> of {{ roles|length }} roles</div>
@@ -110,6 +124,7 @@
       <tbody>
       {% for r in roles %}
         <tr data-rec="{{ r.recommendation or '' }}"
+            data-status="{{ r.status or '' }}"
             data-blob="{{ (r.org ~ ' ' ~ r.title ~ ' ' ~ (r.sector or '') ~ ' ' ~ (r.role_cat or '') ~ ' ' ~ (r.suggested_role_cat or '') ~ ' ' ~ (r.suggestion_reason or '') ~ ' ' ~ (r.why or '') ~ ' ' ~ (r.seniority_read or ''))|lower }}">
           <td><div class="org">{{ r.org }}</div><div class="sector">{{ r.sector or '—' }}</div></td>
           <td>
@@ -193,24 +208,33 @@ document.querySelectorAll('.tab').forEach(function(t){
     document.getElementById(t.dataset.pane).classList.add('on');
   };
 });
-var rec='', q=document.getElementById('q');
+var rec='', status='', q=document.getElementById('q');
 function apply(){
   var term=q.value.trim().toLowerCase(), n=0;
   document.querySelectorAll('#rt tbody tr').forEach(function(tr){
     var okRec = !rec || tr.dataset.rec===rec;
+    var okStatus = !status || tr.dataset.status===status;
     var okQ = !term || tr.dataset.blob.indexOf(term)!==-1;
-    var show = okRec && okQ;
+    var show = okRec && okStatus && okQ;
     tr.style.display = show ? '' : 'none';
     if(show) n++;
   });
   document.getElementById('shown').textContent=n;
 }
 q.oninput=apply;
-document.querySelectorAll('#recf .f').forEach(function(b){
-  b.onclick=function(){
-    document.querySelectorAll('#recf .f').forEach(function(x){x.classList.remove('on')});
-    b.classList.add('on'); rec=b.dataset.rec; apply();
-  };
+// One handler for both filter rows: the group id decides which variable moves,
+// so adding another facet later means adding one line, not another block.
+[['recf','rec'],['statusf','status']].forEach(function(pair){
+  var group=document.getElementById(pair[0]);
+  if(!group) return;
+  group.querySelectorAll('.f').forEach(function(b){
+    b.onclick=function(){
+      group.querySelectorAll('.f').forEach(function(x){x.classList.remove('on')});
+      b.classList.add('on');
+      if(pair[1]==='rec'){ rec=b.dataset.rec; } else { status=b.dataset.status; }
+      apply();
+    };
+  });
 });
 </script>
 </body></html>

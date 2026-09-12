@@ -90,6 +90,19 @@ def render_tracker(env, d):
         "skip": d["counts"].get("skip", 0),
     }
     recbars = [("apply", recs["apply"]), ("research", recs["research"]), ("skip", recs["skip"])]
+
+    # Status filter buttons. The tracker's statuses carry a sort prefix ("01 Open"),
+    # so sorting on the raw value keeps pipeline order; the prefix is dropped for
+    # display. Only statuses actually present get a button.
+    status_counts = Counter(r["status"] for r in roles if r.get("status"))
+    statuses = [
+        {
+            "value": value,
+            "label": value.split(" ", 1)[1] if " " in value and value.split(" ", 1)[0].isdigit() else value,
+            "count": count,
+        }
+        for value, count in sorted(status_counts.items())
+    ]
     best = [o["best_fit_score"] for o in orgs if o.get("best_fit_score") is not None]
 
     html = env.get_template("tracker.html.j2").render(
@@ -98,6 +111,7 @@ def render_tracker(env, d):
         orgs=orgs,
         recs=recs,
         recbars=recbars,
+        statuses=statuses,
         cats=cats,
         cats_max=cats_max,
         median_fit=_median_fit(roles),
