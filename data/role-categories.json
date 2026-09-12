@@ -41,6 +41,48 @@
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
+  "amerisave-mortgage-corporation-director-marketing-measurement-testing": {
+    "fingerprint": "031ff7dee9f758e3",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads marketing experimentation and measurement programs"
+  },
+  "analytic-partners-consultant-manager-marketing-science-analytics": {
+    "fingerprint": "ccfcc4cc970c9794",
+    "suggested_role_cat": "05 Practice Lead at Consultancy",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads client engagements as a consultant at a consultancy"
+  },
+  "analytic-partners-consultant-marketing-science-analytics": {
+    "fingerprint": "39ef44bdddb3361b",
+    "suggested_role_cat": "05 Practice Lead at Consultancy",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads client engagements as a consultant at a consultancy"
+  },
+  "analytic-partners-director-of-marketing-science-analytics-commercial-intelligence-customer-engagement-team": {
+    "fingerprint": "45772f532abb832e",
+    "suggested_role_cat": "05 Practice Lead at Consultancy",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads a team delivering analytics to clients at a consultancy"
+  },
+  "analytic-partners-marketing-science-analyst": {
+    "fingerprint": "048f139266e43775",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "analytic-partners-marketing-science-analyst-october-19th-2026-start-date": {
+    "fingerprint": "13d34d7d3b5e10ac",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "analytic-partners-senior-marketing-science-analyst": {
+    "fingerprint": "423c4027784ce425",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
   "anthropic-applied-ai-architect": {
     "fingerprint": "a5da39116101f511",
     "suggested_role_cat": "03 Applied AI Architect",
@@ -365,6 +407,60 @@
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
+  "anthropic-research-engineer-machine-learning-reinforcement-learning": {
+    "fingerprint": "16beecf3f8c93316",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-research-engineer-machine-learning-rl-velocity": {
+    "fingerprint": "632bad07c56c8b4c",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-research-engineer-research-scientist-pre-training": {
+    "fingerprint": "c3c80cf657a4be71",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-research-engineer-research-scientist-tokens": {
+    "fingerprint": "3ef6e54186fbf2e3",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-research-scientist-engineer-biological-safety": {
+    "fingerprint": "782de9d2eb642a0b",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-research-scientist-interpretability": {
+    "fingerprint": "371a3113441f74df",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-research-scientist-life-sciences": {
+    "fingerprint": "225fbbe71ed1356b",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-research-scientist-life-sciences-chemistry": {
+    "fingerprint": "fb68300e8659d2cf",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-research-scientist-life-sciences-computational": {
+    "fingerprint": "ace09b4566abe716",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
   "anthropic-solutions-marketing-lead-public-sector": {
     "fingerprint": "14b7fe546ceba65f",
     "suggested_role_cat": null,
@@ -385,6 +481,18 @@
   },
   "anthropic-staff-software-engineer-experimentation": {
     "fingerprint": "b6867ef711dfacde",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-staff-software-engineer-growth": {
+    "fingerprint": "71180edbac127fa7",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "anthropic-strategic-growth-account-executive-ai-native": {
+    "fingerprint": "090780e1e2c5bd17",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -413,6 +521,30 @@
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
+  "applecart-principal-product-manager-measurement": {
+    "fingerprint": "b875e97126b93d68",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "argenx-senior-director-emerging-science-and-pipeline-marketing-community-lead": {
+    "fingerprint": "83b2054371234fab",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "artefact-artefact-com-director-ai-data-science-marketing-measurement-effectiveness": {
+    "fingerprint": "01ae0e706005276b",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads AI and data science for marketing measurement and effectiveness"
+  },
+  "asml-test-measurement-lead-engineer": {
+    "fingerprint": "0401bd92ed4716d9",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
   "attentive-applied-science-data-science-leader": {
     "fingerprint": "3d11d638041d87de",
     "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
@@ -437,6 +569,12 @@
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
+  "avantpage-head-of-marketing-b2b-growth-marketing-remote": {
+    "fingerprint": "47cb3d064ef0947d",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
   "beam-head-of-marketing-intelligence": {
     "fingerprint": "9207451d57196c5e",
     "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
@@ -449,11 +587,77 @@
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
+  "biogen-lead-of-digital-marketing-measurement-and-data-science": {
+    "fingerprint": "8c1f56455e879f79",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads digital marketing measurement and data science initiatives"
+  },
+  "boeing-consultant-measurement-engineer": {
+    "fingerprint": "23384962f6614243",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "boeing-mp-p-technical-analyst-nde-measurement": {
+    "fingerprint": "62c56ea8d3c49f96",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "brex-growth-marketing-lead-programmatic-video": {
+    "fingerprint": "e678f2d33a53cd38",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "canvas-worldwide-director-of-analytics-attribution-performance": {
+    "fingerprint": "201acfaeb19a22e6",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads attribution and performance analytics for an automotive brand"
+  },
+  "capital-one-senior-associate-data-scientist-business-cards-marketing-data-science": {
+    "fingerprint": "ceb34725a8d9e17a",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "capital-one-senior-lead-software-engineer-marketing-and-messaging-experimentation": {
+    "fingerprint": "7dd978078240f021",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "architects enterprise software for marketing experimentation and personalization"
+  },
+  "chamberlain-group-sr-manager-data-science-marketing": {
+    "fingerprint": "558ed4f7cc877ca8",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
   "chewy-director-data-science": {
     "fingerprint": "db7fdc7fa1db8d80",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
+  },
+  "child-mind-institute-marketing-associate-science-and-engineering": {
+    "fingerprint": "07e7b36488b66434",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "citi-svp-marketing-data-science": {
+    "fingerprint": "b53da715cfcb854d",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "SVP leading advanced statistical and ML models for marketing measurement"
+  },
+  "citi-svp-media-sciences-and-measurement": {
+    "fingerprint": "28c4927a26f6156e",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "SVP Media Sciences and Measurement leads media investment and measurement transformation"
   },
   "citi-vp-marketing-data-science": {
     "fingerprint": "e17536f9a6abcc04",
@@ -461,8 +665,92 @@
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
+  "control-associates-inc-account-manager-measurement-solutions": {
+    "fingerprint": "dc4bfdbc6bf2b16b",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "coupang-sr-director-data-science-data-engineering": {
+    "fingerprint": "d7fac452e0188cd1",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads global Data Science and Engineering org with LLM and personalization systems"
+  },
+  "crisp-crisp-co-senior-director-of-marketing": {
+    "fingerprint": "9675b09d672fbe12",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "crisp-crisp-co-senior-director-of-performance-marketing": {
+    "fingerprint": "21e07849957c6180",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "crossmedia-manager-marketing-science-analytics": {
+    "fingerprint": "159dd543675cb478",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads marketing science and analytics engagements with statistical modeling"
+  },
+  "dac-vice-president-marketing-science": {
+    "fingerprint": "75497fd185f90a97",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "VP leading analytics strategy across major clients with measurement and experimentation"
+  },
+  "datadog-staff-applied-scientist-agentic-interfaces": {
+    "fingerprint": "605835dea154a557",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads evaluation strategy for AI agent integrations at Datadog"
+  },
+  "disqo-sr-customer-success-manager-ad-measurement": {
+    "fingerprint": "4dee302ff91cf6fc",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
   "doordash-director-analytics-new-verticals-consumer": {
     "fingerprint": "cc835aa7825e0c62",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "dow-jones-senior-manager-data-science-b2b-marketing-analytics": {
+    "fingerprint": "a3f8dee17a32f386",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "dualentry-growth-marketing-manager": {
+    "fingerprint": "8d9a8a07354eccef",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "duolingo-senior-data-science-manager-user-growth": {
+    "fingerprint": "5252617c2f4018df",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "ebay-marketing-data-science-analytics-lead": {
+    "fingerprint": "190aaeb0941b4b57",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads CRM analytics and measurement for personalization and experimentation"
+  },
+  "ekimetrics-business-scientist-data-science-and-marketing-effectiveness": {
+    "fingerprint": "16270a9f10657a64",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "engages clients to deliver analytics solutions in marketing effectiveness"
+  },
+  "ekimetrics-junior-business-scientist-data-science-and-marketing-effectiveness": {
+    "fingerprint": "dfa058d33000c44d",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -479,8 +767,254 @@
     "suggestion_confidence": "medium",
     "suggestion_reason": "Director of Applied AI/ML Science for Ads platform, a marketing science leadership role"
   },
+  "faire-senior-applied-ai-ml-scientist-brand-growth": {
+    "fingerprint": "e13099142bdc973e",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "owns applied ML projects for brand acquisition and growth on marketplace"
+  },
+  "faire-staff-applied-ai-ml-scientist": {
+    "fingerprint": "3effb5f17c7969d8",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads vision and execution of applied AI/ML initiatives for two-sided marketplace"
+  },
+  "fora-senior-data-scientist-marketing-science": {
+    "fingerprint": "00b0e8b73e46274e",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads marketing measurement and growth analytics through causal models and ML"
+  },
+  "fospha-marketing-marketing-science-lead-austin-tx": {
+    "fingerprint": "a3fd9a65780370ba",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads marketing science for clients with model design and technical collateral"
+  },
+  "freewheel-manager-commercial-marketing": {
+    "fingerprint": "8f1d79a7a115c7e9",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "future-futureplc-com-marketing-science-director": {
+    "fingerprint": "5190e8997527f178",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads development of measurement frameworks and ecosystem for brands"
+  },
+  "general-motors-measurement-systems-vision-guidance-engineer": {
+    "fingerprint": "20f45d090ab80287",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "gusto-product-marketing-leader-innovation-experimentation": {
+    "fingerprint": "2c4fb79e5f98d53c",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "haystack-news-head-of-growth-marketing": {
+    "fingerprint": "13a650755fe028f7",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "headway-head-of-patient-growth-marketing": {
+    "fingerprint": "3733a2789167164f",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "honeywell-aerospace-director-sales-industrial-measurement-and-control-imc": {
+    "fingerprint": "3d795843f291960e",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "honeywell-director-sales-industrial-measurement-and-control-imc": {
+    "fingerprint": "c253f3a7ef913dcb",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "ibotta-data-science-manager-marketing-analytics": {
+    "fingerprint": "0aeebe734bb7f0af",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads end-to-end marketing data science projects including MLOps and causal testing"
+  },
+  "ibotta-measurement-partnerships-associate": {
+    "fingerprint": "dbf491c311b096da",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "inmarket-measurement-operations-analyst": {
+    "fingerprint": "b27a4607cc8ca9ef",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "iqvia-sr-measurement-product-manager-studies-platforms-data-solutions-iqvia-digital": {
+    "fingerprint": "4aae8d502b7a7641",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "jane-app-director-of-growth-marketing-smb-self-serve": {
+    "fingerprint": "3fc6498cbeb45d60",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "jpmorganchase-basel-measurement-analytics-analyst": {
+    "fingerprint": "b213249c1d4ba71c",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "jpmorganchase-data-science-senior-associate-onboarding-engagement-marketing-analytics": {
+    "fingerprint": "fb2b5275da77bba3",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "jpmorganchase-data-scientist-lead-vice-president": {
+    "fingerprint": "31501987af2b3b44",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "jpmorganchase-u-s-benefits-design-and-strategy-vice-president-measurement-and-initiatives": {
+    "fingerprint": "1ca1d49375ad2f60",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "jpmorganchase-vice-president-marketing-strategy-lead-shopping-innovation-ai-strategy": {
+    "fingerprint": "4e769d8c8687014e",
+    "suggested_role_cat": "02 Field CTO / Head AI Solutions at Vendor",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads AI strategy and shopping innovation in consumer banking"
+  },
+  "jpmorganchase-vice-president-paid-media-measurement-strategy-small-business-card": {
+    "fingerprint": "be2663976c2c265b",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads paid media and measurement strategy for a small business card portfolio"
+  },
+  "kyndryl-marketing-analytics-data-science-senior-lead": {
+    "fingerprint": "20f0d1ed861ac47a",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads marketing measurement, attribution, and predictive modeling"
+  },
+  "lg-ad-solutions-data-analytics-associate-marketing-science": {
+    "fingerprint": "441a4686f7b7fd7a",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "lila-sciences-manager-senior-manager-product-marketing-life-science": {
+    "fingerprint": "a50f8f9a55cd44ae",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "lila-sciences-manager-senior-manager-product-marketing-physical-science": {
+    "fingerprint": "9a460e6c7f5c6c83",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "loram-maintenance-of-way-inc-track-integrity-measurement-specialist-us-remote": {
+    "fingerprint": "8acde33ab2aed2bf",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "lowe-s-sr-director-technology-media-customer-analytics-measurement-and-data-science": {
+    "fingerprint": "256332d9a882f6c9",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads technology and analytics teams for media and customer measurement"
+  },
+  "major-league-soccer-l-l-c-senior-director-marketing-science": {
+    "fingerprint": "6c9d68635bc58c37",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads marketing science function with predictive modeling and AI"
+  },
   "major-league-soccer-senior-director-marketing-science": {
     "fingerprint": "0514b8c3224938e2",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "mars-growth-science-marketing-capabilities-lead": {
+    "fingerprint": "2e94bc0e1512c715",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads global Growth Science practice and marketing capabilities transformation"
+  },
+  "matador-resources-company-midstream-measurement-analyst": {
+    "fingerprint": "ad35ad0a9bbea56f",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "matador-resources-company-midstream-measurement-auditor": {
+    "fingerprint": "c2262249a451f6dc",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "mercedes-benz-research-development-north-america-inc-measurement-engineer": {
+    "fingerprint": "b35ae9cf03168f28",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "mesa-laboratories-director-sales-and-marketing-life-science": {
+    "fingerprint": "151ff6a5c64df6ff",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "microsoft-director-of-growth-strategy-operations-experimentation": {
+    "fingerprint": "445c8a8ce7ea6b40",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "microsoft-ecommerce-experimentation-manager": {
+    "fingerprint": "8f8e551828c00094",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "microsoft-principal-product-manager-ads-measurement": {
+    "fingerprint": "ab60aeb7c25f3703",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "microsoft-senior-quantum-measurement-engineer": {
+    "fingerprint": "d51a41eecf357240",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "microsoft-senior-software-engineer-experimentation-platform-coreai": {
+    "fingerprint": "8da0e77bff6abd9d",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "designs and maintains scalable experimentation platform services for AI"
+  },
+  "minerva-group-llc-head-of-marketing": {
+    "fingerprint": "8ce8400ca58d4145",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -491,8 +1025,242 @@
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
+  "moloco-vp-product-marketing": {
+    "fingerprint": "446efef77c7af606",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "morganfranklin-consulting-vice-president-marketing": {
+    "fingerprint": "767a85c127c41622",
+    "suggested_role_cat": "05 Practice Lead at Consultancy",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "VP leading marketing business partner function at a consultancy"
+  },
+  "mozilla-marketing-data-science-manager": {
+    "fingerprint": "a1519492f9cb4c12",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads global marketing data science strategy and roadmap"
+  },
   "navan-sr-director-data": {
     "fingerprint": "e23323986299fa40",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "net-conversion-llc-marketing-science-engineering-senior-manager": {
+    "fingerprint": "70767672765c209e",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "oversees data pipelines and deployment of MMM and causal analysis frameworks"
+  },
+  "netflix-data-engineer-l6-ads-signals-and-measurement": {
+    "fingerprint": "1e43a52866ffd687",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads data engineering for ads signals and measurement infrastructure"
+  },
+  "netflix-product-manager-ads-platform-experimentation-incrementality-measurement": {
+    "fingerprint": "a37c6b16f3159f57",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "newfold-digital-sr-director-performance-marketing": {
+    "fingerprint": "cc1f37f24bbc8db9",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "nonprofit-hr-director-of-measurement-and-impact-pbc": {
+    "fingerprint": "984b8d688ce34e55",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "novig-performance-marketing-manager-display-ctv": {
+    "fingerprint": "c5c29f07de85e88d",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "one-gas-inc-gas-supply-analyst-i-measurement-and-regulation": {
+    "fingerprint": "39f660b479064ac8",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-account-director-digital-natives-growth": {
+    "fingerprint": "05d3f4b22bd68ee5",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-analytics-engineer-gtm": {
+    "fingerprint": "b83c4e6ea940d98a",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-analytics-engineer-safety-systems": {
+    "fingerprint": "9aa2d8e8b83a67a0",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-applied-ai-architect": {
+    "fingerprint": "6df16e192f836e0e",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "partners with organizations to turn AI models into real-world impact"
+  },
+  "openai-applied-ai-architect-digital-natives": {
+    "fingerprint": "faa6e7d12cbc882e",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "applies AI to digital-native businesses for real-world impact"
+  },
+  "openai-applied-ai-architect-digital-natives-strategics": {
+    "fingerprint": "1a4ab81ea2234f2d",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "applies AI to digital-native businesses for real-world impact"
+  },
+  "openai-applied-ai-architect-edu": {
+    "fingerprint": "a0a4789bde5c288a",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "applies AI to education sector for real-world impact"
+  },
+  "openai-applied-ai-architect-education": {
+    "fingerprint": "19b753a88e210b59",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-applied-ai-architect-enterprise": {
+    "fingerprint": "6a810b500004b637",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "applies AI to enterprise customers for real-world impact"
+  },
+  "openai-applied-ai-architect-government": {
+    "fingerprint": "10ede50b46e9893a",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "applies AI to government agencies for real-world impact"
+  },
+  "openai-applied-ai-architect-large-enterprise": {
+    "fingerprint": "b065243ffd76c1d4",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "applies AI to large enterprises for real-world impact"
+  },
+  "openai-applied-ai-architect-tokyo": {
+    "fingerprint": "5bc4b2a7725c8835",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "applies AI to customers in Tokyo for real-world impact"
+  },
+  "openai-applied-ai-engineer": {
+    "fingerprint": "8ace2d29c58b51f1",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "helps organizations deploy AI into production systems"
+  },
+  "openai-applied-ai-engineer-agent-enablement": {
+    "fingerprint": "45231a87777933ca",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "helps partners adopt agent-enabled sites and services"
+  },
+  "openai-applied-ai-engineer-codex": {
+    "fingerprint": "b7b9fe919521870a",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "helps software engineering organizations adopt Codex in SDLC"
+  },
+  "openai-applied-ai-engineer-codex-core-agent": {
+    "fingerprint": "4b778ebc5123797a",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "builds the kernel of Codex agent for real-world use"
+  },
+  "openai-applied-ai-engineer-codex-tokyo": {
+    "fingerprint": "52c6409a8b60b3dc",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "helps Japanese customers adopt Codex in SDLC"
+  },
+  "openai-applied-ai-engineer-cyber": {
+    "fingerprint": "21eb27acf1bd36cd",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "helps developers deploy AI securely in cyber contexts"
+  },
+  "openai-applied-ai-engineer-cyber-government": {
+    "fingerprint": "113bbc40c837b83a",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "helps government agencies deploy AI securely in cyber contexts"
+  },
+  "openai-applied-ai-engineer-cyber-tokyo": {
+    "fingerprint": "16bf7523aebe4d31",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "helps Japanese customers deploy AI securely in cyber contexts"
+  },
+  "openai-applied-ai-engineer-digital-natives": {
+    "fingerprint": "21ca41c2d8cc15b4",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "helps digital-native businesses deploy AI in production"
+  },
+  "openai-applied-ai-engineer-enterprise": {
+    "fingerprint": "9dd6f11b90aeee1f",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "helps enterprise customers deploy AI in production"
+  },
+  "openai-applied-ai-engineer-government": {
+    "fingerprint": "730ddb1d498e4541",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "helps government agencies deploy AI in production"
+  },
+  "openai-applied-ai-engineer-plugins": {
+    "fingerprint": "04337ff09f13cd83",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "helps partners build integrations into ChatGPT and Codex"
+  },
+  "openai-applied-ai-engineer-startups": {
+    "fingerprint": "0a2970cbea2ab8fe",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "helps startups deploy AI in production"
+  },
+  "openai-applied-ai-engineer-tokyo": {
+    "fingerprint": "0add4d50aaceb625",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "helps Japanese customers deploy AI in production"
+  },
+  "openai-applied-ai-software-engineer-gtm-growth-engineering": {
+    "fingerprint": "3fbeabe7deb88c2b",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "builds AI-native products for GTM and B2B marketing"
+  },
+  "openai-applied-data-science-insights-leader-gtm-intelligence-solutions-and-technical-success": {
+    "fingerprint": "edc69602308bbc98",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads data science for GTM intelligence and technical success"
+  },
+  "openai-audience-content-growth-lead-smb-ads": {
+    "fingerprint": "854aba8338828c1f",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -527,8 +1295,26 @@
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
+  "openai-creative-director-growth": {
+    "fingerprint": "2ca138767745b466",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-cyber-operations-strategist-critical-harm-operations": {
+    "fingerprint": "4ecb95458d930ee1",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
   "openai-data-engineer-core-experimentation": {
     "fingerprint": "89735eb3068f401d",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-data-scientist-codex": {
+    "fingerprint": "616fc19919785daf",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -539,8 +1325,74 @@
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
+  "openai-data-scientist-cybersecurity": {
+    "fingerprint": "816e124b6e86c2b7",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-data-scientist-financial-engineering": {
+    "fingerprint": "6687f3544a8ce839",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-data-scientist-identity": {
+    "fingerprint": "de22ead551e2e231",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-data-scientist-infrastructure": {
+    "fingerprint": "421404223668d77e",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-data-scientist-platform-and-b2b-products": {
+    "fingerprint": "605278009203f5a6",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-data-scientist-preparedness": {
+    "fingerprint": "741eac940bd376ed",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-data-scientist-product": {
+    "fingerprint": "4696fc641267dcd8",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-data-scientist-real-estate-workplace": {
+    "fingerprint": "0bc89c245becff1d",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-data-scientist-safety": {
+    "fingerprint": "7cbd3798e6027ccc",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-deal-strategist-amer": {
+    "fingerprint": "b10ac744ee528f79",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
   "openai-developer-marketing-lead-apac": {
     "fingerprint": "ad087e5a9b0ecc1e",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-economist": {
+    "fingerprint": "df8a39ffa68d7a26",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -553,6 +1405,132 @@
   },
   "openai-field-marketing-lead-apac": {
     "fingerprint": "3cc914b4ddc92a59",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-forward-deployed-engineer-fde-healthcare-nyc": {
+    "fingerprint": "6fb2e983dc902ea8",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "embeds with healthcare orgs to deploy AI systems in production"
+  },
+  "openai-forward-deployed-engineer-fde-healthcare-seattle": {
+    "fingerprint": "c9bddfb68c590aaa",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "embeds with healthcare orgs to deploy AI systems in production"
+  },
+  "openai-forward-deployed-engineer-fde-healthcare-sf": {
+    "fingerprint": "3c1e86671317b662",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "embeds with healthcare orgs to deploy AI systems in production"
+  },
+  "openai-forward-deployed-engineer-fde-legal-nyc": {
+    "fingerprint": "a8d473a266a511ff",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "embeds with legal orgs to deploy AI systems in production"
+  },
+  "openai-forward-deployed-engineer-fde-legal-sf": {
+    "fingerprint": "7b53e861d0382ef3",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "embeds with legal orgs to deploy AI systems in production"
+  },
+  "openai-forward-deployed-engineer-fde-nyc": {
+    "fingerprint": "c40b3c2ae1568986",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads complex AI deployments in production alongside customers"
+  },
+  "openai-forward-deployed-engineer-fde-seattle": {
+    "fingerprint": "1f793e8d561847aa",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads complex AI deployments in production alongside customers"
+  },
+  "openai-forward-deployed-engineer-fde-sf": {
+    "fingerprint": "d7c32a7dbd50aa71",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads complex AI deployments in production alongside customers"
+  },
+  "openai-forward-deployed-engineer-gov": {
+    "fingerprint": "e2aa80aea7efd52a",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "deploys AI systems in government with secure, compliant workflows"
+  },
+  "openai-forward-deployed-engineer-london-spanish-speaking": {
+    "fingerprint": "43ff16e3685fdf5e",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads AI deployments in production for customers in London"
+  },
+  "openai-forward-deployed-engineer-madrid-spanish-speaking": {
+    "fingerprint": "2b5ebc67449459c2",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads AI deployments in production for customers in Madrid"
+  },
+  "openai-forward-deployed-engineer-seoul": {
+    "fingerprint": "afc52507c288d30d",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads AI deployments in production for customers in Seoul"
+  },
+  "openai-forward-deployed-engineer-singapore": {
+    "fingerprint": "8e8d3fee748e5323",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads AI deployments in production for customers in Singapore"
+  },
+  "openai-forward-deployed-engineer-sydney": {
+    "fingerprint": "12ce3d48725deaac",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads AI deployments in production for customers in Sydney"
+  },
+  "openai-forward-deployed-engineer-tokyo": {
+    "fingerprint": "b27c9e5e3afa1e04",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads AI deployments in production for customers in Tokyo"
+  },
+  "openai-forward-deployed-security-engineer": {
+    "fingerprint": "3c16650a2e28a9ca",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "deploys secure AI systems in production for customers"
+  },
+  "openai-forward-deployed-software-engineer-nyc": {
+    "fingerprint": "7dad4e10449cd2e5",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "builds custom software leveraging OpenAI APIs for customers in NYC"
+  },
+  "openai-forward-deployed-software-engineer-seattle": {
+    "fingerprint": "d817470bfa8c3de6",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "builds custom software leveraging OpenAI APIs for customers in Seattle"
+  },
+  "openai-forward-deployed-software-engineer-sf": {
+    "fingerprint": "103d5c1b0e2e63ed",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "builds custom software leveraging OpenAI APIs for customers in SF"
+  },
+  "openai-founding-data-scientist-pricing-monetization": {
+    "fingerprint": "5fa438162d97f465",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-full-stack-software-engineer-growth": {
+    "fingerprint": "c49c9b1970d99085",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -575,6 +1553,12 @@
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
+  "openai-growth-lifecycle-lead": {
+    "fingerprint": "ea50834799938673",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
   "openai-growth-marketing-creative-and-ad-operations": {
     "fingerprint": "c0b4b502590f25e5",
     "suggested_role_cat": null,
@@ -583,6 +1567,12 @@
   },
   "openai-growth-marketing-manager-smb-ads": {
     "fingerprint": "a38ce320a4136155",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-growth-martech-operations-lead": {
+    "fingerprint": "84d6c9ad52047895",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -629,11 +1619,89 @@
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
+  "openai-machine-learning-data-scientist-forecasting": {
+    "fingerprint": "e92e3fa7f0fc014f",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-machine-learning-engineer-api-multicloud": {
+    "fingerprint": "2e2e5eb18b24cdd6",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-machine-learning-engineer-distributed-data-systems-robotics": {
+    "fingerprint": "d214732441e48066",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-machine-learning-engineer-integrity": {
+    "fingerprint": "42ed4d48114a5989",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-machine-learning-engineer-multimodal-perception-and-authentication": {
+    "fingerprint": "8244c14e73b0f114",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-manager-applied-ai-architects": {
+    "fingerprint": "450530941a92d305",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "manages applied AI architects who partner with organizations to deploy AI"
+  },
+  "openai-manager-applied-ai-engineering-codex": {
+    "fingerprint": "e960c31d6e7382bb",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "manages applied AI engineers for Codex integration and deployment"
+  },
+  "openai-manager-applied-ai-engineering-digital-natives": {
+    "fingerprint": "72bff436a184f44e",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "manages applied AI engineers for digital-native customers"
+  },
+  "openai-manager-applied-ai-engineering-enterprise": {
+    "fingerprint": "3084d1eea89738fb",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "manages applied AI engineers for enterprise customers"
+  },
+  "openai-manager-applied-ai-engineering-large-enterprise": {
+    "fingerprint": "440815d94ae8269a",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "manages applied AI engineers for large enterprise customers"
+  },
+  "openai-manager-applied-ai-engineering-startups": {
+    "fingerprint": "e18500de709c5c7a",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "manages applied AI engineers for startup customers"
+  },
+  "openai-manager-forward-deployed-engineer-tokyo": {
+    "fingerprint": "a2d3d1cec8c8cd22",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "manages forward deployed engineers in Tokyo for customer deployments"
+  },
   "openai-marketing-scientist-emea-london": {
     "fingerprint": "d09ca08e4d854284",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
+  },
+  "openai-partner-applied-ai-engineer": {
+    "fingerprint": "e8319587ba330dd7",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "partner with customers to deploy AI applications post-sale"
   },
   "openai-partner-marketing-manager-ads": {
     "fingerprint": "ef71708f60208f25",
@@ -661,6 +1729,42 @@
   },
   "openai-partner-marketing-manager-technology-partners-isvs": {
     "fingerprint": "27c8bf972132f79e",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-people-research-data-scientist-ai-fairness-bias": {
+    "fingerprint": "56a86a0b28494e96",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-people-research-scientist": {
+    "fingerprint": "bc831c7cdc80487f",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-physical-design-engineer-forward-deployed-engineering": {
+    "fingerprint": "937a2d9b72eb1d22",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "embeds with semiconductor companies to deploy AI systems in chip design"
+  },
+  "openai-pricing-strategist": {
+    "fingerprint": "54c8d7662624850c",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-pricing-strategist-api": {
+    "fingerprint": "bbed86b914f897f5",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-product-design-lead-growth-codex": {
+    "fingerprint": "5dc5d7bceb101c3e",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -713,8 +1817,86 @@
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
+  "openai-research-engineer-research-scientist-ai-systems-engineer-rsi": {
+    "fingerprint": "b66e9944448bdd86",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-research-engineer-research-scientist-health": {
+    "fingerprint": "102739678e038b79",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-research-engineer-research-scientist-personal-agi-memory": {
+    "fingerprint": "5217cdbd5b70be51",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-research-engineer-research-scientist-personal-agi-model-experience": {
+    "fingerprint": "209a5d9a69e822d9",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-research-engineer-research-scientist-personal-agi-north-stars": {
+    "fingerprint": "3a6f0fa2261fdd37",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-research-engineer-research-scientist-personal-agi-personality-and-model-behavior": {
+    "fingerprint": "9533c63dadd4d711",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-research-engineer-research-scientist-personal-agi-personalization": {
+    "fingerprint": "1b549543c3284a34",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-research-engineer-research-scientist-personal-agi-post-training": {
+    "fingerprint": "d0e41172bab527b4",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-research-engineer-research-scientist-personal-agi-proactivity": {
+    "fingerprint": "7503a9e3b45a8af2",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-research-engineer-research-scientist-rl-reasoning": {
+    "fingerprint": "f46e7313be6973b6",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-research-scientist": {
+    "fingerprint": "d79d7c4404c62770",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-research-scientist-multimodal-agent-consumer-devices": {
+    "fingerprint": "91f3486ba727d84e",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
   "openai-secure-manufacturing-stealth-partner-marketing": {
     "fingerprint": "86d21ee572a171e2",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-senior-lifecycle-strategist": {
+    "fingerprint": "7c2c093c391382c4",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -725,11 +1907,35 @@
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
+  "openai-senior-mid-market-smb-demand-strategist": {
+    "fingerprint": "1678b3eccb828a5a",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-senior-webinar-digital-events-strategist": {
+    "fingerprint": "3a57d5e73e81e93a",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
   "openai-software-engineer-full-stack-core-experimentation": {
     "fingerprint": "ed3aa446e39e3a63",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
+  },
+  "openai-software-engineer-gtm-growth-engineering": {
+    "fingerprint": "e098fba4e93e5535",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-software-engineer-infrastructure-analytics-platform": {
+    "fingerprint": "1f40576bba467f6f",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "builds analytics platform for understanding model behavior and quality"
   },
   "openai-software-engineer-infrastructure-core-experimentation": {
     "fingerprint": "de5ef6220a1bdb8c",
@@ -745,6 +1951,18 @@
   },
   "openai-strategic-finance-international-marketing": {
     "fingerprint": "aadb23ab90f141c7",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "optum-healthcare-quality-measurement-consultant-data-analytics-and-coding-remote": {
+    "fingerprint": "d4092e7c8c806384",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "ovative-group-analyst-digital-marketing-measurement": {
+    "fingerprint": "4f9fa4bb02dfb05b",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -797,8 +2015,56 @@
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
+  "pinterest-machine-learning-engineer-core-engineering": {
+    "fingerprint": "1b786cb2ba59822d",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "pinterest-machine-learning-engineer-ii-core-engineering": {
+    "fingerprint": "34747e60a3d4bedb",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "pinterest-machine-learning-engineer-ii-responsible-ai": {
+    "fingerprint": "5cf9ddfa4f5250e0",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "pinterest-machine-learning-engineer-ii-visual-ai": {
+    "fingerprint": "07f5b6d7665b76d6",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "pinterest-machine-learning-engineer-monetization-engineering": {
+    "fingerprint": "e8c18d5133bab4a0",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Machine Learning Engineer, Monetization Engineering"
+  },
+  "pinterest-manager-ii-machine-learning-conversion-visibility": {
+    "fingerprint": "1e693a4da903959a",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Manager II, Machine Learning \u2013 Conversion Visibility"
+  },
   "pinterest-measurement-partner-ii-tvscientific": {
     "fingerprint": "f85698477021172e",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "pinterest-principal-machine-learning-engineer-ads-delivery": {
+    "fingerprint": "b99995adc7422bac",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Principal Machine Learning Engineer, Ads Delivery"
+  },
+  "pinterest-senior-industry-manager-growth-greater-china-region": {
+    "fingerprint": "459f294e9b9efca6",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -811,6 +2077,12 @@
   },
   "pinterest-sr-ads-product-marketing-manager-ads-delivery": {
     "fingerprint": "5cf2d3473ecbe59f",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "pinterest-sr-client-account-manager-growth-greater-china-region": {
+    "fingerprint": "ae455621fa82b79e",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -844,6 +2116,42 @@
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
+  },
+  "pinterest-sr-machine-learning-engineer-applied-science": {
+    "fingerprint": "2f6e8f0cbb42ec08",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Sr. Machine Learning Engineer, Applied Science"
+  },
+  "pinterest-sr-machine-learning-engineer-core-engineering": {
+    "fingerprint": "3a7aef1bbe484189",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Sr. Machine Learning Engineer, Core Engineering"
+  },
+  "pinterest-sr-machine-learning-engineer-monetization-engineering": {
+    "fingerprint": "fdfe323097bf6db4",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Sr. Machine Learning Engineer, Monetization Engineering"
+  },
+  "pinterest-sr-manager-machine-learning-engineering-applied-research": {
+    "fingerprint": "c5d10b7acf41e14e",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Sr. Manager, Machine Learning Engineering-Applied Research"
+  },
+  "pinterest-sr-staff-machine-learning-engineer-content-quality": {
+    "fingerprint": "30d4df940fc2054c",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Sr. Staff Machine Learning Engineer, Content Quality"
+  },
+  "pinterest-sr-staff-machine-learning-engineer-monetization-engineering": {
+    "fingerprint": "0821951ee0cc320d",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Sr. Staff Machine Learning Engineer, Monetization Engineering"
   },
   "pinterest-sr-systems-engineer-sales-marketing": {
     "fingerprint": "8ba1ee6b7e4ef769",
@@ -881,8 +2189,26 @@
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
+  "pinterest-staff-machine-learning-engineer-ads-conversion-core-modeling": {
+    "fingerprint": "dfaaebae62c00bf7",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Staff Machine Learning Engineer, Ads Conversion Core Modeling"
+  },
+  "pinterest-staff-machine-learning-engineer-visual-ai": {
+    "fingerprint": "be0fe2fd56b4bbe2",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Staff Machine Learning Engineer, Visual AI"
+  },
   "pinterest-staff-product-manager-ads-measurement": {
     "fingerprint": "876a0e7bac1894bd",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "pinterest-staff-product-manager-applied-science": {
+    "fingerprint": "6a77fc699cef7372",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -911,6 +2237,18 @@
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
+  "power-digital-marketing-measurement-lead-marketing-science": {
+    "fingerprint": "df52d8cb04944b8d",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads measurement strategy using MMM, experiments, and customer analyses"
+  },
+  "power-digital-marketing-senior-strategist-marketing-science": {
+    "fingerprint": "5e7f1169e2d3d7bf",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads measurement strategy for clients using statistical modeling and experiments"
+  },
   "professional-vp-marketing-data-science": {
     "fingerprint": "69388da0f6663a07",
     "suggested_role_cat": null,
@@ -922,6 +2260,24 @@
     "suggested_role_cat": "05 Practice Lead at Consultancy",
     "suggestion_confidence": "medium",
     "suggestion_reason": "Partner leading Insights & Analytics practice at a consultancy, not AI-specific"
+  },
+  "qwalifize-llc-rf-measurement-expert": {
+    "fingerprint": "86e0b158156928bb",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "ralliant-corporation-senior-marketing-manager": {
+    "fingerprint": "3ff08b9ccbdab340",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "reddit-ads-conversion-modeling-machine-learning-engineering-manager": {
+    "fingerprint": "8b8843f3973ac9cf",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Ads Conversion Modeling, Machine Learning Engineering Manager"
   },
   "reddit-country-lead-business-marketing-uk": {
     "fingerprint": "0733e10ab702dccb",
@@ -935,8 +2291,32 @@
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
+  "reddit-machine-learning-engineering-manager-ads-engagement-modeling": {
+    "fingerprint": "5fbac16dcbb9c1ee",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Machine Learning Engineering Manager - Ads Engagement Modeling"
+  },
+  "reddit-machine-learning-manager-feed-ecosystems": {
+    "fingerprint": "8da91bcb678c80b6",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Machine Learning Manager, Feed Ecosystems"
+  },
+  "reddit-machine-learning-manager-feed-relevance-retrieval": {
+    "fingerprint": "07d12967fd4df1a6",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Machine Learning Manager, Feed Relevance (Retrieval)"
+  },
   "reddit-senior-business-analyst-revenue-analytics": {
     "fingerprint": "c3967fd8c5fcfc8f",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "reddit-senior-creative-strategist-app-dev": {
+    "fingerprint": "4ba57b98a93a16ee",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -959,8 +2339,62 @@
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
+  "reddit-senior-growth-manager-contract": {
+    "fingerprint": "ef925906806babbb",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "reddit-senior-growth-manager-uk": {
+    "fingerprint": "227c712a9f970e03",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
   "reddit-senior-gtm-insights-automation-manager": {
     "fingerprint": "03e832039a3972ca",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "reddit-senior-machine-learning-engineer": {
+    "fingerprint": "f765385c656b330b",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Senior Machine Learning Engineer"
+  },
+  "reddit-senior-machine-learning-engineer-ads-optimization": {
+    "fingerprint": "ce5c69e125519265",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Senior Machine Learning Engineer, Ads Optimization"
+  },
+  "reddit-senior-machine-learning-infrastructure-engineer-embedding-platform": {
+    "fingerprint": "df9081e6502d693f",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Senior Machine Learning Infrastructure Engineer, Embedding Platform"
+  },
+  "reddit-senior-machine-learning-manager-video-ranking": {
+    "fingerprint": "9b1a2bdc9fc5f7db",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Senior Machine Learning Manager, Video Ranking"
+  },
+  "reddit-senior-machine-learning-systems-engineer": {
+    "fingerprint": "8c752d70b3154638",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Senior Machine Learning Systems Engineer"
+  },
+  "reddit-senior-machine-learning-systems-engineer-ads-ml-experience-platform": {
+    "fingerprint": "5b421bcab2e42923",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Senior Machine Learning Systems Engineer, Ads ML Experience Platform"
+  },
+  "reddit-senior-manager-community-growth-intelligence": {
+    "fingerprint": "d9dfef754055fc80",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -970,6 +2404,36 @@
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
+  },
+  "reddit-senior-staff-machine-learning-engineer-feed-relevance": {
+    "fingerprint": "bbb8467d9c0438e5",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Senior Staff Machine Learning Engineer, Feed Relevance"
+  },
+  "reddit-senior-staff-machine-learning-engineer-genai-platform": {
+    "fingerprint": "a12d4f5439c70058",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Senior Staff Machine Learning Engineer, GenAI Platform"
+  },
+  "reddit-senior-staff-machine-learning-engineer-notifications": {
+    "fingerprint": "cf7936231bb1d80a",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Senior Staff Machine Learning Engineer, Notifications"
+  },
+  "reddit-senior-staff-machine-learning-systems-engineer-ads-ml-platform": {
+    "fingerprint": "aaff8d81c5825841",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Senior Staff Machine Learning Systems Engineer, Ads ML Platform"
+  },
+  "reddit-senior-staff-ml-engineer-search-recommendation": {
+    "fingerprint": "a440650e541e612f",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Senior Staff ML Engineer, Search & Recommendation"
   },
   "reddit-sr-staff-data-scientist-ads-measurement-signals-privacy": {
     "fingerprint": "8ccfb809f587917c",
@@ -1001,8 +2465,212 @@
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
+  "reddit-staff-machine-learning-engineer-ads-foundational-representations": {
+    "fingerprint": "e0a4cbe5856c8d09",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Staff Machine Learning Engineer, Ads Foundational Representations"
+  },
+  "reddit-staff-machine-learning-engineer-consumer": {
+    "fingerprint": "a2d25d5cdd7849ac",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Staff Machine Learning Engineer, Consumer"
+  },
+  "reddit-staff-machine-learning-infrastructure-engineer-embedding-platform": {
+    "fingerprint": "6a05cdf1340070fc",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Staff Machine Learning Infrastructure Engineer, Embedding Platform"
+  },
+  "reddit-staff-machine-learning-systems-engineer": {
+    "fingerprint": "441e96c85ae2d458",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Staff Machine Learning Systems Engineer"
+  },
+  "reddit-staff-product-manager-growth": {
+    "fingerprint": "a3589ef58759bec6",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "revenuecat-head-of-customer-growth": {
+    "fingerprint": "2cd9aa768512f3ea",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "root-data-science-manager-ii-digital-partnerships": {
+    "fingerprint": "8f346bb17c397ec7",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads data science for digital partnerships with experimentation and forecasting"
+  },
+  "root-director-of-data-science-performance-marketing": {
+    "fingerprint": "ed1c458ee9b56f7e",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads data science for performance marketing with ML-driven bidding and measurement"
+  },
+  "rtb-house-measurement-strategy-manager": {
+    "fingerprint": "40767e4e41150bc9",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "owns performance media measurement strategy across attribution and incrementality methods"
+  },
+  "sequen-ai-vp-marketing": {
+    "fingerprint": "7e1debc81adcf45d",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "servicenow-director-insights-and-measurement": {
+    "fingerprint": "c531fa999d102845",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads measurement and modeling team linking user experience to business outcomes"
+  },
+  "shepherd-growth-lead": {
+    "fingerprint": "76749382bb1b1a9e",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "simpleciti-companies-director-of-portfolio-growth-marketing": {
+    "fingerprint": "252aa88099539495",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "smartly-marketing-science-intern": {
+    "fingerprint": "26e3acc49e8ae402",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "soundcloud-senior-director-integrated-marketing-growth": {
+    "fingerprint": "a96771b7c05e5307",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "square-senior-data-scientist-risk-and-support": {
+    "fingerprint": "502c33346b8f5e80",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "squarespace-senior-growth-marketing-manager": {
+    "fingerprint": "e81a0c5ee9bacdee",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "st-jude-children-s-research-hospital-alsac-sr-director-marketing-measurement-analytics-memphis-tn-or-remote-in-usa": {
+    "fingerprint": "ed172c8b90906bc3",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads marketing measurement and analytics strategy including MMM and experimentation"
+  },
+  "starboard-group-founding-growth-marketing": {
+    "fingerprint": "66ecaf2462e8d303",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "the-zebra-manager-data-analytics": {
+    "fingerprint": "a1f81b9137ff80da",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "thorne-senior-director-integrated-marketing-strategy": {
+    "fingerprint": "5d374a8ff479608a",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "twg-global-staff-vp-data-science-marketing-sales-focus": {
+    "fingerprint": "67392868f6d7a23c",
+    "suggested_role_cat": "03 Applied AI Architect",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads production AI systems for marketing and sales with LLM applications"
+  },
+  "ul-solutions-lead-process-owner-calibration-measurement-test-equipment": {
+    "fingerprint": "52aa7e900bdf6eab",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "valuetainment-senior-vice-president-of-marketing-lion-holdings": {
+    "fingerprint": "de89f67eabd2fb8c",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "vibe-co-head-of-marketing-science": {
+    "fingerprint": "2a8b202acd93b623",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "builds and leads Marketing Science function with incrementality and attribution frameworks"
+  },
+  "viral-nation-director-performance-marketing-new-business": {
+    "fingerprint": "29a4de7be07e91fc",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "walmart-global-tech-usa-principal-software-engineer-experimentation-platform": {
+    "fingerprint": "8b9a3ba5f13cd69a",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads technical strategy for large-scale experimentation platform"
+  },
+  "we-are-rosie-aeo-measurement-insights-lead": {
+    "fingerprint": "4ed419bdac255e58",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "owns measurement infrastructure for Answer Engine Optimization with experiments and dashboards"
+  },
+  "wells-fargo-lead-category-sourcing-consultant-marketing-technology-procurement-scm": {
+    "fingerprint": "9567491cebc6cfff",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "western-union-vp-regional-digital-analytics": {
+    "fingerprint": "b22a52c67f4fe681",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads enterprise digital analytics strategy with AI and advanced analytics"
+  },
+  "wpp-director-measurement-science": {
+    "fingerprint": "3bc6495e203ea73f",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads measurement strategy for outcome-based media programs with incrementality studies"
+  },
+  "zeta-global-director-of-product-management-measurement": {
+    "fingerprint": "8ed221bab7b21dc1",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "zocdoc-director-marketing-data-science": {
+    "fingerprint": "b0b2b1b06a4e997c",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "leads greenfield marketing measurement function with attribution and experimentation"
+  },
   "zocdoc-director-marketing-ds": {
     "fingerprint": "30d168ec0fb827d9",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "zurich-instruments-application-scientist-test-measurement": {
+    "fingerprint": "a4a371c878ba05eb",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
