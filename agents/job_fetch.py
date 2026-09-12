@@ -571,6 +571,7 @@ _SITE_SUFFIXES = {
     "lever", "ashby", "ashbyhq", "workday", "smartrecruiters", "jobvite",
     "wellfound", "angellist", "ziprecruiter", "dice", "monster", "careers",
     "job board", "jobs", "hiring", "welcome to the jungle", "otta",
+    "career page", "careers page", "career site", "job details", "apply",
 }
 
 # "Acme hiring Senior Director, Data Science in New York, NY"
@@ -622,6 +623,10 @@ def normalise_title(title, org=None):
         ).strip()
         # a repeated org word left at the front, e.g. "Paramount Paramount Senior..."
         title = re.sub(rf"^(?:{re.escape(org)}\s+)(?={re.escape(org)}\s)", "", title, flags=re.I)
+        # Trailing employer segment: "Head of X - Acme Organics" -> "Head of X"
+        title = re.sub(
+            rf"\s+[-\u2013\u2014|]\s+{re.escape(org)}\b[\w &.,'-]*$", "", title, flags=re.I
+        ).strip()
 
     # Trailing " in New York, NY" that survived a non-matching hiring pattern
     title = re.sub(r"\s+in\s+[A-Z][\w .'-]*,\s*[A-Z]{2}$", "", title).strip()

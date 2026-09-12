@@ -32,3 +32,19 @@ config/*.conf
 config/*credentials*
 config/*password*
 *.env
+
+# Generated tracker backups (the xlsx export and the db are the record)
+artifacts/jobs/org-roles-tracker-backup-*.xlsx
+
+# SQLite sidecars
+*.db-wal
+*.db-shm
+
+# Daily run bookkeeping
+logs/
+data/last-daily-run.txt
+
+# Scratch: probes, one-off repairs, pre-migration copies
+attic/_*.py
+attic/*.xlsx
+attic/eval-routing*.json
