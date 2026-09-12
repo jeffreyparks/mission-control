@@ -17,6 +17,24 @@
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
+  "acceleration-partners-associate-director-director-data-strategy-measurement": {
+    "fingerprint": "38c94e756e62e1f7",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Data Strategy & Measurement lead"
+  },
+  "advansys-measurement-engineer": {
+    "fingerprint": "f633f8e1efe158d3",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Measurement Engineer role"
+  },
+  "agentio-marketing-science-lead": {
+    "fingerprint": "61f17358853b01c0",
+    "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "Marketing Science Lead title"
+  },
   "amazon-jobs-director-analytics-and-decision-science": {
     "fingerprint": "355aba84c3229e41",
     "suggested_role_cat": null,
@@ -24,16 +42,16 @@
     "suggestion_reason": null
   },
   "anthropic-applied-ai-architect": {
-    "fingerprint": "0933cc1ef5ce5959",
+    "fingerprint": "a5da39116101f511",
     "suggested_role_cat": "03 Applied AI Architect",
     "suggestion_confidence": "high",
-    "suggestion_reason": "Applied AI Architect title matches archetype 03"
+    "suggestion_reason": "Applied AI Architect title"
   },
   "anthropic-applied-ai-architect-beneficial-deployments-life-sciences": {
-    "fingerprint": "739880504e59e01d",
+    "fingerprint": "4ef52b95c8306e53",
     "suggested_role_cat": "03 Applied AI Architect",
     "suggestion_confidence": "high",
-    "suggestion_reason": "Applied AI Architect with domain focus matches archetype 03"
+    "suggestion_reason": "Applied AI Architect in life sciences"
   },
   "anthropic-applied-ai-architect-commercial": {
     "fingerprint": "b8f878bd18001d15",
@@ -42,16 +60,16 @@
     "suggestion_reason": "Applied AI Architect, Commercial segment"
   },
   "anthropic-applied-ai-architect-cyber": {
-    "fingerprint": "e410d58eb245cea7",
+    "fingerprint": "e3b72245024f3df3",
     "suggested_role_cat": "03 Applied AI Architect",
     "suggestion_confidence": "high",
-    "suggestion_reason": "Applied AI Architect in cyber domain matches archetype 03"
+    "suggestion_reason": "Applied AI Architect in cyber"
   },
   "anthropic-applied-ai-architect-digital-natives-business": {
-    "fingerprint": "ec5798b7e20f1848",
+    "fingerprint": "ec11a35794333d6c",
     "suggested_role_cat": "03 Applied AI Architect",
     "suggestion_confidence": "high",
-    "suggestion_reason": "Applied AI Architect in digital natives business matches archetype 03"
+    "suggestion_reason": "Applied AI Architect in digital natives business"
   },
   "anthropic-applied-ai-architect-enterprise-tech": {
     "fingerprint": "26c63c878c6e25a4",
@@ -66,73 +84,73 @@
     "suggestion_reason": "Applied AI Architect, Industries"
   },
   "anthropic-applied-ai-architect-partnerships": {
-    "fingerprint": "b60d6476e57c1d18",
+    "fingerprint": "03e90f7e9b54b90c",
     "suggested_role_cat": "03 Applied AI Architect",
     "suggestion_confidence": "high",
-    "suggestion_reason": "Applied AI Architect in partnerships matches archetype 03"
+    "suggestion_reason": "Applied AI Architect in partnerships"
   },
   "anthropic-applied-ai-architect-public-sector-national-security": {
-    "fingerprint": "9777c8a0efef216b",
+    "fingerprint": "ec088bad2da81d2b",
     "suggested_role_cat": "03 Applied AI Architect",
     "suggestion_confidence": "high",
-    "suggestion_reason": "Applied AI Architect in public sector and national security matches archetype 03"
+    "suggestion_reason": "Applied AI Architect in public sector (national security)"
   },
   "anthropic-applied-ai-architect-startups": {
-    "fingerprint": "07e6eb55a97bcd4b",
+    "fingerprint": "e9ca3fe7678f35dd",
     "suggested_role_cat": "03 Applied AI Architect",
     "suggestion_confidence": "high",
-    "suggestion_reason": "Applied AI Architect for startups matches archetype 03"
+    "suggestion_reason": "Applied AI Architect in startups"
   },
   "anthropic-applied-ai-architect-strategic-enterprise-tech": {
-    "fingerprint": "d81e632fca2639f9",
+    "fingerprint": "064aa05162f0ce2a",
     "suggested_role_cat": "03 Applied AI Architect",
     "suggestion_confidence": "high",
-    "suggestion_reason": "Applied AI Architect in strategic enterprise tech matches archetype 03"
+    "suggestion_reason": "Applied AI Architect in strategic enterprise tech"
   },
   "anthropic-applied-ai-engineer": {
-    "fingerprint": "a2e092e734f322c1",
+    "fingerprint": "b001e4bfa866b189",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
   "anthropic-applied-ai-engineer-beneficial-deployments-life-sciences": {
-    "fingerprint": "d432433fbfee6e41",
+    "fingerprint": "3e9e560b3f329109",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
   "anthropic-applied-ai-engineer-enterprise": {
-    "fingerprint": "fbab34e2985fb44e",
+    "fingerprint": "d40ece27423a394f",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
   "anthropic-applied-ai-engineer-enterprise-tech": {
-    "fingerprint": "566627721d449132",
+    "fingerprint": "561ca0e6d7312bee",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
   "anthropic-applied-ai-research-engineer": {
-    "fingerprint": "550820316fd1bc2a",
+    "fingerprint": "07147df049774b21",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
   "anthropic-applied-ai-security-architect": {
-    "fingerprint": "cda49ac244f446e0",
-    "suggested_role_cat": "03 Applied AI Architect",
-    "suggestion_confidence": "high",
-    "suggestion_reason": "Applied AI Security Architect title matches archetype 03"
+    "fingerprint": "ad487de14a7a2ee2",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
   },
   "anthropic-applied-ai-strategist-emea": {
-    "fingerprint": "eeeef9fd6a976832",
+    "fingerprint": "6e85df3c37e3fde8",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
   "anthropic-applied-ai-technical-evangelist-startup-ecosystem": {
-    "fingerprint": "92f5cf02887d8a42",
+    "fingerprint": "ab0f4a16df34ec6c",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -144,7 +162,7 @@
     "suggestion_reason": null
   },
   "anthropic-customer-marketing-manager-industries": {
-    "fingerprint": "ca12d1546ff96472",
+    "fingerprint": "5d054897483fb72f",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -162,25 +180,25 @@
     "suggestion_reason": null
   },
   "anthropic-data-scientist-developer-productivity": {
-    "fingerprint": "8508ea6ce696e891",
+    "fingerprint": "ef44f597fe105061",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
   "anthropic-data-scientist-policy": {
-    "fingerprint": "d6fd0d9ce7dd8391",
+    "fingerprint": "9638ce9085ed1ef3",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
   "anthropic-data-scientist-product": {
-    "fingerprint": "718724348c0b2bae",
+    "fingerprint": "5b2773a6a540d1f2",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
   "anthropic-data-scientist-safeguards": {
-    "fingerprint": "eaec501c1fd9c38e",
+    "fingerprint": "e5cf784bd9655fde",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -192,13 +210,13 @@
     "suggestion_reason": null
   },
   "anthropic-field-marketing-lead-public-sector": {
-    "fingerprint": "57371440c5e92356",
+    "fingerprint": "1c308ac420db6335",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
   "anthropic-field-marketing-manager-apac": {
-    "fingerprint": "436414a3a591d2ec",
+    "fingerprint": "131711e2e88fb9ea",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -210,7 +228,7 @@
     "suggestion_reason": null
   },
   "anthropic-front-end-engineer-marketing": {
-    "fingerprint": "5fbb5a6b19c2d434",
+    "fingerprint": "89a4238aa7d4b249",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -228,7 +246,7 @@
     "suggestion_reason": null
   },
   "anthropic-head-of-community-enterprise-marketing": {
-    "fingerprint": "fe52aad692c42eb8",
+    "fingerprint": "25b67b46a7ea34f3",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -288,13 +306,13 @@
     "suggestion_reason": "Manager of Applied AI Architecture, commercial matches archetype 04"
   },
   "anthropic-partner-marketing-lead-cloud": {
-    "fingerprint": "dfe4b63cc4ddb3a1",
+    "fingerprint": "ef1e540c92b8b649",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
   "anthropic-partner-marketing-manager-launches": {
-    "fingerprint": "7055fa4cab40f525",
+    "fingerprint": "4246227984710d23",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -324,13 +342,13 @@
     "suggestion_reason": null
   },
   "anthropic-product-marketing-lead-gtm-strategy-claude-for-knowledge-work": {
-    "fingerprint": "6fc136903a4976b8",
+    "fingerprint": "3f19c08c3878c545",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
   "anthropic-product-marketing-manager-knowledge-work-core-products": {
-    "fingerprint": "c71fcbded410695d",
+    "fingerprint": "735ab8945669cdd6",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -348,19 +366,19 @@
     "suggestion_reason": null
   },
   "anthropic-solutions-marketing-lead-public-sector": {
-    "fingerprint": "9c179ddeb1d4440d",
+    "fingerprint": "14b7fe546ceba65f",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
   "anthropic-solutions-marketing-manager-cybersecurity": {
-    "fingerprint": "48091defae66e1ff",
+    "fingerprint": "f331d2b25f78c2ed",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
   "anthropic-solutions-marketing-manager-healthcare-science": {
-    "fingerprint": "f892e7fe9fd70bab",
+    "fingerprint": "5fefae1c526a034c",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -378,13 +396,13 @@
     "suggestion_reason": "Strategy & Operations for Applied AI, AMER matches archetype 04"
   },
   "anthropic-strategy-operations-lead-enterprise-marketing": {
-    "fingerprint": "dda90172c7c7471b",
+    "fingerprint": "f197c5ec50cf7ee7",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
   "anthropic-strategy-operations-lead-marketing": {
-    "fingerprint": "a156bf5d3886baa6",
+    "fingerprint": "a08dff0d6d691720",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -479,6 +497,258 @@
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
+  "openai-b2b-marketing-lead-india": {
+    "fingerprint": "33420e4ddbca49dd",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-business-operations-manager-business-marketing": {
+    "fingerprint": "2deaf2ccf75016fa",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-consumer-marketing-lead-korea": {
+    "fingerprint": "33308253c594ca75",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-consumer-marketing-manager-japan": {
+    "fingerprint": "3f2055927782dc56",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-content-marketing-manager-demand-generation": {
+    "fingerprint": "7412ec4159589edc",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-data-engineer-core-experimentation": {
+    "fingerprint": "89735eb3068f401d",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-data-scientist-core-experimentation": {
+    "fingerprint": "6fbf0e24bcbf5484",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-developer-marketing-lead-apac": {
+    "fingerprint": "ad087e5a9b0ecc1e",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-engineering-manager-core-experimentation": {
+    "fingerprint": "628b403625988d95",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-field-marketing-lead-apac": {
+    "fingerprint": "3cc914b4ddc92a59",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-growth-digital-marketing-business": {
+    "fingerprint": "51d36f6f74546267",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-growth-digital-marketing-consumer": {
+    "fingerprint": "05f86569135837de",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-growth-digital-marketing-enterprise": {
+    "fingerprint": "4d482e7eb1b1225d",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-growth-marketing-creative-and-ad-operations": {
+    "fingerprint": "c0b4b502590f25e5",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-growth-marketing-manager-smb-ads": {
+    "fingerprint": "a38ce320a4136155",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-head-of-ads-enterprise-marketing": {
+    "fingerprint": "6e3b06c6bf746428",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-head-of-marketing-technology-martech": {
+    "fingerprint": "122368c1ca7323e1",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-industry-product-marketing-manager": {
+    "fingerprint": "0aa60301035d9859",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-integrated-marketing-lead-brand-policy": {
+    "fingerprint": "c006239dd4bb9381",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-integrated-marketing-manager-developers": {
+    "fingerprint": "5e9dbf72cec6f002",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-integrated-marketing-manager-product-model-launches": {
+    "fingerprint": "f5e832ae66b697dc",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-lifecycle-marketing-manager-smb-ads": {
+    "fingerprint": "4fe04c6735565cba",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-marketing-scientist-emea-london": {
+    "fingerprint": "d09ca08e4d854284",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-partner-marketing-manager-ads": {
+    "fingerprint": "ef71708f60208f25",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-partner-marketing-manager-aws": {
+    "fingerprint": "08c5f588b2e56e1a",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-partner-marketing-manager-gcp-oracle": {
+    "fingerprint": "21ac57f94b4bf79d",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-partner-marketing-manager-hardware": {
+    "fingerprint": "029396165cce0c09",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-partner-marketing-manager-technology-partners-isvs": {
+    "fingerprint": "27c8bf972132f79e",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-product-manager-safety-measurement": {
+    "fingerprint": "134e7c13e10cece6",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-product-marketing-lead-api-models-research": {
+    "fingerprint": "8fdd49bdb7a7ef3a",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-product-marketing-lead-chatgpt-work": {
+    "fingerprint": "49570a1d2c6b4c76",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-product-marketing-lead-executive-engagement": {
+    "fingerprint": "31b896822eb2f360",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-product-marketing-manager-cybersecurity": {
+    "fingerprint": "c327ec0c7197f122",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-product-marketing-manager-it-admin-and-governance": {
+    "fingerprint": "5a457f2234619582",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-product-marketing-manager-research-safety": {
+    "fingerprint": "c116ab3d8fc196f7",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-program-manager-business-marketing": {
+    "fingerprint": "f19dbdac987d4ecc",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-secure-manufacturing-stealth-partner-marketing": {
+    "fingerprint": "86d21ee572a171e2",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-senior-marketing-strategist-paid-new-demand-channels": {
+    "fingerprint": "2ae60def2b220e57",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-software-engineer-full-stack-core-experimentation": {
+    "fingerprint": "ed3aa446e39e3a63",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-software-engineer-infrastructure-core-experimentation": {
+    "fingerprint": "de5ef6220a1bdb8c",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-startup-content-marketing-manager": {
+    "fingerprint": "d5fc02fc23dabe0a",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
+  "openai-strategic-finance-international-marketing": {
+    "fingerprint": "aadb23ab90f141c7",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
   "paramount-paramount-hiring-senior-director-data-science-in-new-york-ny-linkedin": {
     "fingerprint": "aa1412c14792fa8b",
     "suggested_role_cat": null,
@@ -504,13 +774,13 @@
     "suggestion_reason": null
   },
   "pinterest-director-marketing-technology-innovation": {
-    "fingerprint": "d51435657f9d8b99",
+    "fingerprint": "5ca74655afdde985",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
   "pinterest-head-of-business-marketing-australia": {
-    "fingerprint": "7012e9a27df8748b",
+    "fingerprint": "121a43d2f32a39c4",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -522,7 +792,7 @@
     "suggestion_reason": null
   },
   "pinterest-lead-ads-product-marketing-manager": {
-    "fingerprint": "aae9603593edfc30",
+    "fingerprint": "e29e6a7ac52d462e",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -540,7 +810,7 @@
     "suggestion_reason": "Senior Manager, Measurement at Pinterest ad platform"
   },
   "pinterest-sr-ads-product-marketing-manager-ads-delivery": {
-    "fingerprint": "8d9dbaed6301c768",
+    "fingerprint": "5cf2d3473ecbe59f",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -558,7 +828,7 @@
     "suggestion_reason": null
   },
   "pinterest-sr-data-scientist-marketing": {
-    "fingerprint": "9b5eba14e9668d20",
+    "fingerprint": "f8b0bd181d6535d5",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -576,7 +846,7 @@
     "suggestion_reason": null
   },
   "pinterest-sr-systems-engineer-sales-marketing": {
-    "fingerprint": "b43529227aa3e1a1",
+    "fingerprint": "8ba1ee6b7e4ef769",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -624,7 +894,7 @@
     "suggestion_reason": null
   },
   "pinterest-staff-software-engineer-growth-performance-marketing": {
-    "fingerprint": "2227174e5f76ffba",
+    "fingerprint": "9e0124ba2ce5b0b4",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
@@ -654,7 +924,7 @@
     "suggestion_reason": "Partner leading Insights & Analytics practice at a consultancy, not AI-specific"
   },
   "reddit-country-lead-business-marketing-uk": {
-    "fingerprint": "5442ef8b14e2a387",
+    "fingerprint": "0733e10ab702dccb",
     "suggested_role_cat": null,
     "suggestion_confidence": null,
     "suggestion_reason": null
