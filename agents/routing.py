@@ -34,7 +34,17 @@ FALLBACK_TAGS = {
     "content-radar": "T2",
 }
 
-_TIER_ORDER = ["T1", "T2", "T3", "T4"]
+# Used only when the policy carries no tier_order (older config, or the file
+# is unreadable). The policy is the live source of truth; this is a floor.
+_TIER_ORDER_FALLBACK = ["T1", "T2", "T3", "T4", "T5"]
+
+
+def tier_order(policy=None):
+    policy = policy if policy is not None else load_policy()
+    order = policy.get("tier_order")
+    if isinstance(order, list) and order and all(isinstance(t, str) for t in order):
+        return list(order)
+    return list(_TIER_ORDER_FALLBACK)
 
 
 def _read_toml(path):
@@ -73,12 +83,13 @@ def tier_for_tag(tag):
     return best[1] if best else None
 
 
-def escalate(tier):
+def escalate(tier, policy=None):
+    order = tier_order(policy)
     try:
-        idx = _TIER_ORDER.index(tier)
+        idx = order.index(tier)
     except ValueError:
         return None
-    return _TIER_ORDER[idx + 1] if idx + 1 < len(_TIER_ORDER) else None
+    return order[idx + 1] if idx + 1 < len(order) else None
 
 
 def ladder_for_tag(tag, policy=None):
@@ -104,7 +115,7 @@ def ladder_for_tag(tag, policy=None):
         for selector in tiers.get(cur, {}).get("models", []):
             if selector not in ladder:
                 ladder.append(selector)
-        cur = escalate(cur)
+        cur = escalate(cur, policy)   # pass policy through: one file read, not one per hop
 
     per_tier = tagdata.get("max_models_per_tier")
     if isinstance(per_tier, int) and per_tier > 0:

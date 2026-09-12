@@ -21,7 +21,16 @@ def check(name, cond, detail=""):
 # --- ladder order ---------------------------------------------------------
 ladder = routing.ladder_for_tag("org-sectors")
 check("org-sectors starts at T1", ladder[0].startswith("openrouter/qwen/qwen3-30b"), ladder[0])
-check("ladder ends at frontier", ladder[-1] == "claude-opus-5", ladder[-1])
+_pol = routing.load_policy()
+_order = routing.tier_order(_pol)
+_frontier_tier = _order[-1] if _order else None
+_frontier_models = _pol.get("tiers", {}).get(_frontier_tier, {}).get("models", []) if _frontier_tier else []
+check("ladder ends at the policy's actual last tier", bool(_frontier_models) and ladder[-1] == _frontier_models[0],
+      f"{ladder[-1]} (tier_order={_order})")
+check("escalate walks every tier in tier_order, not a hardcoded count",
+      routing.escalate(_order[-1], _pol) is None and all(
+          routing.escalate(_order[i], _pol) == _order[i + 1] for i in range(len(_order) - 1)),
+      str(_order))
 check("job-fit is unrouted", routing.ladder_for_tag("job-fit-16") == [])
 check("unknown tag is unrouted", routing.ladder_for_tag("mystery") == [])
 
@@ -80,6 +89,36 @@ check("cat validator rejects unknown id", not catv([{"id": "a", "archetype": "99
 import hashlib
 legacy = hashlib.sha256("job-fit-16|default|PROMPT".encode()).hexdigest()[:32]
 check("cache key backward compatible", LLM(BASE)._key("PROMPT", "job-fit-16") == legacy)
+
+# --- claude CLI model strings never carry a provider prefix ---------------
+# The T4 fallback in the machine-wide policy carries "anthropic/claude-sonnet-5".
+# The CLI itself 404s on a provider-prefixed --model value; it wants the bare
+# name. This exercises the REAL dispatch code, not a re-implementation of it.
+import subprocess as _subprocess
+captured_cmds = []
+real_run = _subprocess.run
+def _fake_run(cmd, **kwargs):
+    captured_cmds.append(cmd)
+    class R: returncode = 1; stdout = ""; stderr = "stubbed, no real call made"
+    return R()
+_subprocess.run = _fake_run
+try:
+    llm4 = LLM(BASE)
+    llm4._dispatch = LLM._dispatch.__get__(llm4)   # real dispatch/claude path
+    try:
+        llm4.complete_json("x", tag="org-sectors", force=True,
+                           validate=lambda data: False)   # force full escalation to T4
+    except LLMError:
+        pass
+finally:
+    _subprocess.run = real_run
+
+claude_cmds = [c for c in captured_cmds if c[0] == "claude"]
+check("the claude CLI was reached (T4 escalation happened)", bool(claude_cmds), str(len(claude_cmds)))
+if claude_cmds:
+    model_args = [c[c.index("--model") + 1] for c in claude_cmds if "--model" in c]
+    check("a --model value was passed", bool(model_args), str(claude_cmds))
+    check("no --model value carries a provider prefix", all("/" not in m for m in model_args), str(model_args))
 
 # --- disabling routing sends everything back to the CLI -------------------
 orig = routing.load_tagmap

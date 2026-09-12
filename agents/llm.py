@@ -99,7 +99,12 @@ class LLM:
     def _call_claude(self, prompt, model=None):
         cmd = ["claude", "-p", prompt, "--output-format", "json"]
         if model and model != "claude-cli-default":
-            cmd += ["--model", model]
+            # The compute-routing policy carries a provider prefix ("anthropic/
+            # claude-sonnet-5"), which the CLI itself rejects with a 404 - it
+            # wants the bare model name or alias. Escalating to T4 without this
+            # strip fails outright, silently defeating the whole fallback ladder.
+            cli_model = model.split("/", 1)[-1] if "/" in model else model
+            cmd += ["--model", cli_model]
         try:
             proc = subprocess.run(
                 cmd, capture_output=True, text=True,
