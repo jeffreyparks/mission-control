@@ -383,7 +383,7 @@ def make_sector_validator(orgs):
 
 
 class JobIntel:
-    def __init__(self, base_dir, batch_size=16, max_live_roles=45, model=None, refresh=False):
+    def __init__(self, base_dir, batch_size=16, max_live_roles=100, model=None, refresh=False):
         self.refresh = refresh
         self._jd_cache = None
         self._store = None
@@ -463,7 +463,8 @@ class JobIntel:
         return roles
 
     def fetch_live_roles(self):
-        """Reuse JobScanner's working Greenhouse/Lever fetchers. No keyword scoring."""
+        """Reuse JobScanner's working Greenhouse/Lever/Ashby fetchers, plus any
+        configured board-wide aggregators (Built In). No keyword scoring."""
         if self.max_live_roles <= 0:
             print("  skipping live board scan")
             return []
@@ -485,6 +486,18 @@ class JobIntel:
             for job in jobs:
                 job["priority"] = company.get("priority")
             raw += jobs
+
+        # Board-wide aggregators: no single company, so a separate config
+        # section (queries/categories, not a per-company api_url).
+        for agg in config.get("aggregators", []):
+            if agg.get("provider") != "builtin":
+                continue
+            name = agg.get("name", "Built In")
+            jobs = self.scanner.fetch_builtin_jobs(name, agg)
+            for job in jobs:
+                job["priority"] = agg.get("priority")
+            raw += jobs
+
         print(f"  fetched {len(raw)} live postings")
         return raw
 
@@ -1322,7 +1335,7 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description="Honest LLM fit analysis for tracked and live roles.")
     ap.add_argument("--refresh", action="store_true",
                     help="re-judge every role, ignoring stored verdicts (costs full price)")
-    ap.add_argument("--max-live", type=int, default=45, help="cap on live postings judged")
+    ap.add_argument("--max-live", type=int, default=100, help="cap on live postings judged")
     ap.add_argument("--add", metavar="URL",
                     help="add one posting from a public URL, then judge it")
     ap.add_argument("--org", help="override the org name when using --add")

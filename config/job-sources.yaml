@@ -7,46 +7,69 @@
 # Companies from your existing tracker, prioritized
 
 companies:
-  # Top Priority (from your tracker)
+  # Priority 2: named companies from your tracker (priority 1 is reserved for
+  # board-wide aggregators below, which often surface the same roles first)
   - name: OpenAI
     careers_url: https://openai.com/careers/search
     api_url: https://api.ashbyhq.com/posting-api/job-board/openai
-    priority: 1
+    priority: 2
     
   - name: Anthropic
     careers_url: https://www.anthropic.com/careers
     api_url: https://boards-api.greenhouse.io/v1/boards/anthropic/jobs
-    priority: 1
+    priority: 2
     
   - name: Netflix
     careers_url: https://jobs.netflix.com/
     api_url: https://jobs.netflix.com/api/search
-    priority: 2
+    priority: 3
     
   - name: Pinterest
     careers_url: https://www.pinterestcareers.com/jobs/
     api_url: https://boards-api.greenhouse.io/v1/boards/pinterest/jobs
-    priority: 2
+    priority: 3
     
   - name: Reddit
     careers_url: https://www.redditinc.com/careers
     api_url: https://boards-api.greenhouse.io/v1/boards/reddit/jobs
-    priority: 2
+    priority: 3
     
   - name: Meta
     careers_url: https://www.metacareers.com/jobs/
     api_url: null  # Uses custom system
-    priority: 2
+    priority: 3
     
   - name: Google
     careers_url: https://careers.google.com/jobs/results/
     api_url: null  # Uses custom system
-    priority: 2
+    priority: 3
     
   - name: Amazon
     careers_url: https://www.amazon.jobs/
     api_url: null  # Uses custom system
     priority: 3
+
+# ============================================================
+# BOARD-WIDE AGGREGATORS
+# ============================================================
+# Boards with no single company - one platform hosting many employers'
+# postings. These need queries/categories instead of a per-company api_url,
+# so they get their own section rather than living under `companies:`.
+
+aggregators:
+  - name: Built In
+    provider: builtin
+    host: builtin.com          # or a market host, e.g. www.builtinnyc.com
+    # scope: remote            # uncomment to restrict to /jobs/remote
+    queries:
+      - "marketing science"
+      - "measurement"
+      - "attribution"
+      - "experimentation"
+      - "data science marketing"
+    categories: []
+    max_pages: 2
+    priority: 1  # aggregators surface the same roles many company boards post individually
 
 # ============================================================
 # LINKEDIN SEARCH

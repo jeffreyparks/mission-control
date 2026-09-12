@@ -7,6 +7,7 @@ import yaml
 import pandas as pd
 from datetime import datetime, timedelta
 from job_fetch import _html_to_text
+from builtin_source import fetch_builtin_jobs as _fetch_builtin_jobs
 from pathlib import Path
 from urllib.parse import quote_plus
 import re
@@ -136,6 +137,17 @@ class JobScanner:
             print(f"  ✗ {company_name}: {e}")
             return []
 
+    def fetch_builtin_jobs(self, label, agg_config):
+        """Board-wide Built In aggregator scan. See agents/builtin_source.py."""
+        return _fetch_builtin_jobs(
+            queries=agg_config.get("queries"),
+            categories=agg_config.get("categories"),
+            host=agg_config.get("host"),
+            scope=agg_config.get("scope"),
+            max_pages=agg_config.get("max_pages", 3),
+            label=label,
+        )
+
     def calculate_match_score(self, job_text, keywords, rules):
         """Calculate how well a job matches career goals"""
         job_lower = job_text.lower()
@@ -250,7 +262,24 @@ class JobScanner:
             
             all_jobs.extend(relevant_jobs)
             print(f"    Found {len(relevant_jobs)} relevant roles")
-        
+
+        for agg in config.get('aggregators', []):
+            if agg.get('provider') != 'builtin':
+                continue
+            name = agg.get('name', 'Built In')
+            print(f"  Fetching: {name}...")
+            jobs = self.fetch_builtin_jobs(name, agg)
+            relevant_jobs = []
+            for job in jobs:
+                score, matches = self.calculate_match_score(job['description'], keywords, rules)
+                if score >= rules.get('min_match_score', 30):
+                    job['match_score'] = score
+                    job['keywords_matched'] = ', '.join(matches[:5])
+                    job['priority'] = agg.get('priority', 3)
+                    relevant_jobs.append(job)
+            all_jobs.extend(relevant_jobs)
+            print(f"    Found {len(relevant_jobs)} relevant roles")
+
         return all_jobs
     
     def update_tracker(self, new_jobs, existing_df):
