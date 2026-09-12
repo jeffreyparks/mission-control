@@ -2,11 +2,15 @@
 
 Career operations automation. Two feeds, separate cadences, judged by the same standard.
 
-Output is three static HTML pages. No server, no dashboard process.
+Output is three static HTML pages. The source of record is a SQLite database; the Excel
+tracker is exported on every run and stays a real physical backup.
 
 ```bash
 uv run run_daily.py                  # respects cadences, rebuilds HTML
-open artifacts/html/index.html
+open artifacts/html/index.html       # read-only
+
+uv run serve.py                      # optional: editable dashboard on localhost
+open http://127.0.0.1:8787/job-tracker.html
 ```
 
 ## What it does
@@ -32,11 +36,34 @@ and 10 of 12 repos as no-change. That is the system working.
 
 ### LLM layer
 
-`agents/llm.py` shells out to the local `claude` CLI in headless mode.
-**No API key and no external service.** Results are cached by content hash, so re-runs on
-unchanged input are free. Agents batch 15-20 items per call.
+`agents/llm.py` speaks to two backends and picks one per call:
 
-Typical cost: about $1.60 for a cold job-intel run, $0.59 for a cold radar run, $0.00 cached.
+- the local **`claude` CLI** in headless mode (no API key, runs on your subscription)
+- **OpenRouter** for cheap open-weight models
+
+`agents/routing.py` decides, reading the machine-wide compute-routing policy at
+`~/.prime/agent/skills/compute-routing/config.toml`. `config/model-routing.toml` maps each call
+to a tier and is versioned with the pipeline. Every run logs its routing:
+
+```
+route: job-fit        -> claude CLI default
+route: role-cat       -> qwen/qwen3-30b-a3b-instruct-2507
+route: org-sectors    -> qwen/qwen3-30b-a3b-instruct-2507
+route: content-radar  -> openai/gpt-oss-120b
+```
+
+**Fit judgement deliberately stays on claude.** Measured against existing claude verdicts over
+18 real roles, the best cheap model drifted 6.8 points and flipped 1 recommendation in 6. That
+is too much drift for the output you act on. The mechanical calls are routed; the judgement is
+not. One line in `config/model-routing.toml` flips it.
+
+Cheap answers are validated before use. Wrong shape, dropped roles, a score outside 0-100 or an
+invented recommendation are rejected, retried once with a stricter prompt, then escalated up the
+tier ladder to `claude-opus-5`. The worst case is a slower call, not a bad verdict.
+
+Results are cached by content hash, so re-runs on unchanged input are free. Agents batch 15-20
+items per call. Typical cost: about $1.60 for a cold job-intel run, $0.59 for a cold radar run,
+$0.00 cached.
 
 ### Incremental fit verdicts
 
@@ -49,11 +76,50 @@ verdicts automatically. `PROMPT_VERSION` remains as a manual override.
 
 `--refresh-intel` forces a full re-judge. `--no-intel` falls back to the legacy keyword scanner.
 
+## Data model
+
+`data/mission-control.db` is the source of record. `artifacts/jobs/org-roles-tracker.xlsx` is
+re-exported on every write, so the spreadsheet remains a physical backup you can open or restore
+from.
+
+Hand-editing the spreadsheet is still legal. The next run notices the file changed and imports
+your edits before it does anything else, logged as actor `xlsx-edit`.
+
+Every write is recorded in a `changes` table with the field, old value, new value, actor and
+timestamp:
+
+```
+2026-09-12T13:12:41  anthropic-customer-...  status  00 New find -> 02 Researching  (dashboard)
+```
+
+Live finds from the daily scan are appended automatically as status `00 New find`, so the tracker
+records everything the pipeline has seen. Manual columns are left blank for you, and rows that
+already exist are asserted byte-identical. Set `AUTO_ADD_LIVE = False` in `agents/job_intel.py`
+to keep the tracker hand-curated.
+
+## Editable dashboard (optional)
+
+```bash
+uv run serve.py
+```
+
+Serves `artifacts/html/` on `127.0.0.1:8787` and exposes a small JSON API. The `Status` column
+becomes a dropdown; changing it writes to the database and re-exports the spreadsheet
+immediately.
+
+The page is a static file first. Opened with `file://`, or with the server off, `/api/health`
+simply fails and the table stays read-only. Nothing breaks.
+
+Limits are deliberate: loopback only, a closed list of editable fields, and a closed vocabulary
+of accepted values.
+
 ## Layout
 
 ```
 agents/
-  llm.py              LLM client, hash-cached
+  llm.py              LLM client, hash-cached, routed
+  routing.py          tag -> tier -> model selector
+  store.py            SQLite source of record + xlsx export
   context.py          ground truth: career goals + resume
   job_intel.py        fit analysis, org enrichment, outcome timing   (daily)
   content_radar.py    full-article fetch + editorial brief           (weekly)

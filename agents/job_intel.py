@@ -432,6 +432,9 @@ class JobIntel:
             )
             roles.append({
                 "id": _slug(org, title),
+                # The store's primary key. Differs from "id" only when two rows
+                # share an org and title; the dashboard writes against this.
+                "store_id": _clean(row.get("_id")) or _slug(org, title),
                 "row_index": int(idx),
                 "source": "tracker",
                 "org": org,

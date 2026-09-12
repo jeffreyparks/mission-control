@@ -52,6 +52,7 @@
       <span class="chip on">Refreshes daily</span>
       <span class="chip">Data as of {{ d.date }}</span>
       <span class="chip">{{ d.llm }}</span>
+      <span class="chip live" id="livebadge" style="display:none">Editing on · serve.py</span>
     </div>
   </header>
 
@@ -125,6 +126,7 @@
       {% for r in roles %}
         <tr data-rec="{{ r.recommendation or '' }}"
             data-status="{{ r.status or '' }}"
+            data-id="{{ r.store_id or '' }}"
             data-blob="{{ (r.org ~ ' ' ~ r.title ~ ' ' ~ (r.sector or '') ~ ' ' ~ (r.role_cat or '') ~ ' ' ~ (r.suggested_role_cat or '') ~ ' ' ~ (r.suggestion_reason or '') ~ ' ' ~ (r.why or '') ~ ' ' ~ (r.seniority_read or ''))|lower }}">
           <td><div class="org">{{ r.org }}</div><div class="sector">{{ r.sector or '—' }}</div></td>
           <td>
@@ -156,7 +158,7 @@
           <td><span class="fit {% if (r.fit_score or 0) >= 70 %}hi{% elif (r.fit_score or 0) >= 45 %}mid{% else %}lo{% endif %}">{{ r.fit_score if r.fit_score is not none else '—' }}</span></td>
           <td>{% if r.recommendation %}<span class="rec {{ r.recommendation }}">{{ r.recommendation }}</span>{% else %}—{% endif %}</td>
           <td>{% if r.priority %}<span class="pri p{{ r.priority|int }}">P{{ r.priority|int }}</span>{% else %}—{% endif %}</td>
-          <td><span class="dot {{ (r.status or '')|lower|replace('01 ','')|replace('02 ','')|replace('03 ','')|replace('04 ','') }}">{{ r.status or '—' }}</span></td>
+          <td class="statuscell"><span class="dot {{ (r.status or '')|lower|replace('00 ','')|replace('01 ','')|replace('02 ','')|replace('03 ','')|replace('04 ','') }}">{{ r.status or '—' }}</span></td>
           <td>{% if r.outcome_display %}<span class="bad-chip">{{ r.outcome_display }}</span>{% else %}—{% endif %}</td>
         </tr>
       {% endfor %}
@@ -236,5 +238,76 @@ q.oninput=apply;
     };
   });
 });
+
+// ---------------------------------------------------------------------------
+// Optional writeback. The page is a static file first: if serve.py is not
+// running, /api/health fails, nothing below happens, and the table stays
+// read-only exactly as rendered.
+// ---------------------------------------------------------------------------
+(function(){
+  var API = window.location.origin;
+  if(window.location.protocol === 'file:') return;
+
+  fetch(API + '/api/health').then(function(r){
+    return r.ok ? r.json() : Promise.reject();
+  }).then(function(health){
+    if(!health.ok || !health.editable || !health.editable.status) return;
+    document.body.classList.add('live');
+    var banner = document.getElementById('livebadge');
+    if(banner) banner.style.display = 'inline-block';
+    enableStatusEditing(health.editable.status);
+  }).catch(function(){ /* read-only, as designed */ });
+
+  function enableStatusEditing(options){
+    document.querySelectorAll('#rt tbody tr').forEach(function(tr){
+      var id = tr.dataset.id;
+      var cell = tr.querySelector('.statuscell');
+      if(!id || !cell) return;
+
+      var current = tr.dataset.status || '';
+      var sel = document.createElement('select');
+      sel.className = 'statussel';
+      options.forEach(function(value){
+        var opt = document.createElement('option');
+        opt.value = value;
+        opt.textContent = value.replace(/^\d\d\s/, '');
+        if(value === current) opt.selected = true;
+        sel.appendChild(opt);
+      });
+
+      sel.onchange = function(){
+        var next = sel.value, previous = tr.dataset.status;
+        sel.disabled = true;
+        fetch(API + '/api/role/' + encodeURIComponent(id), {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({field: 'status', value: next})
+        }).then(function(r){ return r.json(); }).then(function(res){
+          sel.disabled = false;
+          if(res.error){ throw new Error(res.error); }
+          tr.dataset.status = next;
+          flash(cell, 'saved');
+          apply();                     // the status filter must stay honest
+        }).catch(function(err){
+          sel.disabled = false;
+          sel.value = previous;        // never show a value the db does not hold
+          flash(cell, 'failed');
+          console.error('writeback failed', err);
+        });
+      };
+
+      cell.innerHTML = '';
+      cell.appendChild(sel);
+    });
+  }
+
+  function flash(cell, kind){
+    var tag = document.createElement('span');
+    tag.className = 'flash ' + kind;
+    tag.textContent = kind;
+    cell.appendChild(tag);
+    setTimeout(function(){ tag.remove(); }, 1600);
+  }
+})();
 </script>
 </body></html>
