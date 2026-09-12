@@ -30,7 +30,10 @@ BASE = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE / "agents"))
 
 from store import Store  # noqa: E402
-from job_intel import load_archetypes, OUTCOME_LABELS  # noqa: E402
+from job_intel import JobIntel, load_archetypes, OUTCOME_LABELS, _clean, _date, parse_outcome  # noqa: E402
+
+sys.path.insert(0, str(BASE))
+from render.build import _env, render_tracker as _render_tracker_page  # noqa: E402
 
 WEB_ROOT = BASE / "artifacts/html"
 
@@ -45,6 +48,81 @@ EDITABLE = {
     "priority": ["1", "2", "3", ""],
     "recommendation": ["apply", "research", "skip", ""],
 }
+
+
+def _overlay_live_values(intel_data, store):
+    """Copy of the latest intel json with user-editable fields overlaid from the
+    live database, keyed by store_id. Judgement fields (fit_score, why, sector,
+    suggested category, ...) are not in the database and are left as the
+    pipeline last computed them; only the fields the dashboard can write are
+    refreshed, plus the org directory and recommendation counts that are
+    derived from them.
+    """
+    df = store.to_df()
+    by_id = {row["_id"]: row for row in df.to_dict("records") if row.get("_id")}
+
+    roles = []
+    for role in intel_data.get("roles", []):
+        role = dict(role)
+        row = by_id.get(role.get("store_id"))
+        if row is not None:
+            role["status"] = _clean(row.get("Status"))
+            priority = _clean(row.get("Priority"))
+            role["priority"] = int(float(priority)) if priority else None
+            role["recommendation"] = _clean(row.get("Recommendation"))
+            role["role_cat"] = _clean(row.get("Role Cat"))
+            role["outcome"] = _clean(row.get("Outcomes"))
+            label, days, display = parse_outcome(
+                role["outcome"], row.get("Date Applied"), row.get("Last Updated"))
+            role["outcome_label"], role["days_to_outcome"], role["outcome_display"] = label, days, display
+            sector = _clean(row.get("Sector"))
+            if sector:
+                role["sector"] = sector
+        roles.append(role)
+
+    sectors = {}
+    for role in roles:
+        if role.get("org") and role.get("sector") and role["org"] not in sectors:
+            sectors[role["org"]] = role["sector"]
+    orgs = JobIntel.build_org_directory(roles, sectors)
+
+    return {**intel_data, "roles": roles, "orgs": orgs}
+
+
+def _latest_intel(base):
+    """The newest intel-*.json for THIS base dir.
+
+    Deliberately not render.build._load: that helper is anchored to build.py's
+    own file location, which is always the real repo - fine for the daily
+    render, wrong for tests that point a Store at a temp directory.
+    """
+    files = sorted(Path(base).glob("artifacts/jobs/intel-*.json"))
+    if not files:
+        return None
+    try:
+        return json.loads(files[-1].read_text())
+    except (json.JSONDecodeError, OSError):
+        return None
+
+
+def render_tracker_live(base):
+    """The tracker page, rendered fresh from the database on every request.
+
+    Falls back to whatever is on disk (or None) if there is no intel json yet,
+    or if anything about the overlay fails - a rendering bug must never take
+    the dashboard down.
+    """
+    intel_data = _latest_intel(base)
+    if not intel_data:
+        return None
+    try:
+        store = Store(base)
+        overlaid = _overlay_live_values(intel_data, store)
+        _path, html = _render_tracker_page(_env(), overlaid, write=False)
+        return html
+    except Exception as exc:  # noqa: BLE001
+        sys.stderr.write(f"live tracker render failed, serving the static file: {exc}\n")
+        return None
 
 
 def _outcome_options():
@@ -64,7 +142,11 @@ class Handler(SimpleHTTPRequestHandler):
     quiet = False
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=str(WEB_ROOT), **kwargs)
+        # Per-instance, not the module-level WEB_ROOT: two servers can run in
+        # the same process (tests do this) pointed at different base dirs, and
+        # each must serve its own artifacts/html, not whichever ran last.
+        root = str(self.store.base_dir / "artifacts/html") if self.store else str(WEB_ROOT)
+        super().__init__(*args, directory=root, **kwargs)
 
     # ---------- helpers ----------
 
@@ -88,6 +170,20 @@ class Handler(SimpleHTTPRequestHandler):
 
     def do_GET(self):
         path = urlparse(self.path).path
+        if path == "/job-tracker.html":
+            html = render_tracker_live(self.store.base_dir)
+            if html is not None:
+                body = html.encode()
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Content-Length", str(len(body)))
+                self.send_header("Cache-Control", "no-store")
+                self.end_headers()
+                self.wfile.write(body)
+                return
+            # Live render unavailable (no intel json yet, or it failed) - fall
+            # through to whatever static copy exists on disk, same as before
+            # this feature existed.
         if path == "/api/health":
             if not self._loopback():
                 return self._json({"error": "loopback only"}, 403)
@@ -95,7 +191,9 @@ class Handler(SimpleHTTPRequestHandler):
                 "ok": True,
                 "rows": self.store.count(),
                 "editable": self.editable,
-                "db": str(self.store.db_path.relative_to(BASE)),
+                # relative to this server's own base, not the module-level BASE
+                # constant - those differ for a temp-dir store such as a test.
+                "db": str(self.store.db_path.relative_to(self.store.base_dir)),
             })
         if path == "/api/changes":
             if not self._loopback():
@@ -161,10 +259,19 @@ def serve(host="127.0.0.1", port=8787, base=BASE, quiet=False):
     except Exception:  # noqa: BLE001 - a missing career-goals.md must not break serving
         editable["role_cat"] = [""]
 
-    Handler.store = store
-    Handler.editable = editable
-    Handler.quiet = quiet
-    httpd = ThreadingHTTPServer((host, port), Handler)
+    # A fresh Handler subclass per server, not the shared base class: Handler.store
+    # was a class attribute, so a second serve() call in the same process (as the
+    # tests do) silently repointed the FIRST server at the SECOND server's database.
+    # Binding state on a dedicated subclass keeps multiple servers independent.
+    class _BoundHandler(Handler):
+        pass
+    _BoundHandler.store = store
+    _BoundHandler.editable = editable
+    _BoundHandler.quiet = quiet
+
+    httpd = ThreadingHTTPServer((host, port), _BoundHandler)
+    httpd.mc_store = store          # for callers (main(), tests) that want it back
+    httpd.mc_editable = editable
     return httpd
 
 
@@ -179,11 +286,11 @@ def main():
         return 1
 
     httpd = serve(args.host, args.port)
-    store = Handler.store
+    store = httpd.mc_store
     print(f"Mission Control writeback server")
     print(f"  dashboard : http://{args.host}:{args.port}/job-tracker.html")
     print(f"  database  : {store.db_path.relative_to(BASE)} ({store.count()} roles)")
-    print(f"  editable  : {', '.join(Handler.editable)}")
+    print(f"  editable  : {', '.join(httpd.mc_editable)}")
     print("  ctrl-c to stop")
     try:
         httpd.serve_forever()

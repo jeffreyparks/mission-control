@@ -71,12 +71,13 @@ def render_radar(env, d):
     return out
 
 
-def render_tracker(env, d):
-    """Job tracker page. Consumes the intel-*.json written by agents/job_intel.py."""
-    if not d:
-        print("  tracker: no intel json found, skipped")
-        return None
+def _tracker_context(d):
+    """Everything the tracker template needs, computed from d["roles"]/d["orgs"].
 
+    Pulled out of render_tracker so serve.py can render the exact same page
+    against live database values - overlaid onto a copy of d - without writing
+    anything to disk.
+    """
     roles = d["roles"]
     orgs = d["orgs"]
 
@@ -84,10 +85,15 @@ def render_tracker(env, d):
     cats = cat_counts.most_common(10)
     cats_max = max((n for _c, n in cats), default=1)
 
+    # Derived from the roles actually being rendered, not the counts baked into
+    # the intel json at pipeline-run time. Recommendation is user-editable from
+    # the dashboard now, so d["counts"] can go stale between pipeline runs; the
+    # roles list itself is what serve.py overlays with live database values.
+    rec_counts = Counter(r.get("recommendation") for r in roles if r.get("recommendation"))
     recs = {
-        "apply": d["counts"].get("apply", 0),
-        "research": d["counts"].get("research", 0),
-        "skip": d["counts"].get("skip", 0),
+        "apply": rec_counts.get("apply", 0),
+        "research": rec_counts.get("research", 0),
+        "skip": rec_counts.get("skip", 0),
     }
     recbars = [("apply", recs["apply"]), ("research", recs["research"]), ("skip", recs["skip"])]
 
@@ -105,7 +111,7 @@ def render_tracker(env, d):
     ]
     best = [o["best_fit_score"] for o in orgs if o.get("best_fit_score") is not None]
 
-    html = env.get_template("tracker.html.j2").render(
+    return dict(
         d=d,
         roles=roles,
         orgs=orgs,
@@ -119,9 +125,25 @@ def render_tracker(env, d):
         total_open=sum(o["open_count"] for o in orgs),
         best_fit=max(best) if best else "—",
     )
-    out = OUT / "job-tracker.html"
-    out.write_text(html)
-    return out
+
+
+def render_tracker(env, d, write=True):
+    """Job tracker page. Consumes the intel-*.json written by agents/job_intel.py.
+
+    Returns (path_or_None, html). Set write=False to get the rendered string
+    without touching disk - that is what the live writeback server does, after
+    overlaying current database values onto a copy of d.
+    """
+    if not d:
+        print("  tracker: no intel json found, skipped")
+        return None, None
+
+    html = env.get_template("tracker.html.j2").render(**_tracker_context(d))
+    out = None
+    if write:
+        out = OUT / "job-tracker.html"
+        out.write_text(html)
+    return out, html
 
 
 def _deltas():
@@ -162,10 +184,11 @@ def main():
     radar = _load("radar-*.json", "artifacts/content")
     intel = _load("intel-*.json", "artifacts/jobs")
 
+    tracker_path, _tracker_html = render_tracker(env, intel)
     written = [p for p in (
         render_index(env, intel, radar),
         render_radar(env, radar),
-        render_tracker(env, intel),
+        tracker_path,
     ) if p]
     for p in written:
         print(f"rendered {p.relative_to(BASE)}")

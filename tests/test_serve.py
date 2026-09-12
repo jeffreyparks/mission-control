@@ -33,12 +33,33 @@ pd.DataFrame(rows, columns=cols).to_excel(work / "artifacts/jobs/org-roles-track
 (work / "artifacts/html/job-tracker.html").write_text("<html>stub</html>")
 shutil.copy2(REPO / "config/career-goals.md", work / "config/career-goals.md")
 
+# A minimal but real intel snapshot, so GET /job-tracker.html exercises the
+# live-overlay render path instead of falling back to the static stub above.
+intel_fixture = {
+    "generated_at": "2026-01-01T00:00:00", "date": "2026-01-01",
+    "counts": {"apply": 1, "research": 0, "skip": 0}, "llm": "LLM: 0 calls, 0 cached, $0.000",
+    "roles": [{
+        "id": "acme-head-of-measurement", "store_id": None,  # filled in once the store exists
+        "source": "tracker", "org": "Acme", "title": "Head of Measurement", "url": None,
+        "location": None, "role_cat": None, "priority": 1, "status": "01 Open",
+        "date_opened": None, "date_applied": None, "outcome": None, "outcome_label": None,
+        "days_to_outcome": None, "outcome_display": None, "notes": None, "comp_range": None,
+        "fit_score": 80, "seniority_read": "x", "why": "x", "top_gaps": [],
+        "what_theyre_really_hiring_for": "x", "pitch_angle": "x", "recommendation": "apply",
+        "suggested_role_cat": None, "suggestion_confidence": None, "suggestion_reason": None,
+        "sector": "Tech - SaaS",
+    }],
+    "orgs": [],
+}
+
 store = Store(work)
 store.load(verbose=False)
 rid = store.to_df().iloc[0]["_id"]
 
-srv.WEB_ROOT = work / "artifacts/html"
-srv.BASE = work
+intel_fixture["roles"][0]["store_id"] = rid
+intel_fixture["roles"][0]["id"] = rid
+(work / "artifacts/jobs" / "intel-2026-01-01.json").write_text(json.dumps(intel_fixture))
+
 httpd = srv.serve(port=8799, base=work, quiet=True)
 threading.Thread(target=httpd.serve_forever, daemon=True).start()
 time.sleep(0.3)
@@ -78,8 +99,41 @@ try:
     junk = requests.post(f"{API}/api/role/{rid}", data=b"not json", timeout=5)
     check("malformed json gives 400", junk.status_code == 400, str(junk.status_code))
 
-    page = requests.get(f"{API}/job-tracker.html", timeout=5)
-    check("static dashboard still served", page.status_code == 200 and "stub" in page.text)
+    # The core regression this feature exists for: a GET must reflect what is
+    # actually in the database right now, not whatever was true when the page
+    # was last rendered to disk. Set a known value first - earlier tests in
+    # this file already wrote to this role, so "the fixture's initial value"
+    # is not a safe assumption by this point.
+    requests.post(f"{API}/api/role/{rid}", json={"field": "status", "value": "02 Researching"}, timeout=5)
+    page0 = requests.get(f"{API}/job-tracker.html", timeout=5)
+    check("live tracker page served", page0.status_code == 200)
+    check("live page reflects a value set moments ago via the API",
+          'data-status="02 Researching"' in page0.text and f'data-id="{rid}"' in page0.text)
+
+    requests.post(f"{API}/api/role/{rid}", json={"field": "status", "value": "04 Closed"}, timeout=5)
+    page1 = requests.get(f"{API}/job-tracker.html", timeout=5)
+    check("a GET right after a write shows the new value, no rebuild needed",
+          f'data-id="{rid}"' in page1.text and 'data-status="04 Closed"' in page1.text)
+    check("the now-stale status is gone from the response", 'data-status="02 Researching"' not in page1.text)
+
+    # When there is no intel json at all, the live path has nothing to render
+    # and must fall back to whatever static file is on disk rather than 500.
+    empty_work = Path(tempfile.mkdtemp())
+    for sub in ("artifacts/jobs", "artifacts/html", "data", "config"):
+        (empty_work / sub).mkdir(parents=True)
+    (empty_work / "artifacts/html/job-tracker.html").write_text("<html>stub, no intel yet</html>")
+    pd.DataFrame(rows, columns=cols).to_excel(empty_work / "artifacts/jobs/org-roles-tracker.xlsx", index=False)
+    httpd2 = srv.serve(port=8800, base=empty_work, quiet=True)
+    threading.Thread(target=httpd2.serve_forever, daemon=True).start()
+    time.sleep(0.3)
+    try:
+        stub_page = requests.get("http://127.0.0.1:8800/job-tracker.html", timeout=5)
+        check("falls back to the static file when there is no intel json",
+              stub_page.status_code == 200 and "stub, no intel yet" in stub_page.text)
+    finally:
+        httpd2.shutdown()
+        httpd2.server_close()
+        shutil.rmtree(empty_work, ignore_errors=True)
 
     escape = requests.get(f"{API}/../../../etc/passwd", timeout=5)
     check("path traversal blocked", escape.status_code in (400, 403, 404), str(escape.status_code))
