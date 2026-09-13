@@ -561,19 +561,33 @@ class JobIntel:
                 kept.append(role)
         return auto_closed, kept
 
-    def prefilter_live(self, raw, tracker_ids):
+    def prefilter_live(self, raw, tracker_ids, tracker_urls=None):
         """Cheap, honest prefilter. Only shrinks the batch bill; no scoring claims.
 
         Reserves LOWER_TIER_RESERVE_FRACTION of max_live_roles for sources below
         AGGREGATOR_PRIORITY, so a high-volume aggregator can't take every slot on
         its own. Either side backfills the other's unused capacity, so the cap
         stays fully used whenever there are enough candidates somewhere.
+
+        tracker_urls excludes by URL, not just by org+title slug. A board can
+        retitle a posting without changing its id (Anthropic's greenhouse board
+        showed one job as both "AAA, Commercial" and later "Applied AI
+        Architect, Commercial"), and a URL match is the same real job either
+        way. Without this, a retitled posting is judged fresh every run,
+        forever fails to append (append_new_finds already refuses a URL it has
+        seen), and is stuck as a ghost that never gets a store_id and is
+        therefore never editable on the dashboard - it shows up as a second,
+        permanently broken row for a job you already have tracked once.
         """
+        tracker_urls = tracker_urls or set()
         seen, kept = set(), []
         for job in raw:
             title = (job.get("title") or "").strip()
             org = job.get("company") or "Unknown"
             if not title or not TITLE_PATTERN.search(title):
+                continue
+            url = _clean(job.get("url"))
+            if url and url in tracker_urls:
                 continue
             rid = _slug(org, title)
             if rid in seen or rid in tracker_ids:
@@ -1388,7 +1402,8 @@ Return ONLY a JSON object mapping each company name exactly as given to its sect
         tracked = self.tracker_roles(df)
         print(f"  tracker: {len(tracked)} roles")
 
-        live = self.prefilter_live(self.fetch_live_roles(), {r["id"] for r in tracked})
+        tracked_urls = {r["url"] for r in tracked if r.get("url")}
+        live = self.prefilter_live(self.fetch_live_roles(), {r["id"] for r in tracked}, tracked_urls)
         auto_closed, live_kept = self.partition_auto_closed(live)
         if auto_closed:
             print(f"  auto-closed {len(auto_closed)} live role(s) by title heuristic, no LLM call")
