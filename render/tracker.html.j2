@@ -4,6 +4,19 @@
 <title>Job Search Tracker — {{ d.date }}</title>
 <link rel="stylesheet" href="theme.css">
 <style>
+  /* This page has ten columns plus two free-text inputs (Salary, Notes) - the
+     shared 1180px .wrap from theme.css is cramped for it. Widened here only,
+     so index.html and content-radar.html keep their narrower, read-first
+     layout. */
+  .wrap{max-width:min(1800px, 96vw)}
+  /* More breathing room now that the canvas is wider. table-layout is auto,
+     so a column only gets more space if something demands it - these
+     min-widths are that demand. Notes gets the most room, since it holds
+     free-form text rather than a short number. */
+  th.salarycell, td.salarycell{min-width:130px}
+  th.notescell, td.notescell{min-width:280px}
+  .salarycell .textfield{max-width:140px}
+  .notescell .textfield{max-width:340px}
   .tabs{display:flex;gap:8px;margin:22px 0 4px}
   .tab{font-size:13px;padding:8px 18px;border-radius:18px;border:1px solid var(--line);
     background:transparent;color:var(--ink-dim);cursor:pointer}
@@ -120,7 +133,7 @@
     <table id="rt">
       <thead><tr>
         <th>Org</th><th>Role</th><th>Category</th><th>Fit</th><th>Rec</th>
-        <th>Pri</th><th>Status</th><th>Outcome</th><th>Salary</th><th>Notes</th>
+        <th>Pri</th><th>Status</th><th>Outcome</th><th class="salarycell">Salary</th><th class="notescell">Notes</th>
       </tr></thead>
       <tbody>
       {% for r in roles %}
