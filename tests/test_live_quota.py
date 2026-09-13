@@ -69,6 +69,17 @@ agg_count = sum(1 for r in roles if (r.get("priority") or 5) <= AGGREGATOR_PRIOR
 check("a flooded lower-tier source still leaves room for aggregator supply",
       agg_count == 150, str(agg_count))
 
+# --- comp_range (Salary) survives from raw job dict into the role dict ------
+salaried_job = {"company": "Acme", "title": "Marketing Science Lead", "url": "https://x/salary-1",
+                "location": "", "description": "measurement attribution marketing science",
+                "priority": 1, "comp_range": "$150,000 - $190,000"}
+intel = JobIntel(REPO)
+intel.max_live_roles = 10
+roles = intel.prefilter_live([salaried_job], tracker_ids=set())
+check("comp_range threads through prefilter_live into the role dict",
+      len(roles) == 1 and roles[0].get("comp_range") == "$150,000 - $190,000",
+      str(roles[0].get("comp_range")) if roles else "no role kept")
+
 print()
 print("FAILURES:", fails if fails else "none")
 sys.exit(1 if fails else 0)

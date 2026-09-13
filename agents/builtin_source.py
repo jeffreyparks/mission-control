@@ -276,6 +276,16 @@ def parse_list_page(html, now=None):
     return jobs
 
 
+def _format_salary(salary):
+    """(min, max) annual USD -> a display string matching what job_fetch.py
+    produces for other sources, so the Salary column looks consistent
+    regardless of where a role came from."""
+    lo, hi = salary
+    if lo == hi:
+        return f"${lo:,.0f}"
+    return f"${lo:,.0f} - ${hi:,.0f}"
+
+
 def fetch_builtin_jobs(queries=None, categories=None, host=None, scope=None,
                         max_pages=DEFAULT_MAX_PAGES, timeout=15, label="Built In"):
     """Scan Built In. Requires queries and/or categories - there is no default
@@ -338,6 +348,7 @@ def fetch_builtin_jobs(queries=None, categories=None, host=None, scope=None,
                     continue
                 seen.add(j["url"])
                 added += 1
+                salary = j.get("salary")
                 out.append({
                     "company": j.get("company") or "",
                     "title": j.get("title") or "",
@@ -345,6 +356,7 @@ def fetch_builtin_jobs(queries=None, categories=None, host=None, scope=None,
                     "location": j.get("location") or "",
                     "description": f"{j.get('title', '')} {j.get('description', '')}".strip(),
                     "posted": j["posted_at"].isoformat() if j.get("posted_at") else "",
+                    "comp_range": _format_salary(salary) if salary else "",
                 })
             if not jobs or not added:
                 break  # format changed / past the last page, or a fully-overlapping tail

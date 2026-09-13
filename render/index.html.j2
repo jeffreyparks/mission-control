@@ -177,7 +177,7 @@
       {% for r in shortlist %}
         <tr>
           <td><div class="org">{{ r.org }}</div><div class="sector">{{ r.sector or '—' }}</div></td>
-          <td>{% if r.url %}<a href="{{ r.url }}">{{ r.title }}</a>{% else %}{{ r.title }}{% endif %}</td>
+          <td>{% if r.url %}<a href="{{ r.url }}" target="new" rel="noopener">{{ r.title }}</a>{% else %}{{ r.title }}{% endif %}</td>
           <td><span class="fit hi">{{ r.fit_score }}</span></td>
           <td class="sector">{{ r.pitch_angle or '—' }}</td>
         </tr>

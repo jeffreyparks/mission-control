@@ -45,7 +45,7 @@
         <div class="chips">
           {% for f in p.formats %}<span class="chip on">{{ f }}</span>{% endfor %}
         </div>
-        <div class="srcline"><a href="{{ p.source_url }}">{{ p.source_name }}</a> · {{ p.source_date }}</div>
+        <div class="srcline"><a href="{{ p.source_url }}" target="new" rel="noopener">{{ p.source_name }}</a> · {{ p.source_date }}</div>
       </article>
       {% endfor %}
     </div>

@@ -626,7 +626,7 @@ class JobIntel:
                 "days_to_outcome": None,
                 "outcome_display": None,
                 "notes": None,
-                "comp_range": None,
+                "comp_range": _clean(job.get("comp_range")),
                 "jd": _strip_html(job.get("description")),
                 "_tier": tier,
             })

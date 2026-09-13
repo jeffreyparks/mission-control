@@ -138,8 +138,29 @@ try:
     escape = requests.get(f"{API}/../../../etc/passwd", timeout=5)
     check("path traversal blocked", escape.status_code in (400, 403, 404), str(escape.status_code))
 
-    fit = requests.post(f"{API}/api/role/{rid}", json={"field": "notes", "value": "x"}, timeout=5)
-    check("non-allowlisted manual field rejected", fit.status_code == 400, str(fit.status_code))
+    # notes IS editable (see below); fit_score is genuinely pipeline-owned and must
+    # stay rejected regardless of how the free-text allowlist grows.
+    fit = requests.post(f"{API}/api/role/{rid}", json={"field": "fit_score", "value": 99}, timeout=5)
+    check("non-allowlisted judgement field rejected", fit.status_code == 400, str(fit.status_code))
+
+    check("notes is editable", "notes" in health["editable"])
+    check("notes vocabulary is null (free text)", health["editable"]["notes"] is None)
+    check("comp_range (Salary) is editable", "comp_range" in health["editable"])
+
+    notes_ok = requests.post(f"{API}/api/role/{rid}", json={"field": "notes", "value": "Follow up next week"}, timeout=5).json()
+    check("notes write succeeds", notes_ok.get("changed") and notes_ok.get("new") == "Follow up next week", str(notes_ok))
+
+    notes_clear = requests.post(f"{API}/api/role/{rid}", json={"field": "notes", "value": ""}, timeout=5).json()
+    check("notes accepts blank (clear)", notes_clear.get("changed") is True, str(notes_clear))
+
+    salary_ok = requests.post(f"{API}/api/role/{rid}", json={"field": "comp_range", "value": "$150K - $190K"}, timeout=5).json()
+    check("Salary write succeeds", salary_ok.get("changed") and salary_ok.get("new") == "$150K - $190K", str(salary_ok))
+
+    too_long = requests.post(f"{API}/api/role/{rid}", json={"field": "notes", "value": "x" * 3000}, timeout=5)
+    check("notes over the length cap is rejected", too_long.status_code == 400, str(too_long.status_code))
+
+    non_string = requests.post(f"{API}/api/role/{rid}", json={"field": "notes", "value": 12345}, timeout=5)
+    check("non-string free text value is rejected", non_string.status_code == 400, str(non_string.status_code))
 
     check("priority is editable", "priority" in health["editable"])
     check("recommendation is editable", "recommendation" in health["editable"])

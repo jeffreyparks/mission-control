@@ -119,6 +119,9 @@ check("company/location empty without cards, not guessed",
       all(j["company"] == "" and j["location"] == "" for j in parsed_no_cards))
 
 # ---------------- fetch_builtin_jobs: config handling, no network ----------------
+check("_format_salary: equal min/max -> single value", bi._format_salary((150000, 150000)) == "$150,000")
+check("_format_salary: range", bi._format_salary((130000, 185000)) == "$130,000 - $185,000")
+
 check("no queries/categories -> nothing to scan", bi.fetch_builtin_jobs() == [])
 check("unknown host -> skipped, not an exception", bi.fetch_builtin_jobs(queries=["x"], host="evil.example.com") == [])
 

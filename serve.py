@@ -47,7 +47,14 @@ EDITABLE = {
     "status": ["00 New find", "01 Open", "02 Researching", "03 Applied", "04 Closed"],
     "priority": ["1", "2", "3", ""],
     "recommendation": ["apply", "research", "skip", ""],
+    # None means free text: any string is accepted (subject to FREE_TEXT_MAX_LEN
+    # below), not a closed vocabulary. The dashboard renders these as a text
+    # input rather than a dropdown.
+    "notes": None,
+    "comp_range": None,   # rendered as "Salary" in the dashboard
 }
+
+FREE_TEXT_MAX_LEN = {"notes": 2000, "comp_range": 120}
 
 
 def _overlay_live_values(intel_data, store):
@@ -71,6 +78,8 @@ def _overlay_live_values(intel_data, store):
             role["priority"] = int(float(priority)) if priority else None
             role["recommendation"] = _clean(row.get("Recommendation"))
             role["role_cat"] = _clean(row.get("Role Cat"))
+            role["notes"] = _clean(row.get("Notes"))
+            role["comp_range"] = _clean(row.get("Range"))
             role["outcome"] = _clean(row.get("Outcomes"))
             label, days, display = parse_outcome(
                 role["outcome"], row.get("Date Applied"), row.get("Last Updated"))
@@ -226,6 +235,13 @@ class Handler(SimpleHTTPRequestHandler):
         # sends strings), then store the type the rest of the pipeline expects.
         if allowed is not None and str(value or "") not in allowed:
             return self._json({"error": f"value not allowed for {field}: {value!r}"}, 400)
+        if allowed is None:
+            # Free text (notes, comp_range/Salary): no vocabulary, just a length cap.
+            if not isinstance(value, (str, type(None))):
+                return self._json({"error": f"{field} must be text"}, 400)
+            limit = FREE_TEXT_MAX_LEN.get(field)
+            if limit and value and len(value) > limit:
+                return self._json({"error": f"{field} is too long (max {limit} characters)"}, 400)
         if field == "priority" and value not in (None, ""):
             value = float(value)
 

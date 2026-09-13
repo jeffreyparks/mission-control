@@ -120,7 +120,7 @@
     <table id="rt">
       <thead><tr>
         <th>Org</th><th>Role</th><th>Category</th><th>Fit</th><th>Rec</th>
-        <th>Pri</th><th>Status</th><th>Outcome</th>
+        <th>Pri</th><th>Status</th><th>Outcome</th><th>Salary</th><th>Notes</th>
       </tr></thead>
       <tbody>
       {% for r in roles %}
@@ -130,7 +130,7 @@
             data-blob="{{ (r.org ~ ' ' ~ r.title ~ ' ' ~ (r.sector or '') ~ ' ' ~ (r.role_cat or '') ~ ' ' ~ (r.suggested_role_cat or '') ~ ' ' ~ (r.suggestion_reason or '') ~ ' ' ~ (r.why or '') ~ ' ' ~ (r.seniority_read or ''))|lower }}">
           <td><div class="org">{{ r.org }}</div><div class="sector">{{ r.sector or '—' }}</div></td>
           <td>
-            {% if r.url %}<a href="{{ r.url }}">{{ r.title }}</a>{% else %}{{ r.title }}{% endif %}
+            {% if r.url %}<a href="{{ r.url }}" target="new" rel="noopener">{{ r.title }}</a>{% else %}{{ r.title }}{% endif %}
             {% if r.why %}
             <details class="why"><summary>Fit read</summary>
               <div class="body">
@@ -161,6 +161,8 @@
           <td class="pricell" data-pri-value="{{ r.priority|int if r.priority else '' }}">{% if r.priority %}<span class="pri p{{ r.priority|int }}">P{{ r.priority|int }}</span>{% else %}—{% endif %}</td>
           <td class="statuscell">{% if r.store_id %}<span class="dot {{ (r.status or '')|lower|replace('00 ','')|replace('01 ','')|replace('02 ','')|replace('03 ','')|replace('04 ','') }}">{{ r.status or '—' }}</span>{% else %}<span class="dot">—</span>{% endif %}</td>
           <td class="outcell" data-outcome-value="{{ r.outcome_label or '' }}">{% if r.outcome_display %}<span class="bad-chip">{{ r.outcome_display }}</span>{% else %}—{% endif %}</td>
+          <td class="salarycell" data-text-value="{{ r.comp_range or '' }}">{{ r.comp_range or '—' }}</td>
+          <td class="notescell" data-text-value="{{ r.notes or '' }}">{{ r.notes or '—' }}</td>
         </tr>
       {% endfor %}
       </tbody>
@@ -188,7 +190,7 @@
           <td>{{ o.applied_count }}</td>
           <td><span class="fit {% if (o.best_fit_score or 0) >= 70 %}hi{% elif (o.best_fit_score or 0) >= 45 %}mid{% else %}lo{% endif %}">{{ o.best_fit_score if o.best_fit_score is not none else '—' }}</span></td>
           <td class="sector">{{ o.median_fit_score if o.median_fit_score is not none else '—' }}</td>
-          <td class="sector">{% if o.best_role %}{% if o.best_role.url %}<a href="{{ o.best_role.url }}">{{ o.best_role.title }}</a>{% else %}{{ o.best_role.title }}{% endif %}{% else %}—{% endif %}</td>
+          <td class="sector">{% if o.best_role %}{% if o.best_role.url %}<a href="{{ o.best_role.url }}" target="new" rel="noopener">{{ o.best_role.title }}</a>{% else %}{{ o.best_role.title }}{% endif %}{% else %}—{% endif %}</td>
           <td>{% if o.outcomes %}{% for x in o.outcomes %}<span class="bad-chip" title="{{ x.title }}">{{ x.outcome }}</span> {% endfor %}{% else %}—{% endif %}</td>
         </tr>
       {% endfor %}
@@ -266,6 +268,10 @@ q.oninput=apply;
     if(ed.outcomes) enableSelect('outcell', 'outcomes', ed.outcomes, function(tr,v){},
       function(v){ return v || '\u2014'; }, function(tr,cell){ return cell.dataset.outcomeValue || ''; });
     if(ed.role_cat) enableCategoryEditing(ed.role_cat);
+    // Free-text fields report their vocabulary as null (any text is
+    // accepted), so presence in the object - not truthiness - is the signal.
+    if('notes' in ed) enableTextField('notescell', 'notes');
+    if('comp_range' in ed) enableTextField('salarycell', 'comp_range');
   }).catch(function(){ /* read-only, as designed */ });
 
   // One generic editor for a single-select field: status, priority,
@@ -350,6 +356,40 @@ q.oninput=apply;
 
       cell.innerHTML = '';
       cell.appendChild(wrap);
+    });
+  }
+
+  // Free-text field (Notes, Salary): a plain input, committed on blur or
+  // Enter - not on every keystroke, so a partial word in progress is never
+  // sent. Escape reverts to the last saved value without writing anything.
+  function enableTextField(cellClass, field){
+    document.querySelectorAll('#rt tbody tr').forEach(function(tr){
+      var id = tr.dataset.id;
+      var cell = tr.querySelector('.' + cellClass);
+      if(!id || !cell) return;
+      var current = cell.dataset.textValue || '';
+
+      var input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'textfield';
+      input.value = current;
+      input.placeholder = '—';
+
+      function commit(){
+        var next = input.value.trim();
+        if(next === current){ return; }
+        writeField(id, field, next, input, cell, function(){
+          current = next;
+        }, function(){ input.value = current; });
+      }
+      input.onblur = commit;
+      input.onkeydown = function(e){
+        if(e.key === 'Enter'){ input.blur(); }
+        if(e.key === 'Escape'){ input.value = current; input.blur(); }
+      };
+
+      cell.innerHTML = '';
+      cell.appendChild(input);
     });
   }
 
