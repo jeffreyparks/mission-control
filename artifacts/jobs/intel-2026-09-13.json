@@ -1,21 +1,56 @@
 {
-  "generated_at": "2026-09-13T08:35:33",
+  "generated_at": "2026-09-13T09:39:53",
   "date": "2026-09-13",
   "counts": {
-    "roles": 470,
-    "tracker_roles": 470,
+    "roles": 471,
+    "tracker_roles": 471,
     "live_roles": 0,
-    "judged_this_run": 0,
-    "reused_verdicts": 470,
-    "orgs": 122,
-    "uncategorised": 275,
+    "judged_this_run": 11,
+    "reused_verdicts": 460,
+    "orgs": 123,
+    "uncategorised": 276,
     "suggested_categories": 0,
     "apply": 25,
     "research": 37,
-    "skip": 408
+    "skip": 409
   },
-  "llm": "LLM: 0 calls, 0 cached, $0.000",
+  "llm": "LLM: 3 calls, 0 cached, $0.238 [claude-cli-default x1, qwen3-30b-a3b-instruct-2507 x2]",
   "roles": [
+    {
+      "id": "citi-svp-media-sciences-and-measurement",
+      "store_id": "citi-svp-media-sciences-and-measurement",
+      "source": "tracker",
+      "org": "Citi",
+      "title": "SVP Media Sciences and Measurement",
+      "url": "https://citi.wd5.myworkdayjobs.com/en-US/2/job/SVP-Media-Sciences-and-Measurement_26975368-1",
+      "location": "388 GREENWICH STREET - TOWER, United States of America",
+      "role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+      "priority": null,
+      "status": "03 Applied",
+      "date_opened": "2026-09-12",
+      "date_applied": null,
+      "outcome": null,
+      "outcome_label": null,
+      "days_to_outcome": null,
+      "outcome_display": null,
+      "notes": null,
+      "comp_range": "163-245",
+      "fit_fingerprint": "13b9ae837cbf3755",
+      "fit_score": 90,
+      "seniority_read": "SVP at a bank is a senior leadership title (roughly Director/Senior Director equivalent in tech) and matches current level and trajectory exactly.",
+      "why": "This is close to a direct restatement of the candidate's resume: attribution, MMM, incrementality testing, vendor management, cross-channel measurement narrative for senior stakeholders. Rare case where domain, level, and function all line up.",
+      "top_gaps": [
+        "No banking/regulated-industry experience (compliance, legal, procurement rigor called out in JD)",
+        "Clean rooms/adtech tool depth (DSP/SSP, identity solutions) is a stated gap vs. the candidate's agency-side background"
+      ],
+      "what_theyre_really_hiring_for": "A senior measurement leader who can own the media measurement framework end-to-end, manage vendor relationships, and translate methodology into an exec-ready narrative \u2014 precisely the OMD/Zenith skill set.",
+      "pitch_angle": "Ten years adjudicating attribution and MMM outputs from competing vendors into a single cross-channel investment narrative for senior stakeholders \u2014 this is that function at bank scale.",
+      "recommendation": "apply",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
+      "sector": "Finance - Banking"
+    },
     {
       "id": "artefact-artefact-com-director-ai-data-science-marketing-measurement-effectiveness",
       "store_id": "artefact-artefact-com-director-ai-data-science-marketing-measurement-effectiveness",
@@ -190,41 +225,6 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "sector": "Media - Media Agency"
-    },
-    {
-      "id": "major-league-soccer-senior-director-marketing-science",
-      "store_id": "major-league-soccer-senior-director-marketing-science",
-      "source": "tracker",
-      "org": "Major League Soccer",
-      "title": "Senior Director, Marketing Science",
-      "url": "https://www.linkedin.com/jobs/view/4460062500/",
-      "location": null,
-      "role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "priority": null,
-      "status": "03 Applied",
-      "date_opened": "2026-09-11",
-      "date_applied": null,
-      "outcome": null,
-      "outcome_label": null,
-      "days_to_outcome": null,
-      "outcome_display": null,
-      "notes": null,
-      "comp_range": "$150,000 - $200,000,",
-      "fit_fingerprint": "2e478bcb5ac07f82",
-      "fit_score": 82,
-      "seniority_read": "Exact title match (Senior Director, Marketing Science) at comparable scope \u2014 right level, right track.",
-      "why": "Direct title and domain match to the current OMD role, with the MMM reconciliation, forecasting, and cross-channel measurement experience translating well to sponsorship/media ROI questions a league would face. Comp is lower than agency-holdco norms but plausible for sports.",
-      "top_gaps": [
-        "No demonstrated sports/sponsorship or ticketing-revenue measurement experience specifically",
-        "Would need to translate ad-agency MMM framing to league sponsorship and fan-engagement metrics"
-      ],
-      "what_theyre_really_hiring_for": "Someone who can bring rigorous, agency-grade measurement discipline in-house to prove marketing and sponsorship ROI.",
-      "pitch_angle": "Built and reconciled MMM/forecasting systems used for real budget allocation decisions \u2014 directly transferable to proving sponsorship and media ROI for the league.",
-      "recommendation": "apply",
-      "suggested_role_cat": null,
-      "suggestion_confidence": null,
-      "suggestion_reason": null,
-      "sector": "Sports - Sports League"
     },
     {
       "id": "citi-svp-marketing-data-science",
@@ -542,6 +542,41 @@
       "sector": "Healthcare - Prescription Savings"
     },
     {
+      "id": "major-league-soccer-senior-director-marketing-science",
+      "store_id": "major-league-soccer-senior-director-marketing-science",
+      "source": "tracker",
+      "org": "Major League Soccer",
+      "title": "Senior Director, Marketing Science",
+      "url": "https://www.linkedin.com/jobs/view/4460062500/",
+      "location": null,
+      "role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+      "priority": null,
+      "status": "03 Applied",
+      "date_opened": "2026-09-11",
+      "date_applied": null,
+      "outcome": null,
+      "outcome_label": null,
+      "days_to_outcome": null,
+      "outcome_display": null,
+      "notes": null,
+      "comp_range": "150-200",
+      "fit_fingerprint": "8f508afab3c7a00f",
+      "fit_score": 78,
+      "seniority_read": "Title-for-title match: Senior Director, Marketing Science is the candidate's current exact title and level.",
+      "why": "This is squarely in-lane \u2014 marketing science leadership at the Senior Director level, same as the current OMD role. Comp (150-200k) is lower than current band, likely reflecting sports/entertainment budgets rather than agency holding-co scale, but the role itself is a real match.",
+      "top_gaps": [
+        "Comp likely below current level",
+        "Sports/entertainment measurement maturity may be less developed than agency-side MMM work \u2014 could mean more building-from-scratch"
+      ],
+      "what_theyre_really_hiring_for": "A marketing science leader to build measurement rigor (attribution, MMM-style thinking) for a media/sports property that hasn't had this function before.",
+      "pitch_angle": "Built and scaled marketing science functions from the ground up at OMD, Zenith, and Merkle \u2014 exactly the kind of build this role needs.",
+      "recommendation": "apply",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
+      "sector": "Sports - Sports League"
+    },
+    {
       "id": "wpp-director-measurement-science",
       "store_id": "wpp-director-measurement-science",
       "source": "tracker",
@@ -750,41 +785,6 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "sector": "Marketing - Performance Marketing"
-    },
-    {
-      "id": "citi-svp-media-sciences-and-measurement",
-      "store_id": "citi-svp-media-sciences-and-measurement",
-      "source": "tracker",
-      "org": "Citi",
-      "title": "SVP Media Sciences and Measurement",
-      "url": "https://citi.wd5.myworkdayjobs.com/en-US/2/job/SVP-Media-Sciences-and-Measurement_26975368-1",
-      "location": "388 GREENWICH STREET - TOWER, United States of America",
-      "role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "priority": null,
-      "status": "03 Applied",
-      "date_opened": "2026-09-12",
-      "date_applied": null,
-      "outcome": null,
-      "outcome_label": null,
-      "days_to_outcome": null,
-      "outcome_display": null,
-      "notes": null,
-      "comp_range": "$163,600.00 - $245,400.00",
-      "fit_fingerprint": "9ea41756ddbffc34",
-      "fit_score": 74,
-      "seniority_read": "SVP at a bank maps roughly to Senior Director/Director in agency terms \u2014 a lateral move, not a stretch or a demotion.",
-      "why": "This is a genuine measurement-science leadership role built around attribution, MMM, and incrementality testing \u2014 the candidate's actual core. Directly analogous to his OMD work reconciling two vendor MMMs into one cross-channel investment view, and to leading a measurement team; vendor management (MMM vendors at OMD, MTA vendors at Merkle) also lines up well.",
-      "top_gaps": [
-        "No financial services or highly regulated-industry experience; JD explicitly calls for work with legal/compliance/procurement in a regulated environment",
-        "Career-goals notes flag clean rooms as a gap, and this JD implies adtech/identity-solution fluency (DSP/SSP, ADH-style environments) the resume doesn't evidence"
-      ],
-      "what_theyre_really_hiring_for": "A client-side operator who can unify a fragmented, multi-vendor measurement stack into one defensible narrative for senior banking stakeholders \u2014 less methods innovation, more adjudication, governance, and executive translation under compliance constraints.",
-      "pitch_angle": "Led the reconciliation of two independent MMM vendors' conflicting ROI estimates into a single cross-channel investment view used for annual budget allocation \u2014 exactly the calibration-and-narrative function this role owns.",
-      "recommendation": "apply",
-      "suggested_role_cat": null,
-      "suggestion_confidence": null,
-      "suggestion_reason": null,
-      "sector": "Finance - Banking"
     },
     {
       "id": "mozilla-marketing-data-science-manager",
@@ -997,41 +997,6 @@
       "sector": "Tech - AI Recruitment"
     },
     {
-      "id": "attentive-applied-science-data-science-leader",
-      "store_id": "attentive-applied-science-data-science-leader",
-      "source": "tracker",
-      "org": "Attentive",
-      "title": "Applied Science / Data Science Leader",
-      "url": "https://www.linkedin.com/jobs/view/4438519675/",
-      "location": null,
-      "role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "priority": null,
-      "status": "03 Applied",
-      "date_opened": "2026-09-11",
-      "date_applied": null,
-      "outcome": null,
-      "outcome_label": null,
-      "days_to_outcome": null,
-      "outcome_display": null,
-      "notes": null,
-      "comp_range": "$320,000 - $380,000",
-      "fit_fingerprint": "6a65f06deae01476",
-      "fit_score": 66,
-      "seniority_read": "\"Leader\" title and comp band ($320-380K) match Director+ level; track is right (management), but \"Applied Science\" naming suggests more ML-research emphasis than pure measurement science.",
-      "why": "Attentive is an SMS/email marketing platform \u2014 directly adjacent to the candidate's Samsung work deploying propensity/recommendation models across Email/SMS/Push. The gap is whether this role wants deep applied-ML/research chops (model architecture, experimentation at the algorithm level) versus measurement/causal leadership.",
-      "top_gaps": [
-        "No causal inference / MMM / attribution language in the title \u2014 may skew toward core ML/personalization rather than measurement science",
-        "\"Applied Science\" framing could mean IC-adjacent technical depth beyond the candidate's stats/causal toolkit"
-      ],
-      "what_theyre_really_hiring_for": "A leader to run the DS function behind lifecycle messaging products \u2014 likely personalization/recommendation modeling at scale, with measurement as a secondary layer.",
-      "pitch_angle": "Owned production propensity and recommendation models across Email/SMS/Push at Samsung, evaluated against lifecycle engagement rather than vanity metrics.",
-      "recommendation": "research",
-      "suggested_role_cat": null,
-      "suggestion_confidence": null,
-      "suggestion_reason": null,
-      "sector": "Tech - Marketing SaaS"
-    },
-    {
       "id": "duolingo-senior-data-science-manager-user-growth",
       "store_id": "duolingo-senior-data-science-manager-user-growth",
       "source": "tracker",
@@ -1208,42 +1173,6 @@
       "sector": "Retail - E-commerce"
     },
     {
-      "id": "paramount-senior-director-data-science",
-      "store_id": "paramount-senior-director-data-science",
-      "source": "tracker",
-      "org": "Paramount",
-      "title": "Senior Director, Data Science",
-      "url": "https://www.linkedin.com/jobs/view/4462035439/",
-      "location": null,
-      "role_cat": null,
-      "priority": null,
-      "status": "03 Applied",
-      "date_opened": "2026-09-11",
-      "date_applied": null,
-      "outcome": null,
-      "outcome_label": null,
-      "days_to_outcome": null,
-      "outcome_display": null,
-      "notes": null,
-      "comp_range": "$253,000.00\n-\n$314,000.00",
-      "fit_fingerprint": "b8e1d21406aa3b63",
-      "fit_score": 60,
-      "seniority_read": "Exact title match (Senior Director) \u2014 same level as current role, so this is a lateral move, not a promotion.",
-      "why": "Paramount is a media company where subscriber/marketing measurement work plausibly overlaps with the candidate's MMM and attribution background, but \"Data Science\" here could just as easily mean content/streaming recommendation or subscriber churn modeling with no marketing-measurement mandate. No JD excerpt to confirm.",
-      "top_gaps": [
-        "Unclear if scope is marketing measurement vs. product/content data science",
-        "No detail on team size or whether this is a build vs. maintain mandate"
-      ],
-      "what_theyre_really_hiring_for": "Likely a senior DS leader for either subscriber growth analytics or content/streaming modeling \u2014 media marketing measurement crossover is possible but unconfirmed.",
-      "pitch_angle": "Reconciled competing MMM vendor outputs into a single cross-channel investment view for Gap Inc.'s annual budget planning \u2014 directly transferable to media/streaming marketing spend decisions.",
-      "recommendation": "research",
-      "suggested_role_cat": null,
-      "suggestion_confidence": null,
-      "suggestion_reason": null,
-      "cat_fingerprint": "05dcbec1e8d97bce",
-      "sector": "Media - Entertainment"
-    },
-    {
       "id": "biogen-lead-of-digital-marketing-measurement-and-data-science",
       "store_id": "biogen-lead-of-digital-marketing-measurement-and-data-science",
       "source": "tracker",
@@ -1348,6 +1277,42 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "sector": "Consumer - Food & Pet Care"
+    },
+    {
+      "id": "paramount-senior-director-data-science",
+      "store_id": "paramount-senior-director-data-science",
+      "source": "tracker",
+      "org": "Paramount",
+      "title": "Senior Director, Data Science",
+      "url": "https://www.linkedin.com/jobs/view/4462035439/",
+      "location": null,
+      "role_cat": null,
+      "priority": null,
+      "status": "03 Applied",
+      "date_opened": "2026-09-11",
+      "date_applied": null,
+      "outcome": null,
+      "outcome_label": null,
+      "days_to_outcome": null,
+      "outcome_display": null,
+      "notes": null,
+      "comp_range": "253-314",
+      "fit_fingerprint": "6b206114f11b3676",
+      "fit_score": 58,
+      "seniority_read": "Level matches exactly (Senior Director), but the generic \"Data Science\" title leaves the actual scope (subscriber/content analytics vs. marketing measurement) unclear.",
+      "why": "Media/entertainment is a plausible adjacent industry and the level is right, but without JD detail on whether this is marketing measurement, streaming subscriber analytics, or content ML, it's a bet on title alone. Worth researching before committing.",
+      "top_gaps": [
+        "JD doesn't confirm marketing/measurement scope vs. broader subscriber or content data science",
+        "No streaming/media subscription analytics track record"
+      ],
+      "what_theyre_really_hiring_for": "Unclear without more detail \u2014 could be audience/marketing measurement or could be product/subscriber data science.",
+      "pitch_angle": "A measurement leader who's reconciled competing vendor models into single decision-grade views for enterprise media budgets.",
+      "recommendation": "research",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
+      "cat_fingerprint": "05dcbec1e8d97bce",
+      "sector": "Media - Entertainment"
     },
     {
       "id": "rtb-house-measurement-strategy-manager",
@@ -1491,6 +1456,42 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "sector": "Media - Media Agency"
+    },
+    {
+      "id": "doordash-director-analytics-new-verticals-consumer",
+      "store_id": "doordash-director-analytics-new-verticals-consumer",
+      "source": "tracker",
+      "org": "DoorDash",
+      "title": "Director, Analytics, New Verticals Consumer",
+      "url": "https://job-boards.greenhouse.io/doordashusa/jobs/8052254",
+      "location": "New York, NY; San Francisco, CA; Seattle, WA; Sunnyvale, CA",
+      "role_cat": null,
+      "priority": null,
+      "status": "04 Closed",
+      "date_opened": "2026-09-11",
+      "date_applied": null,
+      "outcome": null,
+      "outcome_label": null,
+      "days_to_outcome": null,
+      "outcome_display": null,
+      "notes": null,
+      "comp_range": "255-375",
+      "fit_fingerprint": "4098f9763214fae0",
+      "fit_score": 55,
+      "seniority_read": "Director + people-manager track matches current level exactly, but this is product/growth analytics, not marketing measurement.",
+      "why": "Deep causal inference and experimentation chops transfer directly, and leading a DS team is exactly what this candidate does now. But the domain is product analytics for a marketplace vertical (grocery/alcohol/retail ops), not marketing science \u2014 no MMM, attribution, or media measurement in scope at all.",
+      "top_gaps": [
+        "No consumer marketplace/product-analytics background (vs. media/marketing measurement)",
+        "JD wants 0\u21921 product experimentation, not brand/channel measurement"
+      ],
+      "what_theyre_really_hiring_for": "A DS leader who can stand up experimentation and metrics infrastructure for a scaling business line inside a large analytics org \u2014 general causal-inference leadership, not measurement-science specialists.",
+      "pitch_angle": "Ten years designing and scaling experimentation frameworks that turn ambiguous signal into decisions a cross-functional org can act on.",
+      "recommendation": "research",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
+      "cat_fingerprint": "cc835aa7825e0c62",
+      "sector": "Tech - Food Delivery"
     },
     {
       "id": "lowe-s-sr-director-technology-media-customer-analytics-measurement-and-data-science",
@@ -1703,6 +1704,42 @@
       "suggestion_reason": null,
       "cat_fingerprint": "aa4b31c767d9d088",
       "sector": "Tech - Social Media"
+    },
+    {
+      "id": "vouri-sr-director-data-science-ai",
+      "store_id": "vouri-sr-director-data-science-ai",
+      "source": "tracker",
+      "org": "Vouri",
+      "title": "Sr. Director, Data Science & AI",
+      "url": "https://www.ventureloop.com/ventureloop/jobdetail.php?jobid=2983149&hc=vuori&jt=sr-director-data-science-andamp-ai",
+      "location": null,
+      "role_cat": null,
+      "priority": null,
+      "status": "01 Open",
+      "date_opened": "2026-09-13",
+      "date_applied": null,
+      "outcome": null,
+      "outcome_label": null,
+      "days_to_outcome": null,
+      "outcome_display": null,
+      "notes": null,
+      "comp_range": null,
+      "fit_fingerprint": "dd160801f1dd9ec4",
+      "fit_score": 48,
+      "seniority_read": "Level (Sr. Director) matches, but the JD excerpt is too thin to confirm this is a marketing-measurement seat rather than broader DTC data science (demand planning, ops, personalization).",
+      "why": "Level and industry (DTC retail) are plausible fits, and the candidate has relevant segmentation/personalization experience from Samsung and L'Or\u00e9al, but without more JD detail this reads as a generic \"Data Science & AI\" mandate that may extend well beyond marketing measurement.",
+      "top_gaps": [
+        "Insufficient JD detail to confirm measurement/marketing scope",
+        "No DTC apparel/retail-specific experience"
+      ],
+      "what_theyre_really_hiring_for": "Unclear \u2014 likely a broad DS/AI leader for a growing DTC brand, possibly spanning demand forecasting, personalization, and marketing analytics together.",
+      "pitch_angle": null,
+      "recommendation": "skip",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
+      "cat_fingerprint": "f272bdc9f7641849",
+      "sector": "Unknown - Unknown"
     },
     {
       "id": "gusto-head-of-sales-ds-analytics",
@@ -2204,6 +2241,41 @@
       "sector": "Media - Media Agency"
     },
     {
+      "id": "attentive-applied-science-data-science-leader",
+      "store_id": "attentive-applied-science-data-science-leader",
+      "source": "tracker",
+      "org": "Attentive",
+      "title": "Applied Science / Data Science Leader",
+      "url": "https://www.linkedin.com/jobs/view/4438519675/",
+      "location": null,
+      "role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+      "priority": null,
+      "status": "03 Applied",
+      "date_opened": "2026-09-11",
+      "date_applied": null,
+      "outcome": null,
+      "outcome_label": null,
+      "days_to_outcome": null,
+      "outcome_display": null,
+      "notes": null,
+      "comp_range": "320-380",
+      "fit_fingerprint": "8e42bd0e8f6870f5",
+      "fit_score": 40,
+      "seniority_read": "Title is vague (\"Applied Science / Data Science Leader\") and skews toward a research/ML IC-adjacent track rather than a clear people-management measurement seat.",
+      "why": "Attentive is a marketing/messaging platform, so there's plausible domain adjacency, but \"Applied Science\" framing plus the high comp band suggests they want deep ML/research depth (likely for their own product's ML models) rather than a marketing measurement strategist.",
+      "top_gaps": [
+        "Unclear if role is measurement-facing or product-ML-facing",
+        "\"Applied Science\" track typically wants hands-on modeling depth beyond marketing science scope"
+      ],
+      "what_theyre_really_hiring_for": "Likely a technical leader for Attentive's own send-time/personalization ML models, not client-facing marketing measurement.",
+      "pitch_angle": null,
+      "recommendation": "skip",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
+      "sector": "Tech - Marketing SaaS"
+    },
+    {
       "id": "chamberlain-group-sr-manager-data-science-marketing",
       "store_id": "chamberlain-group-sr-manager-data-science-marketing",
       "source": "tracker",
@@ -2238,42 +2310,6 @@
       "suggestion_reason": null,
       "cat_fingerprint": "558ed4f7cc877ca8",
       "sector": "Consumer - Smart Home Tech"
-    },
-    {
-      "id": "citi-vp-marketing-data-science",
-      "store_id": "citi-vp-marketing-data-science",
-      "source": "tracker",
-      "org": "Citi",
-      "title": "VP Marketing Data Science",
-      "url": "https://jobs.citi.com/job/-/-/287/97083874128",
-      "location": null,
-      "role_cat": null,
-      "priority": null,
-      "status": "04 Closed",
-      "date_opened": "2026-09-11",
-      "date_applied": null,
-      "outcome": null,
-      "outcome_label": null,
-      "days_to_outcome": null,
-      "outcome_display": null,
-      "notes": null,
-      "comp_range": "$129,840.00 - $194,760.00",
-      "fit_fingerprint": "51511044d7b2fc11",
-      "fit_score": 40,
-      "seniority_read": "Banking 'VP' is typically a mid-level individual grade, not equivalent to Director/Senior Director \u2014 this reads as a step down despite the title.",
-      "why": "Marketing data science domain overlaps, but the posted comp ($130-195k) sits well below what the candidate should command at Senior Director level, and financial services is an unfamiliar regulated domain with no prior exposure.",
-      "top_gaps": [
-        "Comp band implies a lower organizational level than current role",
-        "No financial-services/regulated-industry experience"
-      ],
-      "what_theyre_really_hiring_for": "A hands-on marketing analytics contributor inside a large corporate hierarchy, not a measurement strategy leader.",
-      "pitch_angle": null,
-      "recommendation": "skip",
-      "suggested_role_cat": null,
-      "suggestion_confidence": null,
-      "suggestion_reason": null,
-      "cat_fingerprint": "e17536f9a6abcc04",
-      "sector": "Finance - Banking"
     },
     {
       "id": "newfold-digital-sr-director-performance-marketing",
@@ -2954,41 +2990,6 @@
       "sector": "Tech - AI Lab"
     },
     {
-      "id": "faire-director-of-applied-ai-ml-science-ads",
-      "store_id": "faire-director-of-applied-ai-ml-science-ads",
-      "source": "tracker",
-      "org": "Faire",
-      "title": "Director of Applied AI/ML Science - Ads",
-      "url": "https://www.linkedin.com/jobs/view/4439962897/",
-      "location": null,
-      "role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "priority": null,
-      "status": "04 Closed",
-      "date_opened": "2026-09-11",
-      "date_applied": null,
-      "outcome": null,
-      "outcome_label": null,
-      "days_to_outcome": null,
-      "outcome_display": null,
-      "notes": null,
-      "comp_range": "$276,000 to $379,500",
-      "fit_fingerprint": "59ada22361436a46",
-      "fit_score": 36,
-      "seniority_read": "Director title fits, but this is an applied AI/ML science track for an ads product (ranking, auction, budget optimization) \u2014 a function drift from marketing measurement science into ML/ads-engineering research.",
-      "why": "The comp band signals a bar for deep applied ML/research talent building the ads product itself, not a measurement leader evaluating campaign performance from the outside. Candidate's causal inference and MMM background doesn't map to ads-ranking ML systems.",
-      "top_gaps": [
-        "No ad-ranking, auction, or ML-infra engineering background",
-        "Role likely wants research-caliber ML depth, not agency measurement science"
-      ],
-      "what_theyre_really_hiring_for": "A technical ML leader to build and scale Faire's internal ads product, not to measure external media performance.",
-      "pitch_angle": null,
-      "recommendation": "skip",
-      "suggested_role_cat": null,
-      "suggestion_confidence": null,
-      "suggestion_reason": null,
-      "sector": "Retail - Wholesale Marketplace"
-    },
-    {
       "id": "faire-staff-applied-ai-ml-scientist",
       "store_id": "faire-staff-applied-ai-ml-scientist",
       "source": "tracker",
@@ -3096,13 +3097,13 @@
       "sector": "Tech - AI Lab"
     },
     {
-      "id": "doordash-director-analytics-new-verticals-consumer",
-      "store_id": "doordash-director-analytics-new-verticals-consumer",
+      "id": "citi-vp-marketing-data-science",
+      "store_id": "citi-vp-marketing-data-science",
       "source": "tracker",
-      "org": "DoorDash",
-      "title": "Director, Analytics, New Verticals Consumer",
-      "url": "https://job-boards.greenhouse.io/doordashusa/jobs/8052254",
-      "location": "New York, NY; San Francisco, CA; Seattle, WA; Sunnyvale, CA",
+      "org": "Citi",
+      "title": "VP Marketing Data Science",
+      "url": "https://jobs.citi.com/job/-/-/287/97083874128",
+      "location": null,
       "role_cat": null,
       "priority": null,
       "status": "04 Closed",
@@ -3113,24 +3114,23 @@
       "days_to_outcome": null,
       "outcome_display": null,
       "notes": null,
-      "comp_range": "$255,000\u2014$375,000",
-      "fit_fingerprint": "b891f2989ab7bd0a",
+      "comp_range": "130-195",
+      "fit_fingerprint": "d11833de28a3c416",
       "fit_score": 35,
-      "seniority_read": "Director-to-Director on title, but this is in-house product/growth analytics leadership at a marketplace, not marketing measurement \u2014 a domain change dressed up as a level match.",
-      "why": "The candidate's entire track record is agency/brand-side marketing science \u2014 MMM, MTA, audience segmentation, media budget allocation. This role wants a Director running product experimentation and growth analytics for a consumer marketplace vertical (Grocery/Alcohol/Retail delivery), reporting to a Senior Director in a large in-house Analytics org. 'Causal inference and experimentation' overlaps on paper, but the actual job is product decision-making (what to build, which growth lever to pull), not marketing/media measurement \u2014 a different function wearing similar words.",
+      "seniority_read": "VP at a bank is a mid-level IC/manager title, roughly a step below the candidate's current Senior Director seat \u2014 comp range (130-195k) confirms it.",
+      "why": "Marketing data science is the right domain, but the level and comp band both signal this sits below where the candidate is already operating. Taking this would be a step down in scope and title, not a lateral move.",
       "top_gaps": [
-        "No in-house consumer marketplace or product analytics experience \u2014 career is entirely agency/brand-side marketing measurement",
-        "No evidence of running product experimentation at DoorDash's scale (0\u21921 launches plus high-traffic Cx surfaces) vs. media/campaign-level experiments",
-        "Team scope here likely exceeds candidate's largest team led (5 people) given 'lead and grow a team of DS leaders and practitioners across a portfolio'"
+        "Title/level is below current Senior Director seniority",
+        "Comp ceiling (195k) is below likely current comp"
       ],
-      "what_theyre_really_hiring_for": "A product-minded DS director who's spent their career inside a tech company's growth/product org, comfortable owning 0-to-1 metrics definition and cross-functional roadmap influence \u2014 not a marketing measurement specialist.",
+      "what_theyre_really_hiring_for": "A hands-on marketing analytics contributor inside a large bank's marketing org, not a team-leading measurement strategist.",
       "pitch_angle": null,
       "recommendation": "skip",
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "cat_fingerprint": "cc835aa7825e0c62",
-      "sector": "Tech - Food Delivery"
+      "cat_fingerprint": "e17536f9a6abcc04",
+      "sector": "Finance - Banking"
     },
     {
       "id": "jpmorganchase-vice-president-marketing-strategy-lead-shopping-innovation-ai-strategy",
@@ -4339,6 +4339,41 @@
       "sector": "Tech - AI Lab"
     },
     {
+      "id": "faire-director-of-applied-ai-ml-science-ads",
+      "store_id": "faire-director-of-applied-ai-ml-science-ads",
+      "source": "tracker",
+      "org": "Faire",
+      "title": "Director of Applied AI/ML Science - Ads",
+      "url": "https://www.linkedin.com/jobs/view/4439962897/",
+      "location": null,
+      "role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
+      "priority": null,
+      "status": "04 Closed",
+      "date_opened": "2026-09-11",
+      "date_applied": null,
+      "outcome": null,
+      "outcome_label": null,
+      "days_to_outcome": null,
+      "outcome_display": null,
+      "notes": null,
+      "comp_range": "276-379",
+      "fit_fingerprint": "19c875ef26b2b9bb",
+      "fit_score": 30,
+      "seniority_read": "Director level matches, but track is applied ML/ads science (ranking, ad systems), not measurement/causal inference leadership.",
+      "why": "This is an ads ML science role \u2014 building ranking and ad-serving models \u2014 not marketing measurement. The candidate has no applied ML/ads infrastructure background; the overlap is keyword-level (\"ads\", \"director\") not substantive.",
+      "top_gaps": [
+        "No ad-ranking/ad-serving ML systems experience",
+        "Function is applied ML engineering leadership, not causal measurement"
+      ],
+      "what_theyre_really_hiring_for": "An applied ML leader who can ship production ads models (targeting, ranking, bidding) \u2014 a distinct discipline from marketing science.",
+      "pitch_angle": null,
+      "recommendation": "skip",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
+      "sector": "Retail - Wholesale Marketplace"
+    },
+    {
       "id": "hightouch-head-of-ml",
       "store_id": "hightouch-head-of-ml",
       "source": "tracker",
@@ -4944,42 +4979,6 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "sector": "Tech - HR & Payroll SaaS"
-    },
-    {
-      "id": "abridge-head-of-data-science",
-      "store_id": "abridge-head-of-data-science",
-      "source": "tracker",
-      "org": "Abridge",
-      "title": "Head of Data Science",
-      "url": "https://www.linkedin.com/jobs/view/4439760671/",
-      "location": null,
-      "role_cat": null,
-      "priority": null,
-      "status": "04 Closed",
-      "date_opened": "2026-09-11",
-      "date_applied": null,
-      "outcome": null,
-      "outcome_label": null,
-      "days_to_outcome": null,
-      "outcome_display": null,
-      "notes": null,
-      "comp_range": "$250K - $325K",
-      "fit_fingerprint": "9a7e77b520174933",
-      "fit_score": 28,
-      "seniority_read": "Head-level title is level-appropriate, but the domain is a hard swap: clinical documentation AI, not marketing measurement.",
-      "why": "Abridge builds AI for clinical note-taking \u2014 none of the candidate's causal inference, MMM, or attribution work transfers to healthcare NLP/clinical data science. This is a domain mismatch dressed up as a title match.",
-      "top_gaps": [
-        "Zero healthcare/clinical data experience",
-        "No evidence of NLP/LLM-adjacent applied science work at the modeling level this role likely requires"
-      ],
-      "what_theyre_really_hiring_for": "A DS leader with healthcare or clinical NLP background to scale model quality and evaluation for a regulated product \u2014 not a marketing science generalist.",
-      "pitch_angle": null,
-      "recommendation": "skip",
-      "suggested_role_cat": null,
-      "suggestion_confidence": null,
-      "suggestion_reason": null,
-      "cat_fingerprint": "7a75669b61b018da",
-      "sector": "Healthcare - Clinical AI"
     },
     {
       "id": "anthropic-applied-ai-strategist-emea",
@@ -7773,6 +7772,42 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "sector": "Tech - AI Lab"
+    },
+    {
+      "id": "abridge-head-of-data-science",
+      "store_id": "abridge-head-of-data-science",
+      "source": "tracker",
+      "org": "Abridge",
+      "title": "Head of Data Science",
+      "url": "https://www.linkedin.com/jobs/view/4439760671/",
+      "location": null,
+      "role_cat": null,
+      "priority": null,
+      "status": "04 Closed",
+      "date_opened": "2026-09-11",
+      "date_applied": null,
+      "outcome": null,
+      "outcome_label": null,
+      "days_to_outcome": null,
+      "outcome_display": null,
+      "notes": null,
+      "comp_range": "250-325",
+      "fit_fingerprint": "de1848c58e172616",
+      "fit_score": 18,
+      "seniority_read": "Head of DS level is right, but domain is healthcare AI/clinical documentation \u2014 total function drift from marketing science.",
+      "why": "Abridge builds clinical documentation AI. There is no marketing, measurement, or causal-inference-for-commercial-decisions angle here; this would require an entirely different domain expertise (healthcare NLP/ML).",
+      "top_gaps": [
+        "Zero healthcare/clinical domain experience",
+        "No NLP/LLM applied research background"
+      ],
+      "what_theyre_really_hiring_for": "A healthcare AI/ML research leader, not a marketing measurement executive.",
+      "pitch_angle": null,
+      "recommendation": "skip",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
+      "cat_fingerprint": "7a75669b61b018da",
+      "sector": "Healthcare - Clinical AI"
     },
     {
       "id": "analytic-partners-consultant-marketing-science-analytics",
@@ -13500,6 +13535,42 @@
       "sector": "Tech - AI Platform"
     },
     {
+      "id": "ambral-head-of-research",
+      "store_id": "ambral-head-of-research",
+      "source": "tracker",
+      "org": "ambral",
+      "title": "Head of Research",
+      "url": "https://jobs.ashbyhq.com/Ambral/9a7d8a93-3c90-4a77-a022-f19c158a1fb3",
+      "location": "New York City, New York, United States; United States",
+      "role_cat": null,
+      "priority": null,
+      "status": "04 Closed",
+      "date_opened": "2026-09-12",
+      "date_applied": null,
+      "outcome": null,
+      "outcome_label": null,
+      "days_to_outcome": null,
+      "outcome_display": null,
+      "notes": null,
+      "comp_range": "250-400",
+      "fit_fingerprint": "1f7e3333da6f6917",
+      "fit_score": 8,
+      "seniority_read": "Title-senior but a deep ML/RL research IC-track role requiring a PhD \u2014 different track entirely from marketing science leadership.",
+      "why": "This wants a hands-on RL/LLM post-training researcher building environment-and-reward systems for agent training. The candidate's causal inference and marketing measurement background doesn't translate to this research agenda.",
+      "top_gaps": [
+        "No PhD or RL/LLM post-training research background",
+        "No agent environment/eval engineering experience"
+      ],
+      "what_theyre_really_hiring_for": "A foundation-model-lab-caliber RL researcher to build Ambral's core training/eval systems.",
+      "pitch_angle": null,
+      "recommendation": "skip",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
+      "cat_fingerprint": "9c679afbc99992f3",
+      "sector": "Unknown - Unknown"
+    },
+    {
       "id": "openai-applied-ai-engineer-codex-core-agent",
       "store_id": "openai-applied-ai-engineer-codex-core-agent",
       "source": "tracker",
@@ -14939,6 +15010,41 @@
       "sector": "Tech - AI Lab"
     },
     {
+      "id": "openai-technical-program-manager-compute-infrastructure",
+      "store_id": "openai-technical-program-manager-compute-infrastructure",
+      "source": "tracker",
+      "org": "OpenAI",
+      "title": "Technical Program Manager, Compute Infrastructure",
+      "url": "https://jobs.ashbyhq.com/openai/8fb1615c-34bf-47c4-a1d1-b7b2f836bbd3",
+      "location": "San Francisco, California, United States",
+      "role_cat": "04 Technical Deployment Lead / Strategist",
+      "priority": null,
+      "status": "04 Closed",
+      "date_opened": "2026-09-12",
+      "date_applied": null,
+      "outcome": null,
+      "outcome_label": null,
+      "days_to_outcome": null,
+      "outcome_display": null,
+      "notes": null,
+      "comp_range": "257-335",
+      "fit_fingerprint": "75ce0c0eb50a1d42",
+      "fit_score": 5,
+      "seniority_read": "Completely different function \u2014 hardware/GPU infrastructure program management, not data science or measurement at any level.",
+      "why": "No overlap whatsoever: this role is about physical GPU cluster bring-up, networking, power, and cooling logistics. Nothing in the candidate's background \u2014 marketing science, causal inference, team leadership in analytics \u2014 applies here.",
+      "top_gaps": [
+        "No infrastructure/hardware program management experience",
+        "No compute/datacenter operations background"
+      ],
+      "what_theyre_really_hiring_for": "A technical program manager with hyperscaler/datacenter build experience.",
+      "pitch_angle": null,
+      "recommendation": "skip",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
+      "sector": "Tech - AI Lab"
+    },
+    {
       "id": "optum-healthcare-quality-measurement-consultant-data-analytics-and-coding-remote",
       "store_id": "optum-healthcare-quality-measurement-consultant-data-analytics-and-coding-remote",
       "source": "tracker",
@@ -15079,43 +15185,6 @@
       "suggestion_reason": null,
       "cat_fingerprint": "9567491cebc6cfff",
       "sector": "Finance - Banking"
-    },
-    {
-      "id": "ambral-head-of-research",
-      "store_id": "ambral-head-of-research",
-      "source": "tracker",
-      "org": "ambral",
-      "title": "Head of Research",
-      "url": "https://jobs.ashbyhq.com/Ambral/9a7d8a93-3c90-4a77-a022-f19c158a1fb3",
-      "location": "New York City, New York, United States; United States",
-      "role_cat": null,
-      "priority": null,
-      "status": "04 Closed",
-      "date_opened": "2026-09-12",
-      "date_applied": null,
-      "outcome": null,
-      "outcome_label": null,
-      "days_to_outcome": null,
-      "outcome_display": null,
-      "notes": null,
-      "comp_range": "$250,000 - $400,000 per year",
-      "fit_fingerprint": "564e6df477303292",
-      "fit_score": 5,
-      "seniority_read": "Level is plausible (senior leadership) but track is completely wrong \u2014 this is a hands-on ML research role, not measurement/marketing science leadership.",
-      "why": "This is a PhD-level RL/LLM post-training research role building agent training environments and reward graders for foundation models \u2014 nothing in the candidate's background (MMM, attribution, propensity modeling, marketing measurement) touches reinforcement learning, LLM post-training, or agent evals. The domain overlap is zero; only the word 'model' connects them.",
-      "top_gaps": [
-        "No PhD or research-scientist track record in ML/RL",
-        "No experience with LLM post-training, agent environments, or eval/grader design",
-        "Entire career is applied marketing/commercial data science, not foundation-model research"
-      ],
-      "what_theyre_really_hiring_for": "A deeply technical AI researcher from a frontier lab or top AI startup who can single-handedly build RL training infrastructure for agents \u2014 essentially a founding research scientist, not a data science people-manager.",
-      "pitch_angle": null,
-      "recommendation": "skip",
-      "suggested_role_cat": null,
-      "suggestion_confidence": null,
-      "suggestion_reason": null,
-      "cat_fingerprint": "9c679afbc99992f3",
-      "sector": "Unknown - Unknown"
     },
     {
       "id": "sentra-job-opportunity-gtm-engineer-at-sentra",
@@ -15295,41 +15364,6 @@
       "suggestion_confidence": null,
       "suggestion_reason": null,
       "cat_fingerprint": "4ecb95458d930ee1",
-      "sector": "Tech - AI Lab"
-    },
-    {
-      "id": "openai-technical-program-manager-compute-infrastructure",
-      "store_id": "openai-technical-program-manager-compute-infrastructure",
-      "source": "tracker",
-      "org": "OpenAI",
-      "title": "Technical Program Manager, Compute Infrastructure",
-      "url": "https://jobs.ashbyhq.com/openai/8fb1615c-34bf-47c4-a1d1-b7b2f836bbd3",
-      "location": "San Francisco, California, United States",
-      "role_cat": "04 Technical Deployment Lead / Strategist",
-      "priority": null,
-      "status": "04 Closed",
-      "date_opened": "2026-09-12",
-      "date_applied": null,
-      "outcome": null,
-      "outcome_label": null,
-      "days_to_outcome": null,
-      "outcome_display": null,
-      "notes": null,
-      "comp_range": "$257,000 - $335,000 per year",
-      "fit_fingerprint": "ae4d002bf8e38047",
-      "fit_score": 4,
-      "seniority_read": "Irrelevant axis \u2014 this isn't a measurement/data-science role at any level, it's a hardware/datacenter TPM role.",
-      "why": "This is a technical program management role for GPU cluster bring-up: hardware, networking, power, cooling, vendor/construction coordination. Nothing in the candidate's background \u2014 MMM, attribution, causal inference, marketing analytics leadership \u2014 maps to running compute infrastructure delivery.",
-      "top_gaps": [
-        "No infrastructure/hyperscaler program management experience (capital projects, networking, power/cooling)",
-        "No TPM track record; candidate is a data science/analytics people-manager, not an engineering program manager"
-      ],
-      "what_theyre_really_hiring_for": "An engineering-adjacent TPM who has run physical datacenter/GPU cluster buildouts with vendors and construction firms \u2014 pure infra ops, not analytics.",
-      "pitch_angle": null,
-      "recommendation": "skip",
-      "suggested_role_cat": null,
-      "suggestion_confidence": null,
-      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -16736,6 +16770,31 @@
   ],
   "orgs": [
     {
+      "org": "Citi",
+      "sector": "Finance - Banking",
+      "role_count": 3,
+      "open_count": 0,
+      "applied_count": 1,
+      "closed_count": 2,
+      "status_mix": {
+        "03 Applied": 1,
+        "04 Closed": 2
+      },
+      "recommendation_mix": {
+        "apply": 2,
+        "research": 0,
+        "skip": 1
+      },
+      "best_fit_score": 90,
+      "median_fit_score": 80,
+      "best_role": {
+        "title": "SVP Media Sciences and Measurement",
+        "fit_score": 90,
+        "url": "https://citi.wd5.myworkdayjobs.com/en-US/2/job/SVP-Media-Sciences-and-Measurement_26975368-1"
+      },
+      "outcomes": []
+    },
+    {
       "org": "Artefact (artefact.com)",
       "sector": "Tech - Design & Innovation",
       "role_count": 1,
@@ -16852,55 +16911,6 @@
         "title": "EVP, Analytics",
         "fit_score": 82,
         "url": "https://www.linkedin.com/jobs/view/4446266293/"
-      },
-      "outcomes": []
-    },
-    {
-      "org": "Major League Soccer",
-      "sector": "Sports - Sports League",
-      "role_count": 1,
-      "open_count": 0,
-      "applied_count": 1,
-      "closed_count": 0,
-      "status_mix": {
-        "03 Applied": 1
-      },
-      "recommendation_mix": {
-        "apply": 1,
-        "research": 0,
-        "skip": 0
-      },
-      "best_fit_score": 82,
-      "median_fit_score": 82,
-      "best_role": {
-        "title": "Senior Director, Marketing Science",
-        "fit_score": 82,
-        "url": "https://www.linkedin.com/jobs/view/4460062500/"
-      },
-      "outcomes": []
-    },
-    {
-      "org": "Citi",
-      "sector": "Finance - Banking",
-      "role_count": 3,
-      "open_count": 0,
-      "applied_count": 1,
-      "closed_count": 2,
-      "status_mix": {
-        "03 Applied": 1,
-        "04 Closed": 2
-      },
-      "recommendation_mix": {
-        "apply": 2,
-        "research": 0,
-        "skip": 1
-      },
-      "best_fit_score": 80,
-      "median_fit_score": 74,
-      "best_role": {
-        "title": "SVP Marketing Data Science",
-        "fit_score": 80,
-        "url": "https://builtin.com/job/svp-marketing-data-science/9975825"
       },
       "outcomes": []
     },
@@ -17108,6 +17118,30 @@
           "days_to_outcome": 2
         }
       ]
+    },
+    {
+      "org": "Major League Soccer",
+      "sector": "Sports - Sports League",
+      "role_count": 1,
+      "open_count": 0,
+      "applied_count": 1,
+      "closed_count": 0,
+      "status_mix": {
+        "03 Applied": 1
+      },
+      "recommendation_mix": {
+        "apply": 1,
+        "research": 0,
+        "skip": 0
+      },
+      "best_fit_score": 78,
+      "median_fit_score": 78,
+      "best_role": {
+        "title": "Senior Director, Marketing Science",
+        "fit_score": 78,
+        "url": "https://www.linkedin.com/jobs/view/4460062500/"
+      },
+      "outcomes": []
     },
     {
       "org": "WPP",
@@ -17382,30 +17416,6 @@
       "outcomes": []
     },
     {
-      "org": "Attentive",
-      "sector": "Tech - Marketing SaaS",
-      "role_count": 1,
-      "open_count": 0,
-      "applied_count": 1,
-      "closed_count": 0,
-      "status_mix": {
-        "03 Applied": 1
-      },
-      "recommendation_mix": {
-        "apply": 0,
-        "research": 1,
-        "skip": 0
-      },
-      "best_fit_score": 66,
-      "median_fit_score": 66,
-      "best_role": {
-        "title": "Applied Science / Data Science Leader",
-        "fit_score": 66,
-        "url": "https://www.linkedin.com/jobs/view/4438519675/"
-      },
-      "outcomes": []
-    },
-    {
       "org": "Duolingo",
       "sector": "EdTech - Language Learning",
       "role_count": 1,
@@ -17527,30 +17537,6 @@
       "outcomes": []
     },
     {
-      "org": "Paramount",
-      "sector": "Media - Entertainment",
-      "role_count": 1,
-      "open_count": 0,
-      "applied_count": 1,
-      "closed_count": 0,
-      "status_mix": {
-        "03 Applied": 1
-      },
-      "recommendation_mix": {
-        "apply": 0,
-        "research": 1,
-        "skip": 0
-      },
-      "best_fit_score": 60,
-      "median_fit_score": 60,
-      "best_role": {
-        "title": "Senior Director, Data Science",
-        "fit_score": 60,
-        "url": "https://www.linkedin.com/jobs/view/4462035439/"
-      },
-      "outcomes": []
-    },
-    {
       "org": "Biogen",
       "sector": "Healthcare - Biotechnology",
       "role_count": 1,
@@ -17623,6 +17609,30 @@
       "outcomes": []
     },
     {
+      "org": "Paramount",
+      "sector": "Media - Entertainment",
+      "role_count": 1,
+      "open_count": 0,
+      "applied_count": 1,
+      "closed_count": 0,
+      "status_mix": {
+        "03 Applied": 1
+      },
+      "recommendation_mix": {
+        "apply": 0,
+        "research": 1,
+        "skip": 0
+      },
+      "best_fit_score": 58,
+      "median_fit_score": 58,
+      "best_role": {
+        "title": "Senior Director, Data Science",
+        "fit_score": 58,
+        "url": "https://www.linkedin.com/jobs/view/4462035439/"
+      },
+      "outcomes": []
+    },
+    {
       "org": "RTB House",
       "sector": "Media - Ad Tech",
       "role_count": 1,
@@ -17691,6 +17701,30 @@
         "title": "Manager,  Marketing Science & Analytics",
         "fit_score": 55,
         "url": "https://builtin.com/job/manager-marketing-science-analytics/10601945"
+      },
+      "outcomes": []
+    },
+    {
+      "org": "DoorDash",
+      "sector": "Tech - Food Delivery",
+      "role_count": 1,
+      "open_count": 0,
+      "applied_count": 0,
+      "closed_count": 1,
+      "status_mix": {
+        "04 Closed": 1
+      },
+      "recommendation_mix": {
+        "apply": 0,
+        "research": 1,
+        "skip": 0
+      },
+      "best_fit_score": 55,
+      "median_fit_score": 55,
+      "best_role": {
+        "title": "Director, Analytics, New Verticals Consumer",
+        "fit_score": 55,
+        "url": "https://job-boards.greenhouse.io/doordashusa/jobs/8052254"
       },
       "outcomes": []
     },
@@ -17774,6 +17808,30 @@
         "title": "Marketing Science & Engineering Senior Manager",
         "fit_score": 52,
         "url": "https://builtin.com/job/marketing-science-engineering-senior-manager/10999548"
+      },
+      "outcomes": []
+    },
+    {
+      "org": "Vouri",
+      "sector": "Unknown - Unknown",
+      "role_count": 1,
+      "open_count": 1,
+      "applied_count": 0,
+      "closed_count": 0,
+      "status_mix": {
+        "01 Open": 1
+      },
+      "recommendation_mix": {
+        "apply": 0,
+        "research": 0,
+        "skip": 1
+      },
+      "best_fit_score": 48,
+      "median_fit_score": 48,
+      "best_role": {
+        "title": "Sr. Director, Data Science & AI",
+        "fit_score": 48,
+        "url": "https://www.ventureloop.com/ventureloop/jobdetail.php?jobid=2983149&hc=vuori&jt=sr-director-data-science-andamp-ai"
       },
       "outcomes": []
     },
@@ -17871,6 +17929,30 @@
         "title": "Staff / VP, Data Science - Marketing & Sales Focus",
         "fit_score": 42,
         "url": "https://builtin.com/job/staff-vp-data-science-marketing-sales-focus/10490129"
+      },
+      "outcomes": []
+    },
+    {
+      "org": "Attentive",
+      "sector": "Tech - Marketing SaaS",
+      "role_count": 1,
+      "open_count": 0,
+      "applied_count": 1,
+      "closed_count": 0,
+      "status_mix": {
+        "03 Applied": 1
+      },
+      "recommendation_mix": {
+        "apply": 0,
+        "research": 0,
+        "skip": 1
+      },
+      "best_fit_score": 40,
+      "median_fit_score": 40,
+      "best_role": {
+        "title": "Applied Science / Data Science Leader",
+        "fit_score": 40,
+        "url": "https://www.linkedin.com/jobs/view/4438519675/"
       },
       "outcomes": []
     },
@@ -18058,35 +18140,11 @@
         "skip": 3
       },
       "best_fit_score": 36,
-      "median_fit_score": 36,
+      "median_fit_score": 30,
       "best_role": {
-        "title": "Director of Applied AI/ML Science - Ads",
+        "title": "Staff Applied AI/ML Scientist",
         "fit_score": 36,
-        "url": "https://www.linkedin.com/jobs/view/4439962897/"
-      },
-      "outcomes": []
-    },
-    {
-      "org": "DoorDash",
-      "sector": "Tech - Food Delivery",
-      "role_count": 1,
-      "open_count": 0,
-      "applied_count": 0,
-      "closed_count": 1,
-      "status_mix": {
-        "04 Closed": 1
-      },
-      "recommendation_mix": {
-        "apply": 0,
-        "research": 0,
-        "skip": 1
-      },
-      "best_fit_score": 35,
-      "median_fit_score": 35,
-      "best_role": {
-        "title": "Director, Analytics, New Verticals Consumer",
-        "fit_score": 35,
-        "url": "https://job-boards.greenhouse.io/doordashusa/jobs/8052254"
+        "url": "https://builtin.com/job/staff-applied-ai-ml-scientist-brand-growth-marketplace-quality/10862137"
       },
       "outcomes": []
     },
@@ -18333,30 +18391,6 @@
         "title": "AEO Measurement & Insights Lead",
         "fit_score": 30,
         "url": "https://builtin.com/job/aeo-measurement-insights-lead/11028115"
-      },
-      "outcomes": []
-    },
-    {
-      "org": "Abridge",
-      "sector": "Healthcare - Clinical AI",
-      "role_count": 1,
-      "open_count": 0,
-      "applied_count": 0,
-      "closed_count": 1,
-      "status_mix": {
-        "04 Closed": 1
-      },
-      "recommendation_mix": {
-        "apply": 0,
-        "research": 0,
-        "skip": 1
-      },
-      "best_fit_score": 28,
-      "median_fit_score": 28,
-      "best_role": {
-        "title": "Head of Data Science",
-        "fit_score": 28,
-        "url": "https://www.linkedin.com/jobs/view/4439760671/"
       },
       "outcomes": []
     },
@@ -18765,6 +18799,30 @@
         "title": "Founding Growth Marketing",
         "fit_score": 20,
         "url": "https://builtin.com/job/founding-growth-marketing/9656076"
+      },
+      "outcomes": []
+    },
+    {
+      "org": "Abridge",
+      "sector": "Healthcare - Clinical AI",
+      "role_count": 1,
+      "open_count": 0,
+      "applied_count": 0,
+      "closed_count": 1,
+      "status_mix": {
+        "04 Closed": 1
+      },
+      "recommendation_mix": {
+        "apply": 0,
+        "research": 0,
+        "skip": 1
+      },
+      "best_fit_score": 18,
+      "median_fit_score": 18,
+      "best_role": {
+        "title": "Head of Data Science",
+        "fit_score": 18,
+        "url": "https://www.linkedin.com/jobs/view/4439760671/"
       },
       "outcomes": []
     },
@@ -19201,6 +19259,30 @@
       "outcomes": []
     },
     {
+      "org": "ambral",
+      "sector": "Unknown - Unknown",
+      "role_count": 1,
+      "open_count": 0,
+      "applied_count": 0,
+      "closed_count": 1,
+      "status_mix": {
+        "04 Closed": 1
+      },
+      "recommendation_mix": {
+        "apply": 0,
+        "research": 0,
+        "skip": 1
+      },
+      "best_fit_score": 8,
+      "median_fit_score": 8,
+      "best_role": {
+        "title": "Head of Research",
+        "fit_score": 8,
+        "url": "https://jobs.ashbyhq.com/Ambral/9a7d8a93-3c90-4a77-a022-f19c158a1fb3"
+      },
+      "outcomes": []
+    },
+    {
       "org": "Child Mind Institute",
       "sector": "Healthcare - Mental Health",
       "role_count": 1,
@@ -19317,30 +19399,6 @@
         "title": "Lead Category Sourcing Consultant-- Marketing Technology (Procurement / SCM)",
         "fit_score": 5,
         "url": "https://builtin.com/job/lead-category-sourcing-consultant-marketing-technology-procurement-scm/11147520"
-      },
-      "outcomes": []
-    },
-    {
-      "org": "ambral",
-      "sector": "Unknown - Unknown",
-      "role_count": 1,
-      "open_count": 0,
-      "applied_count": 0,
-      "closed_count": 1,
-      "status_mix": {
-        "04 Closed": 1
-      },
-      "recommendation_mix": {
-        "apply": 0,
-        "research": 0,
-        "skip": 1
-      },
-      "best_fit_score": 5,
-      "median_fit_score": 5,
-      "best_role": {
-        "title": "Head of Research",
-        "fit_score": 5,
-        "url": "https://jobs.ashbyhq.com/Ambral/9a7d8a93-3c90-4a77-a022-f19c158a1fb3"
       },
       "outcomes": []
     },
