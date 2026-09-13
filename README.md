@@ -103,15 +103,22 @@ to keep the tracker hand-curated.
 uv run serve.py
 ```
 
-Serves `artifacts/html/` on `127.0.0.1:8787` and exposes a small JSON API. The `Status` column
-becomes a dropdown; changing it writes to the database and re-exports the spreadsheet
-immediately.
+Serves `artifacts/html/` on `127.0.0.1:8787` and exposes a small JSON API. `Status`, `Priority`,
+`Role Cat`, `Outcomes`, `Notes`, and `Salary` are all editable from the dashboard; changing one
+writes to the database and re-exports the spreadsheet immediately. `Recommendation` is shown as
+a plain badge, not editable - it is the model's fit judgement, not a status you set.
 
 The page is a static file first. Opened with `file://`, or with the server off, `/api/health`
 simply fails and the table stays read-only. Nothing breaks.
 
-Limits are deliberate: loopback only, a closed list of editable fields, and a closed vocabulary
-of accepted values.
+Limits are deliberate: loopback only, a closed list of editable fields (or, for Notes/Salary, a
+length cap instead of a vocabulary), and a closed vocabulary of accepted values everywhere else.
+
+**Restart `serve.py` after any code change.** Python does not hot-reload a running process, so
+a long-lived `serve.py` keeps serving whatever code was current when it started - a new field,
+a bug fix, anything - until you stop it and run it again. `/api/health`'s `server_commit` shows
+which commit the running process actually started from; compare it to `git rev-parse --short
+HEAD` if the dashboard seems to be missing something you know shipped.
 
 ## Layout
 

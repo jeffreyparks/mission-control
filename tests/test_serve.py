@@ -69,6 +69,10 @@ try:
     health = requests.get(f"{API}/api/health", timeout=5).json()
     check("health reports rows", health.get("rows") == 2, str(health.get("rows")))
     check("health advertises editable fields", "status" in health.get("editable", {}))
+    check("health reports the server's commit for staleness detection",
+          "server_commit" in health, str(health.get("server_commit")))
+    check("health reports when this process started",
+          "server_started_at" in health, str(health.get("server_started_at")))
 
     body = requests.post(f"{API}/api/role/{rid}", json={"field": "status", "value": "04 Closed"}, timeout=5).json()
     check("status write succeeds", body.get("ok") and body.get("changed"), str(body))
@@ -163,7 +167,8 @@ try:
     check("non-string free text value is rejected", non_string.status_code == 400, str(non_string.status_code))
 
     check("priority is editable", "priority" in health["editable"])
-    check("recommendation is editable", "recommendation" in health["editable"])
+    check("recommendation is NOT editable (it is the model's judgement, not a status you set)",
+          "recommendation" not in health["editable"])
     check("outcomes is editable", "outcomes" in health["editable"], str(health["editable"].get("outcomes")))
     check("role_cat is editable", "role_cat" in health["editable"], str(health["editable"].get("role_cat")))
     check("role_cat vocabulary is populated from career-goals.md",
@@ -172,8 +177,8 @@ try:
     pri = requests.post(f"{API}/api/role/{rid}", json={"field": "priority", "value": "2"}, timeout=5).json()
     check("priority write succeeds", pri.get("changed") and pri.get("new") == 2.0, str(pri))
 
-    rec = requests.post(f"{API}/api/role/{rid}", json={"field": "recommendation", "value": "apply"}, timeout=5).json()
-    check("recommendation write succeeds", rec.get("changed") and rec.get("new") == "apply", str(rec))
+    rec = requests.post(f"{API}/api/role/{rid}", json={"field": "recommendation", "value": "apply"}, timeout=5)
+    check("writing recommendation is rejected", rec.status_code == 400, str(rec.status_code))
 
     out_ok = requests.post(f"{API}/api/role/{rid}", json={"field": "outcomes", "value": "Rejected"}, timeout=5).json()
     check("outcomes accepts a canonical label", out_ok.get("changed") and out_ok.get("new") == "Rejected", str(out_ok))

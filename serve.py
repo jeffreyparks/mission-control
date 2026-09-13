@@ -19,6 +19,7 @@ Deliberate limits:
 """
 import argparse
 import json
+import subprocess
 import sys
 import threading
 from datetime import datetime
@@ -28,6 +29,23 @@ from urllib.parse import urlparse
 
 BASE = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE / "agents"))
+
+
+def _server_commit():
+    """The commit this running process was started from, so a stale process -
+    still serving code from before a `git pull` or an agent edit - is obvious
+    from /api/health instead of silently behaving like an old version. Python
+    does not hot-reload; every code change here needs `serve.py` restarted."""
+    try:
+        out = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=str(BASE),
+                             capture_output=True, text=True, timeout=3)
+        return out.stdout.strip() if out.returncode == 0 else "unknown"
+    except Exception:  # noqa: BLE001
+        return "unknown"
+
+
+SERVER_COMMIT = _server_commit()
+SERVER_STARTED_AT = datetime.now().isoformat(timespec="seconds")
 
 from store import Store  # noqa: E402
 from job_intel import JobIntel, load_archetypes, OUTCOME_LABELS, _clean, _date, parse_outcome  # noqa: E402
@@ -46,7 +64,10 @@ WEB_ROOT = BASE / "artifacts/html"
 EDITABLE = {
     "status": ["00 New find", "01 Open", "02 Researching", "03 Applied", "04 Closed"],
     "priority": ["1", "2", "3", ""],
-    "recommendation": ["apply", "research", "skip", ""],
+    # recommendation is deliberately NOT editable: it is the model's fit
+    # judgement, not a status you set - shown as a plain badge, same as Fit
+    # Score. Status/Priority/Notes/Salary are yours to set; Recommendation
+    # is the pipeline's read on the role, for you to weigh, not overwrite.
     # None means free text: any string is accepted (subject to FREE_TEXT_MAX_LEN
     # below), not a closed vocabulary. The dashboard renders these as a text
     # input rather than a dropdown.
@@ -203,6 +224,11 @@ class Handler(SimpleHTTPRequestHandler):
                 # relative to this server's own base, not the module-level BASE
                 # constant - those differ for a temp-dir store such as a test.
                 "db": str(self.store.db_path.relative_to(self.store.base_dir)),
+                # Compare against `git rev-parse --short HEAD` if the dashboard
+                # seems to be missing a feature you know shipped: a mismatch
+                # means this process needs restarting to pick up the change.
+                "server_commit": SERVER_COMMIT,
+                "server_started_at": SERVER_STARTED_AT,
             })
         if path == "/api/changes":
             if not self._loopback():
@@ -307,6 +333,8 @@ def main():
     print(f"  dashboard : http://{args.host}:{args.port}/job-tracker.html")
     print(f"  database  : {store.db_path.relative_to(BASE)} ({store.count()} roles)")
     print(f"  editable  : {', '.join(httpd.mc_editable)}")
+    print(f"  commit    : {SERVER_COMMIT}  (restart this process after any code change - "
+          f"Python does not hot-reload)")
     print("  ctrl-c to stop")
     try:
         httpd.serve_forever()
