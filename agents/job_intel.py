@@ -653,8 +653,13 @@ class JobIntel:
     def _role_block(role):
         """The exact text the judge sees for one role.
 
-        Also the basis of the reuse fingerprint, so the two can never drift:
-        if what the model reads is identical, the verdict is reusable.
+        NOT the same text used for the reuse fingerprint - see
+        _fingerprint_block. Notes and comp_range (Salary) are both editable
+        from the dashboard now, and neither should force a fresh, paid
+        re-judgment just because the user fixed a salary format or added a
+        personal reminder; they still appear in what the model reads, since
+        they can be genuinely useful context, but a change to either alone no
+        longer busts the cache.
         """
         block = [f"[{role['id']}]", f"ORG: {role['org']}", f"TITLE: {role['title']}"]
         if role.get("location"):
@@ -663,6 +668,23 @@ class JobIntel:
             block.append(f"POSTED RANGE (k): {role['comp_range']}")
         if role.get("notes"):
             block.append(f"CANDIDATE NOTES: {role['notes'][:300]}")
+        if role.get("jd"):
+            block.append(f"JD EXCERPT: {role['jd']}")
+        return "\n".join(block)
+
+    @staticmethod
+    def _fingerprint_block(role):
+        """Subset of _role_block used ONLY for the reuse fingerprint.
+
+        Deliberately excludes Notes and comp_range (Salary): both are
+        dashboard-editable, and a personal note or a salary-format cleanup
+        should not force a fresh, paid re-judgment. Everything that actually
+        changes what the model is asked to evaluate - org, title, location,
+        JD - still busts the cache exactly as before.
+        """
+        block = [f"[{role['id']}]", f"ORG: {role['org']}", f"TITLE: {role['title']}"]
+        if role.get("location"):
+            block.append(f"LOCATION: {role['location']}")
         if role.get("jd"):
             block.append(f"JD EXCERPT: {role['jd']}")
         return "\n".join(block)
@@ -690,9 +712,10 @@ class JobIntel:
     def fingerprint(cls, role):
         """Hash of everything the fit verdict depends on.
 
-        Covers the role content, the prompt version, and the prompt text itself.
+        Covers the role content, the prompt version, and the prompt text
+        itself - but NOT Notes or comp_range (Salary); see _fingerprint_block.
         """
-        raw = f"v{PROMPT_VERSION}|{cls._prompt_signature()}\n{cls._role_block(role)}"
+        raw = f"v{PROMPT_VERSION}|{cls._prompt_signature()}\n{cls._fingerprint_block(role)}"
         return hashlib.sha1(raw.encode("utf-8")).hexdigest()[:16]
 
     def _fit_prompt(self, batch):
