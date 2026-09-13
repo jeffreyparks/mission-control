@@ -933,10 +933,32 @@ Return ONLY a JSON array, one object per role, echoing the id exactly:
             else:
                 todo.append(role)
 
+        made_this_run = 0
+        if todo:
+            made_this_run = self._judge_categories(todo, archetypes, cache)
+
+        # Auto-accept: the model's determination IS the Role Cat now, not a
+        # proposal waiting for a click. Still fully editable afterward from the
+        # dashboard - this only ever fires once per role, since a role with
+        # Role Cat already set is skipped at the top of this function on every
+        # future run, exactly like a category the user typed in by hand.
+        # Covers roles reused from cache too (an old suggestion made before
+        # this existed gets swept up here, no LLM call spent doing it).
+        accepted = [role for role in roles
+                    if not _clean(role.get("role_cat")) and role.get("suggested_role_cat")]
+        for role in accepted:
+            role["role_cat"] = role["suggested_role_cat"]
+        if accepted:
+            print(f"  auto-accepted {len(accepted)} suggested categor"
+                  f"{'y' if len(accepted) == 1 else 'ies'}")
+
         if not todo:
             print("  categorisation: all uncategorised roles cached")
-            return 0
+        return made_this_run
 
+    def _judge_categories(self, todo, archetypes, cache):
+        """The LLM half of categorize_roles - one batched call for every role
+        not already cached under the current fingerprint."""
         print(f"  categorising {len(todo)} uncategorised role(s) in 1 call...", flush=True)
         valid_ids = {a["id"] for a in archetypes}
         by_id = {a["id"]: a["label"] for a in archetypes}
@@ -1314,21 +1336,43 @@ Return ONLY a JSON object mapping each company name exactly as given to its sect
             if role.get("days_to_outcome") is not None:
                 df.at[idx, "Days To Outcome"] = role["days_to_outcome"]
 
-            # Suggestion column only. The user's "Role Cat" is never touched.
+            # Role Cat is auto-accepted from the model's suggestion (see
+            # categorize_roles) whenever the cell is still blank - write it
+            # once, here. A cell that already has a value, from a user or from
+            # a prior auto-accept, is never touched again.
+            existing_cat = (_clean(before.at[idx, "Role Cat"])
+                            if idx < before_shape[0] and "Role Cat" in before.columns else None)
+            if role.get("role_cat") and not existing_cat:
+                df.at[idx, "Role Cat"] = role["role_cat"]
+
+            # Suggestion column is now mostly vestigial - auto-accept means a
+            # real suggestion almost never sits unaccepted - but still clears
+            # correctly whenever Role Cat ends up set.
             if _clean(role.get("role_cat")):
-                df.at[idx, SUGGESTED_CAT_COLUMN] = pd.NA   # user decided; drop the proposal
+                df.at[idx, SUGGESTED_CAT_COLUMN] = pd.NA
             elif role.get("suggested_role_cat"):
                 confidence = role.get("suggestion_confidence") or "?"
                 df.at[idx, SUGGESTED_CAT_COLUMN] = f"{role['suggested_role_cat']} ({confidence})"
 
         # Safety: rows may be APPENDED, never lost or reordered, and the manual
-        # columns of rows that already existed must come out byte-identical.
+        # columns of rows that already existed must come out byte-identical -
+        # with one deliberate exception: Role Cat may move from blank to a
+        # value (auto-accept), but a cell that already held a value must still
+        # come out exactly as it was.
         assert len(df) >= before_shape[0], "rows were lost"
         kept = df.iloc[:before_shape[0]]
         for column in MANUAL_COLUMNS:
-            if column in before.columns:
-                same = before[column].astype(str).equals(kept[column].astype(str))
-                assert same, f"manual column mutated: {column}"
+            if column not in before.columns:
+                continue
+            if column == "Role Cat":
+                for i in range(before_shape[0]):
+                    was_blank = not _clean(before.iloc[i][column])
+                    if not was_blank:
+                        assert str(before.iloc[i][column]) == str(kept.iloc[i][column]), \
+                            f"manual column mutated: Role Cat (row {i} already had a value)"
+                continue
+            same = before[column].astype(str).equals(kept[column].astype(str))
+            assert same, f"manual column mutated: {column}"
 
         summary = self.save_tracker(df)
         print(f"  tracker {before_shape} -> {df.shape} "
