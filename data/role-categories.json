@@ -1955,6 +1955,12 @@
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
+  "openai-technical-program-manager-compute-infrastructure": {
+    "fingerprint": "1c65f1cc6d6f50f2",
+    "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
+    "suggestion_confidence": "high",
+    "suggestion_reason": "manages large-scale compute infrastructure for AI workloads"
+  },
   "optum-healthcare-quality-measurement-consultant-data-analytics-and-coding-remote": {
     "fingerprint": "d4092e7c8c806384",
     "suggested_role_cat": null,

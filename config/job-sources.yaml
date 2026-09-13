@@ -140,8 +140,8 @@ rules:
   # Learning Engineer" but not "Machine Learning Engineering Manager"'s
   # "Engineering".
   auto_close_titles:
-    - "machine learning engineer"
+    - "engineer"
     - "research scientist"
-    - "software engineer"
     - "account executive"
     - "strategist"
+    - "manager"
