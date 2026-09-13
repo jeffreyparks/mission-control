@@ -97,11 +97,11 @@ linkedin:
 #   - name: Y Combinator
 #     url: https://www.ycombinator.com/companies/jobs
 #     category: Startups
-#     
+    
 #   - name: AngelList
 #     url: https://angel.co/jobs
 #     category: Startups
-#     
+
 #   - name: RemoteOK
 #     url: https://remoteok.com/remote-data-science-jobs
 #     category: Remote
@@ -120,6 +120,7 @@ rules:
     - experimentation
     - incrementality
     - marketing science
+    - data science
     
   # Skip roles containing these terms
   exclude_keywords:
@@ -145,3 +146,4 @@ rules:
     - "account executive"
     - "strategist"
     - "manager"
+    - "marketing lead"
