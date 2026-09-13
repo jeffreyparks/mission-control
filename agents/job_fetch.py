@@ -178,28 +178,70 @@ def _comp_from_text(text: str | None) -> str | None:
     return None
 
 
+_ANNUAL_UNITS = {"", "year", "years", "yearly", "annual", "annually", "yr"}
+
+
+def format_salary_k(low: float, high: float | None = None) -> str:
+    """A dollar figure (or range) as a concise "150k-190k" string - one
+    decimal only when the thousand isn't round, no "$", no comma. This is the
+    canonical Salary display format; every structured source (Ashby, Built In)
+    formats through this so the column looks the same regardless of origin.
+    """
+    def one(value: float) -> str:
+        k = value / 1000
+        text = f"{k:.1f}".rstrip("0").rstrip(".")
+        return f"{text}k"
+
+    if high is None or high == low:
+        return one(low)
+    return f"{one(low)}-{one(high)}"
+
+
 def _comp_from_base_salary(base: Any) -> str | None:
-    """schema.org MonetaryAmount -> raw-ish text."""
+    """schema.org MonetaryAmount -> concise text.
+
+    Non-USD currencies and non-annual units (hourly, per-project, ...) are kept
+    in dollar-and-unit form rather than forced through the k-notation, which
+    only makes sense for an annual figure - "45k/hour" would misread as an
+    annual salary two orders of magnitude off.
+    """
     if not isinstance(base, dict):
         return _clean_str(base)
     value = base.get("value")
     currency = base.get("currency") or base.get("currencyCode") or ""
-    symbol = "$" if currency.upper() in ("USD", "") else currency.upper() + " "
+    is_usd = currency.upper() in ("USD", "")
+    symbol = "$" if is_usd else currency.upper() + " "
     if isinstance(value, dict):
         low = value.get("minValue")
         high = value.get("maxValue")
         single = value.get("value")
-        unit = value.get("unitText") or ""
+        unit = (value.get("unitText") or "").strip().lower()
+        concise = is_usd and unit in _ANNUAL_UNITS
         if low is not None and high is not None:
+            if concise:
+                try:
+                    return format_salary_k(float(low), float(high))
+                except (TypeError, ValueError):
+                    pass
             out = f"{symbol}{_fmt_num(low)} - {symbol}{_fmt_num(high)}"
         elif single is not None:
+            if concise:
+                try:
+                    return format_salary_k(float(single))
+                except (TypeError, ValueError):
+                    pass
             out = f"{symbol}{_fmt_num(single)}"
         else:
             return None
-        if unit:
-            out += f" per {str(unit).lower()}"
+        if unit and not concise:
+            out += f" per {unit}"
         return out
     if value is not None:
+        if is_usd:
+            try:
+                return format_salary_k(float(value))
+            except (TypeError, ValueError):
+                pass
         return f"{symbol}{_fmt_num(value)}"
     return None
 

@@ -277,13 +277,11 @@ def parse_list_page(html, now=None):
 
 
 def _format_salary(salary):
-    """(min, max) annual USD -> a display string matching what job_fetch.py
-    produces for other sources, so the Salary column looks consistent
-    regardless of where a role came from."""
+    """(min, max) annual USD -> the shared concise "150k-190k" format, so the
+    Salary column looks the same regardless of which source it came from."""
+    from job_fetch import format_salary_k
     lo, hi = salary
-    if lo == hi:
-        return f"${lo:,.0f}"
-    return f"${lo:,.0f} - ${hi:,.0f}"
+    return format_salary_k(lo, hi)
 
 
 def fetch_builtin_jobs(queries=None, categories=None, host=None, scope=None,
