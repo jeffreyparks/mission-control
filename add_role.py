@@ -13,7 +13,11 @@ What it does, in order:
   4. runs exactly ONE fit call, using the same prompt and schema as agents/job_intel.py
      (JobIntel._fit_prompt - there is no second copy of that prompt anywhere)
   5. writes the fit fields back into the row
-  6. refreshes artifacts/jobs/intel-*.json and rebuilds artifacts/html/
+  6. refreshes artifacts/jobs/intel-*.json and rebuilds artifacts/html/, reusing every
+     other role's already-cached verdict. The live board scan is SKIPPED by default
+     (--max-live 0) - adding one role should judge that one role, not rescan every board
+     and spend a batch of LLM calls on whatever new postings happen to turn up. Pass
+     --max-live N to opt into a scan as part of this run.
 
 Nothing is written until the fetch succeeds, so a bad URL leaves no partial row.
 The user's manual columns (Role Cat, Priority, Status, Outcomes, Notes) are asserted
@@ -200,8 +204,10 @@ def main(argv=None):
     ap.add_argument("--title", help="override the scraped role title")
     ap.add_argument("--priority", type=int, choices=[1, 2, 3], help="your priority for this role")
     ap.add_argument("--notes", help="free text stored in the Notes column")
-    ap.add_argument("--max-live", type=int, default=45,
-                    help="cap on live board postings included in the refresh (0 = skip the scan)")
+    ap.add_argument("--max-live", type=int, default=0,
+                    help="cap on live board postings included in the refresh "
+                         "(default 0 = skip the scan entirely; adding one role should not "
+                         "trigger a full board rescan and re-judge whatever it turns up)")
     args = ap.parse_args(argv)
 
     intel = JobIntel(BASE, max_live_roles=args.max_live)
