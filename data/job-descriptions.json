@@ -39,6 +39,14 @@
     "source": "html",
     "url": "https://www.amazon.jobs/en/jobs/10442437/director-analytics-and-decision-science"
   },
+  "ambral-head-of-research": {
+    "added": "2026-09-12",
+    "comp_range": "$250,000 - $400,000 per year",
+    "jd": "What we do Ambral Labs helps enterprises own the intelligence behind their most important workflows. Every company has years of historical evidence showing how work gets done: the context people had, the decisions they made, the actions they took, and the outcomes that followed. Today, most of that history is inert. It isn\u2019t structured in a way that companies can use to evaluate models and improve agent behavior. Ambral turns this history into replayable environments and eval sets grounded in real workflows and observed outcomes. We use those environments to improve model performance through reinforcement learning and other post-training techniques, alongside context engineering, harness design, and agent engineering. The result is better, more cost-efficient AI for each enterprise\u2019s specific work, powered by open-weight models that the company can own and control rather than permanently renting from a model provider. We're YC S2025 , have raised millions in funding, and are already deployed inside multi-billion dollar enterprises. Now we're growing the founding team. What you\u2019ll do We\u2019re building a replayable environment engine over real enterprise history. The system reconstructs a company\u2019s context as it existed at any past time, then exposes that state through the same tools an agent would use in production. This lets us place new policies and agent configurations inside real historical environments, observe how they reason and act, and grade their performance against real outcomes. As Head of Research, you'll own the research agenda required to make that possible. You'll identify the highest-leverage technical questions, design the experiments needed to answer them, and remain deeply hands-on in building the systems that turn those answers into production. Some of the problems you'll work on: Building an environment factory that converts recorded enterprise data and task definitions into runnable environments Designing graders that turn ambiguous business objectives into verifiable rewards Developing methods for mining useful tasks, trajectories, and evaluation cases from historical workflows Creating eval sets that are representative, reproducible, and resistant to overfitting Finding the right combinations of models, tools, context, and policies to maximize performance while reducing inference cost Advancing post-training methods for agents that operate over long horizons, incomplete information, and large tool spaces Building replay and observability systems that make agent behavior explainable and measurable Scaling from individual environments to thousands of concurrent training and evaluation runs These problems are wide open. You\u2019ll have significant ownership over both the research direction and the production systems that make it real. You\u2019ll work directly with the CTO, deploy into real enterprise workflows, and see your research tested against consequential problems and observable outcomes. You'll also help establish the research culture at Ambral Labs: how we run experiments, evaluate progress, choose technical bets, and recruit and develop an exceptional research team. Who you are You'll likely thrive here if: You have a PhD in machine learning, computer science, mathematics, or an equivalent track record of significant research experience You have deep experience in reinforcement learning, LLM post-training, evals, agent environments, or closely related areas You've taken ambitious, open-ended research problems from hypothesis through experimentation into working systems You\u2019re comfortable turning fuzzy business objectives into tasks and signals that can be evaluated reliably You can move between research questions and production implementation without treating them as separate jobs You\u2019re looking to do the best work of your life and build something you\u2019ll be proud of for decades We\u2019re especially interested in candidates who have worked at a leading foundation model lab, top AI research organization, or high-performing AI startup. Benefits Significant equity and ownership Equinox membership Free meals, coffee, and snacks Health insurance Unlimited PTO",
+    "location": "New York City, New York, United States; United States",
+    "source": "jsonld",
+    "url": "https://jobs.ashbyhq.com/Ambral/9a7d8a93-3c90-4a77-a022-f19c158a1fb3"
+  },
   "amerisave-mortgage-corporation-director-marketing-measurement-testing": {
     "added": "2026-09-12",
     "comp_range": null,
@@ -3150,6 +3158,14 @@
     "location": "Remote \u00b7 United States",
     "source": "live",
     "url": "https://builtin.com/job/measurement-strategy-manager/10859294"
+  },
+  "sentra-job-opportunity-gtm-engineer-at-sentra": {
+    "added": "2026-09-12",
+    "comp_range": null,
+    "jd": "An error occured. Please try again {{company.name}} Thanks for your interest in {{company.name}}. We're sorry, but there are currently no open positions. Contact us on our website. We don't have any open positions at this time. Please visit again soon. All Jobs All Jobs {{ position.name }} {{ position.department }} {{position.location.displayName || position.location.name }} {{ position.experienceLevel }} {{ position.employmentType }} ID: {{ position.internalUseCustomId }} Employee only {{field.name}} {{field.name}} Apply for this job All Jobs All Jobs",
+    "location": null,
+    "source": "html",
+    "url": "https://www.comeet.com/jobs/sentra/87.00B/gtm-engineer/00.17E"
   },
   "sequen-ai-vp-marketing": {
     "added": "2026-09-12",

@@ -41,6 +41,12 @@
     "suggestion_confidence": null,
     "suggestion_reason": null
   },
+  "ambral-head-of-research": {
+    "fingerprint": "9c679afbc99992f3",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
+  },
   "amerisave-mortgage-corporation-director-marketing-measurement-testing": {
     "fingerprint": "031ff7dee9f758e3",
     "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
@@ -2524,6 +2530,12 @@
     "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
     "suggestion_confidence": "high",
     "suggestion_reason": "owns performance media measurement strategy across attribution and incrementality methods"
+  },
+  "sentra-job-opportunity-gtm-engineer-at-sentra": {
+    "fingerprint": "a1ad9d3e4e31ffb7",
+    "suggested_role_cat": null,
+    "suggestion_confidence": null,
+    "suggestion_reason": null
   },
   "sequen-ai-vp-marketing": {
     "fingerprint": "7e1debc81adcf45d",
