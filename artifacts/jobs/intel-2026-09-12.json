@@ -1,20 +1,20 @@
 {
-  "generated_at": "2026-09-12T20:29:31",
+  "generated_at": "2026-09-12T22:10:37",
   "date": "2026-09-12",
   "counts": {
-    "roles": 472,
+    "roles": 470,
     "tracker_roles": 469,
-    "live_roles": 3,
-    "judged_this_run": 0,
-    "reused_verdicts": 472,
+    "live_roles": 1,
+    "judged_this_run": 1,
+    "reused_verdicts": 469,
     "orgs": 122,
     "uncategorised": 275,
-    "suggested_categories": 120,
+    "suggested_categories": 1,
     "apply": 25,
-    "research": 39,
+    "research": 37,
     "skip": 408
   },
-  "llm": "LLM: 0 calls, 0 cached, $0.000",
+  "llm": "LLM: 1 calls, 0 cached, $0.108 [claude-cli-default x1]",
   "roles": [
     {
       "id": "artefact-artefact-com-director-ai-data-science-marketing-measurement-effectiveness",
@@ -956,10 +956,9 @@
       "what_theyre_really_hiring_for": "A player-coach who can both run technical MMM/attribution delivery and grow client accounts commercially \u2014 part measurement leader, part account director.",
       "pitch_angle": "Has sat on both sides of this exact work \u2014 evaluating and reconciling MMM vendor outputs (including Analytic Partners) at OMD for annual budget allocation.",
       "recommendation": "research",
-      "suggested_role_cat": "05 Practice Lead at Consultancy",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads a team delivering analytics to clients at a consultancy",
-      "cat_fingerprint": "45772f532abb832e",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Data - Marketing Analytics"
     },
     {
@@ -1098,10 +1097,9 @@
       "what_theyre_really_hiring_for": "A player-coach who can both build production ML pipelines and run a small applied data science team for marketing.",
       "pitch_angle": "Ran a 5-person measurement team building production forecasting and causal evaluation tooling end-to-end \u2014 direct precedent for owning both the models and the team here.",
       "recommendation": "research",
-      "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads end-to-end marketing data science projects including MLOps and causal testing",
-      "cat_fingerprint": "0aeebe734bb7f0af",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Retail - Cashback Rewards"
     },
     {
@@ -1134,10 +1132,9 @@
       "what_theyre_really_hiring_for": "A senior marketing analytics leader to modernize attribution and predictive modeling for enterprise sales/marketing.",
       "pitch_angle": "Segmentation and MTA work from Zenith and Merkle translate directly to B2B marketing analytics leadership.",
       "recommendation": "research",
-      "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads marketing measurement, attribution, and predictive modeling",
-      "cat_fingerprint": "20f0d1ed861ac47a",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - IT Infrastructure Services"
     },
     {
@@ -1205,10 +1202,9 @@
       "what_theyre_really_hiring_for": "A hands-on causal/experimentation practitioner to run CRM analytics and self-serve tooling for marketing.",
       "pitch_angle": "I built the self-serve forecasting and scenario tooling that cut routine planning requests by 50% at OMD \u2014 directly the self-service analytics capability this role is asking for.",
       "recommendation": "research",
-      "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads CRM analytics and measurement for personalization and experimentation",
-      "cat_fingerprint": "190aaeb0941b4b57",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Retail - E-commerce"
     },
     {
@@ -1278,10 +1274,9 @@
       "what_theyre_really_hiring_for": "A hands-on measurement lead to modernize digital marketing analytics within a pharma marketing org, likely IC-heavy.",
       "pitch_angle": "Applied causal measurement (incremental script volume vs. proxy metrics) directly in a pharma context at Zenith/Lilly.",
       "recommendation": "research",
-      "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads digital marketing measurement and data science initiatives",
-      "cat_fingerprint": "8c1f56455e879f79",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Healthcare - Biotechnology"
     },
     {
@@ -1314,10 +1309,9 @@
       "what_theyre_really_hiring_for": "A hands-on measurement builder who can also set standards for a small data team, likely without formal headcount ownership.",
       "pitch_angle": "Built and owned the causal measurement stack (geo-lift, MMM reconciliation, forecasting) that this role needs, with direct experience mentoring and setting standards for a data science team.",
       "recommendation": "research",
-      "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads marketing measurement and growth analytics through causal models and ML",
-      "cat_fingerprint": "00b0e8b73e46274e",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Healthcare - Health Tech"
     },
     {
@@ -1350,10 +1344,9 @@
       "what_theyre_really_hiring_for": "A capability-building leader to systematize evidence-based marketing practice across a large decentralized org, not primarily a hands-on modeler.",
       "pitch_angle": "The self-serve forecasting app built at OMD is direct evidence of scaling evidence-based decision tools beyond the data science team.",
       "recommendation": "research",
-      "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads global Growth Science practice and marketing capabilities transformation",
-      "cat_fingerprint": "2e94bc0e1512c715",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Consumer - Food & Pet Care"
     },
     {
@@ -1386,10 +1379,9 @@
       "what_theyre_really_hiring_for": "Someone who can both speak fluently to measurement methodology and credibly engage media buyers/clients on performance media mechanics.",
       "pitch_angle": "Deep hands-on experience evaluating and adjudicating attribution and MMM methodologies across vendors maps directly onto owning measurement strategy and training commercial teams.",
       "recommendation": "research",
-      "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "owns performance media measurement strategy across attribution and incrementality methods",
-      "cat_fingerprint": "40767e4e41150bc9",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Media - Ad Tech"
     },
     {
@@ -1495,10 +1487,9 @@
       "what_theyre_really_hiring_for": "A hands-on marketing science practitioner to build and defend causal models directly with clients, with some analyst mentoring.",
       "pitch_angle": "If the level negotiates up, this is squarely the causal/MMM/geo-lift work I already lead day to day.",
       "recommendation": "research",
-      "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads marketing science and analytics engagements with statistical modeling",
-      "cat_fingerprint": "159dd543675cb478",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Media - Media Agency"
     },
     {
@@ -1531,10 +1522,9 @@
       "what_theyre_really_hiring_for": "Unclear from excerpt \u2014 possibly a technology-and-team manager for the analytics org rather than a practicing measurement scientist.",
       "pitch_angle": "If the role is confirmed measurement-heavy: the Gap Inc. forecasting suite and MMM reconciliation work is directly relevant to retail media measurement.",
       "recommendation": "research",
-      "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads technology and analytics teams for media and customer measurement",
-      "cat_fingerprint": "256332d9a882f6c9",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Retail - Home Improvement"
     },
     {
@@ -1602,10 +1592,9 @@
       "what_theyre_really_hiring_for": "Someone who can both deploy MMM/causal models AND own the underlying data engineering stack for clients \u2014 a hybrid IC role.",
       "pitch_angle": "MMM vendor evaluation and reconciliation experience (Gap) plus building measurement frameworks from scratch (TikTok, Lilly) shows the modeling half of this role; would need to address the data-engineering half directly.",
       "recommendation": "research",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "oversees data pipelines and deployment of MMM and causal analysis frameworks",
-      "cat_fingerprint": "70767672765c209e",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Marketing Automation"
     },
     {
@@ -1638,10 +1627,9 @@
       "what_theyre_really_hiring_for": "Someone who can manage a team of architects designing and pitching Claude-based solutions to commercial enterprise accounts.",
       "pitch_angle": "Track record leading technical teams that turn ambiguous business problems into production systems adopted by non-technical stakeholders.",
       "recommendation": "research",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Manager of Applied AI Architecture, commercial matches archetype 04",
-      "cat_fingerprint": "2982df10a47ab5b7",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -1674,10 +1662,9 @@
       "what_theyre_really_hiring_for": "A billable strategist who presents MMM/incrementality findings to clients across a portfolio.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads measurement strategy for clients using statistical modeling and experiments",
-      "cat_fingerprint": "5e7f1169e2d3d7bf",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Media - Digital Marketing"
     },
     {
@@ -1716,42 +1703,6 @@
       "suggestion_reason": null,
       "cat_fingerprint": "aa4b31c767d9d088",
       "sector": "Tech - Social Media"
-    },
-    {
-      "id": "anthropic-applied-ai-architect-industries",
-      "source": "live",
-      "org": "Anthropic",
-      "title": "Applied AI Architect, Industries",
-      "url": "https://job-boards.greenhouse.io/anthropic/jobs/4461444008",
-      "location": "New York City, NY; San Francisco, CA | New York City, NY | Seattle, WA",
-      "role_cat": "03 Applied AI Architect",
-      "priority": 2,
-      "status": "01 Open",
-      "date_opened": null,
-      "date_applied": null,
-      "outcome": null,
-      "outcome_label": null,
-      "days_to_outcome": null,
-      "outcome_display": null,
-      "notes": null,
-      "comp_range": null,
-      "fit_fingerprint": "cea1d3596449ec02",
-      "fit_score": 47,
-      "seniority_read": "Location matches (NYC), but the role is still an IC technical-builder seat \u2014 a step off the people-manager track the candidate is currently on as Senior Director.",
-      "why": "The 'Industries' framing plus candidate's genuine vertical depth (retail/CPG at Gap and Samsung, pharma at Lilly/L'Or\u00e9al) is a real point of overlap \u2014 this is the one role of the three worth a closer look. But the core ask is likely hands-on architecture/build work with Claude, and the candidate's hands-on AI-building evidence is thin (a small consulting practice at Arjentic), not enterprise-scale solutions engineering.",
-      "top_gaps": [
-        "Primarily a people-manager (leads teams of 4-5), not a hands-on IC solutions architect",
-        "Limited demonstrated agentic/LLM engineering depth \u2014 Arjentic's 'custom agentic solutions' work is consulting-scale, not enterprise deployment scale",
-        "No public evidence of shipping production software (vs. statistical/ML models) end-to-end"
-      ],
-      "what_theyre_really_hiring_for": "Someone with deep fluency in a specific industry vertical who can also personally architect and build Claude-based solutions for that vertical's enterprise clients \u2014 a hybrid domain-expert-plus-engineer, not a strategy or measurement lead.",
-      "pitch_angle": "Ten years turning behavioral data into production systems for Fortune 500 retail, CPG, and pharma clients (Gap, Samsung, L'Or\u00e9al) \u2014 real vertical depth, though the hands-on build bar and IC track are gaps worth probing before applying.",
-      "recommendation": "research",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Applied AI Architect, Industries",
-      "cat_fingerprint": "dea11f8cc873be67",
-      "sector": "Tech - AI Lab"
     },
     {
       "id": "gusto-head-of-sales-ds-analytics",
@@ -1821,41 +1772,6 @@
       "suggested_role_cat": null,
       "suggestion_confidence": null,
       "suggestion_reason": null,
-      "sector": "Tech - AI Lab"
-    },
-    {
-      "id": "anthropic-applied-ai-architect-commercial",
-      "source": "live",
-      "org": "Anthropic",
-      "title": "Applied AI Architect, Commercial",
-      "url": "https://job-boards.greenhouse.io/anthropic/jobs/5192805008",
-      "location": "San Francisco, CA | New York City, NY",
-      "role_cat": "03 Applied AI Architect",
-      "priority": 2,
-      "status": "01 Open",
-      "date_opened": null,
-      "date_applied": null,
-      "outcome": null,
-      "outcome_label": null,
-      "days_to_outcome": null,
-      "outcome_display": null,
-      "notes": null,
-      "comp_range": null,
-      "fit_fingerprint": "046d85cf20de0dd4",
-      "fit_score": 45,
-      "seniority_read": "Best fit among the Anthropic postings \u2014 NYC-based and the 'Commercial' vertical maps loosely to candidate's GTM/marketing background \u2014 but still an engineering-flavored solutions role, a track change from people-management.",
-      "why": "Location matches (candidate is NY-based) and the commercial/GTM framing echoes the candidate's career positioning as someone who turns behavioral signal into GTM action. The real gap is that this role wants hands-on solution-building with Claude for enterprise commercial customers, and the resume doesn't show applied AI engineering depth beyond one vague Arjentic bullet.",
-      "top_gaps": [
-        "No demonstrated hands-on generative AI / agent-building engineering",
-        "Would be a step from managing a team back to individual technical delivery"
-      ],
-      "what_theyre_really_hiring_for": "A technically strong builder who can sit with commercial enterprise customers and ship working AI deployments, using GTM/commercial fluency as a plus, not the core skill.",
-      "pitch_angle": "Decade of turning commercial/GTM problems into shipped production systems, plus live agentic-solutions consulting work at Arjentic, could open the conversation \u2014 but expect to be pressed hard on hands-on build experience.",
-      "recommendation": "research",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Applied AI Architect, Commercial segment",
-      "cat_fingerprint": "b8f878bd18001d15",
       "sector": "Tech - AI Lab"
     },
     {
@@ -1998,10 +1914,9 @@
       "what_theyre_really_hiring_for": "A data science leader who can turn usage and support signal into proactive account-risk and expansion playbooks for OpenAI's own enterprise business.",
       "pitch_angle": "Ten years building production audience and propensity models that predict and act on commercial risk/opportunity signals translates directly to customer health and expansion scoring.",
       "recommendation": "research",
-      "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads data science for GTM intelligence and technical success",
-      "cat_fingerprint": "edc69602308bbc98",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -2034,10 +1949,9 @@
       "what_theyre_really_hiring_for": "A billable client-facing modeler/project lead, not a senior strategy or team-leadership hire.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "05 Practice Lead at Consultancy",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads client engagements as a consultant at a consultancy",
-      "cat_fingerprint": "ccfcc4cc970c9794",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Data - Marketing Analytics"
     },
     {
@@ -2070,10 +1984,9 @@
       "what_theyre_really_hiring_for": "A generalist operator to run planning, forecasting, and process for the Applied AI commercial org.",
       "pitch_angle": "Built the forecasting and scenario-planning infrastructure an operations-minded strategy team would want to own.",
       "recommendation": "research",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Strategy & Operations for Applied AI, AMER matches archetype 04",
-      "cat_fingerprint": "08fb645eb458b622",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -2142,10 +2055,9 @@
       "what_theyre_really_hiring_for": "A technically strong client-facing analyst who can translate MMM outputs for customers.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads marketing science for clients with model design and technical collateral",
-      "cat_fingerprint": "a3fd9a65780370ba",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Media - Digital Marketing"
     },
     {
@@ -2286,10 +2198,9 @@
       "what_theyre_really_hiring_for": "A hybrid applied-AI engineer/architect who can own client-facing GenAI system builds, not a measurement scientist.",
       "pitch_angle": "Arjentic's agentic-solutions consulting work plus a decade of production ML deployment could open the door, but this needs real GenAI engineering evidence to be credible.",
       "recommendation": "research",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads production AI systems for marketing and sales with LLM applications",
-      "cat_fingerprint": "67392868f6d7a23c",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Media - Media Agency"
     },
     {
@@ -2430,10 +2341,9 @@
       "what_theyre_really_hiring_for": "A hands-on manager for one growth channel, not a measurement function leader.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads data science for digital partnerships with experimentation and forecasting",
-      "cat_fingerprint": "8f346bb17c397ec7",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Finance - Insurtech"
     },
     {
@@ -2503,10 +2413,9 @@
       "what_theyre_really_hiring_for": "A player-coach who can both manage a team of AI architects and credibly design enterprise LLM solutions with customers.",
       "pitch_angle": "A leader who has already run the full arc from cross-functional model deployment to client-facing agentic-solution delivery, and can manage a technical team while staying hands-on with architecture.",
       "recommendation": "research",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Manager of Applied AI Architect, enterprise tech matches archetype 04",
-      "cat_fingerprint": "cfa97fdc492b4ff7",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -2718,10 +2627,9 @@
       "what_theyre_really_hiring_for": "Someone who can navigate university/institutional governance and also own technical AI deployment \u2014 he has half of that (the relationship/strategy side), not the technical build side.",
       "pitch_angle": "Set measurement strategy and led AI-enabled advisory work for Lincoln Technical Institute \u2014 real, if early, experience in the exact EDU institutional context this role targets.",
       "recommendation": "research",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "applies AI to education sector for real-world impact",
-      "cat_fingerprint": "a0a4789bde5c288a",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -2970,10 +2878,9 @@
       "what_theyre_really_hiring_for": "A hands-on technical IC who can build and maintain measurement/signals infrastructure under tightening privacy constraints (likely post-cookie, SKAN-style, or clean-room-adjacent attribution) \u2014 deep engineering plus applied causal inference, not a strategy or client-facing measurement leader.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Staff DS in ads measurement/signals/privacy at Reddit",
-      "cat_fingerprint": "cb8641a1ec41d71f",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -3006,10 +2913,9 @@
       "what_theyre_really_hiring_for": "A product analytics/UX research leader, not a marketing measurement scientist.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads measurement and modeling team linking user experience to business outcomes",
-      "cat_fingerprint": "c531fa999d102845",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Workflow Automation"
     },
     {
@@ -3077,10 +2983,9 @@
       "what_theyre_really_hiring_for": "A technical ML leader to build and scale Faire's internal ads product, not to measure external media performance.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Director of Applied AI/ML Science for Ads at a marketplace platform",
-      "cat_fingerprint": "bb7dc486606512c9",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Retail - Wholesale Marketplace"
     },
     {
@@ -3113,10 +3018,9 @@
       "what_theyre_really_hiring_for": "A technical lead for core ML product surfaces, with causal inference as one tool among many, not the center of the job.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads vision and execution of applied AI/ML initiatives for two-sided marketplace",
-      "cat_fingerprint": "3effb5f17c7969d8",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Retail - Wholesale Marketplace"
     },
     {
@@ -3258,10 +3162,9 @@
       "what_theyre_really_hiring_for": "A product-strategy leader to drive agentic AI shopping features, with measurement as a downstream concern.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "02 Field CTO / Head AI Solutions at Vendor",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads AI strategy and shopping innovation in consumer banking",
-      "cat_fingerprint": "4e769d8c8687014e",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Finance - Banking"
     },
     {
@@ -3509,10 +3412,9 @@
       "what_theyre_really_hiring_for": "A hands-on senior IC to build and own ads incrementality/attribution infrastructure that accounts for signal loss and privacy constraints (post-cookie measurement) \u2014 heavy SQL/stats/ML engineering, not strategy or team leadership.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Staff DS in ads measurement/signals/privacy at Reddit",
-      "cat_fingerprint": "cb8641a1ec41d71f",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -3794,10 +3696,9 @@
       "what_theyre_really_hiring_for": "A regional measurement lead to localize Pinterest's global measurement products for APAC advertisers.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Senior Manager, Measurement at Pinterest ad platform",
-      "cat_fingerprint": "4d6e46cee30f28a0",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -3942,41 +3843,6 @@
       "sector": "Tech - AI Lab"
     },
     {
-      "id": "anthropic-applied-ai-architect-enterprise-tech",
-      "source": "live",
-      "org": "Anthropic",
-      "title": "Applied AI Architect, Enterprise Tech",
-      "url": "https://job-boards.greenhouse.io/anthropic/jobs/5383335008",
-      "location": "San Francisco, CA | New York City, NY | Seattle, WA",
-      "role_cat": "03 Applied AI Architect",
-      "priority": 2,
-      "status": "01 Open",
-      "date_opened": null,
-      "date_applied": null,
-      "outcome": null,
-      "outcome_label": null,
-      "days_to_outcome": null,
-      "outcome_display": null,
-      "notes": null,
-      "comp_range": null,
-      "fit_fingerprint": "768e42576f0f4b16",
-      "fit_score": 32,
-      "seniority_read": "Same core track mismatch; enterprise tech vertical has some real echo in candidate's enterprise CDP/personalization work at Samsung, but that was marketing/product, not IT infrastructure deployment.",
-      "why": "The Samsung experience (enterprise CDP, cross-functional roadmaps with Product/Engineering) shows the candidate can operate in enterprise-tech contexts, but that was owning marketing analytics, not architecting technical AI deployments for enterprise IT customers. The engineering-depth gap is the same as the other Applied AI Architect roles.",
-      "top_gaps": [
-        "No hands-on AI solutions engineering track record",
-        "Enterprise-tech customer deployment experience is marketing-side, not IT/platform-side"
-      ],
-      "what_theyre_really_hiring_for": "A technical architect who can navigate enterprise IT stacks and ship Claude integrations for large tech buyers.",
-      "pitch_angle": null,
-      "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Applied AI Architect, Enterprise Tech",
-      "cat_fingerprint": "26c63c878c6e25a4",
-      "sector": "Tech - AI Lab"
-    },
-    {
       "id": "anthropic-applied-ai-architect-strategic-enterprise-tech",
       "store_id": "anthropic-applied-ai-architect-strategic-enterprise-tech",
       "source": "tracker",
@@ -4006,10 +3872,9 @@
       "what_theyre_really_hiring_for": "A technically deep engineer/architect who can sit with enterprise customers and design production Claude deployments \u2014 closer to a solutions engineer than a strategy or measurement leader.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Applied AI Architect in strategic enterprise tech",
-      "cat_fingerprint": "064aa05162f0ce2a",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -4077,10 +3942,9 @@
       "what_theyre_really_hiring_for": "A senior technical DS leader to run core search/discovery ML systems, not a marketing measurement specialist.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads global Data Science and Engineering org with LLM and personalization systems",
-      "cat_fingerprint": "d7fac452e0188cd1",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Retail - E-commerce"
     },
     {
@@ -4220,10 +4084,9 @@
       "what_theyre_really_hiring_for": "An engineering manager to run the team building conversion-modeling infrastructure for ads measurement \u2014 technical delivery, not measurement strategy.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Ads Conversion Modeling, Machine Learning Engineering Manager",
-      "cat_fingerprint": "8b8843f3973ac9cf",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -4612,10 +4475,9 @@
       "what_theyre_really_hiring_for": "A technical account owner fluent in fast-moving tech-company buying cycles.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "applies AI to digital-native businesses for real-world impact",
-      "cat_fingerprint": "faa6e7d12cbc882e",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -4684,10 +4546,9 @@
       "what_theyre_really_hiring_for": "A technical deployment lead with a proven enterprise AI implementation track record \u2014 not a measurement strategist adjacent to it.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "applies AI to enterprise customers for real-world impact",
-      "cat_fingerprint": "6a810b500004b637",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -4865,10 +4726,9 @@
       "what_theyre_really_hiring_for": "A senior consulting rainmaker who can sell and defend insights methodology to C-suite clients and run a P&L, not a technical measurement practitioner.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "05 Practice Lead at Consultancy",
-      "suggestion_confidence": "medium",
-      "suggestion_reason": "Partner leading Insights & Analytics practice at a consultancy, not AI-specific",
-      "cat_fingerprint": "36add92be7db8ab3",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Consulting - Brand Strategy"
     },
     {
@@ -5045,10 +4905,9 @@
       "what_theyre_really_hiring_for": "An analytically-minded builder to invent measurement methodology for a brand-new category (AI answer visibility), likely at IC or small-team-lead scope.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "owns measurement infrastructure for Answer Engine Optimization with experiments and dashboards",
-      "cat_fingerprint": "4ed419bdac255e58",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - HR Tech"
     },
     {
@@ -5509,10 +5368,9 @@
       "what_theyre_really_hiring_for": "An ML engineering manager to run a conversion-tracking/signal-quality pipeline team inside ads infra \u2014 an engineering-management hire, not a measurement strategist.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Manager II, Machine Learning \u2013 Conversion Visibility",
-      "cat_fingerprint": "1e693a4da903959a",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -5582,10 +5440,9 @@
       "what_theyre_really_hiring_for": "A Toronto-based technical IC for ads measurement/privacy infrastructure.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Sr Staff DS leading ads measurement/signals/privacy at Reddit",
-      "cat_fingerprint": "8ccfb809f587917c",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -5688,10 +5545,9 @@
       "what_theyre_really_hiring_for": "A sales-engineering hybrid who can be trusted alone in front of federal agency leadership to scope and land OpenAI deployments \u2014 closer to solutions consulting than data science.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "applies AI to government agencies for real-world impact",
-      "cat_fingerprint": "10ede50b46e9893a",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -5795,10 +5651,9 @@
       "what_theyre_really_hiring_for": "A technical architect fluent in life sciences workflows (research, clinical, regulatory) who can deploy Claude into that domain.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Applied AI Architect in life sciences",
-      "cat_fingerprint": "4ef52b95c8306e53",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -5831,10 +5686,9 @@
       "what_theyre_really_hiring_for": "A scrappy technical builder who can move at startup speed to prototype and ship Claude-based solutions for startup customers.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Applied AI Architect in startups",
-      "cat_fingerprint": "e9ca3fe7678f35dd",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -6086,10 +5940,9 @@
       "what_theyre_really_hiring_for": "A manager who can credibly speak the language of banks/insurers while running an AI architecture team for that vertical.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Manager of Applied AI Architecture in financial services matches archetype 04",
-      "cat_fingerprint": "6ddc2eb3f16171ce",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -6339,10 +6192,9 @@
       "what_theyre_really_hiring_for": "A manager of engineers shipping AI systems directly into life-sciences research/clinical workflows.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Manager of Applied AI Engineering in life sciences matches archetype 04",
-      "cat_fingerprint": "048fc49a4863ecd1",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -6375,10 +6227,9 @@
       "what_theyre_really_hiring_for": "An engineering manager who's done hands-on technical client deployments themselves and can now manage a team doing the same.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Manager of Forward Deployed Engineering matches archetype 04",
-      "cat_fingerprint": "360bffd2a4a0600e",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -6519,10 +6370,9 @@
       "what_theyre_really_hiring_for": "A solutions-minded technical driver who can get agencies from GenAI pilot to production.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "helps government agencies deploy AI in production",
-      "cat_fingerprint": "730ddb1d498e4541",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -6806,10 +6656,9 @@
       "what_theyre_really_hiring_for": "A hands-on technical solutions engineer who can drive SI partners' GenAI use cases to production.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "partner with customers to deploy AI applications post-sale",
-      "cat_fingerprint": "e8319587ba330dd7",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -7023,10 +6872,9 @@
       "what_theyre_really_hiring_for": "An engineering manager to lead the team building engagement-prediction models for ads ranking.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Machine Learning Engineering Manager - Ads Engagement Modeling",
-      "cat_fingerprint": "5fbac16dcbb9c1ee",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -7096,10 +6944,9 @@
       "what_theyre_really_hiring_for": "A recommendation/search systems builder, likely evaluated on ML engineering depth and production ownership, not measurement strategy.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Senior Staff ML Engineer, Search & Recommendation",
-      "cat_fingerprint": "a440650e541e612f",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -7276,10 +7123,9 @@
       "what_theyre_really_hiring_for": "A locally-based technical executive who can run point on AI strategy for large European enterprise accounts.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "applies AI to large enterprises for real-world impact",
-      "cat_fingerprint": "b065243ffd76c1d4",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -7348,10 +7194,9 @@
       "what_theyre_really_hiring_for": "An operator who keeps a technical pre-sales engineering org's programs and process running smoothly.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Pre-sales program lead for forward deployed engineering matches archetype 04",
-      "cat_fingerprint": "a734f4fc671c6e45",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -7420,10 +7265,9 @@
       "what_theyre_really_hiring_for": "A research scientist to build eval frameworks/datasets for Datadog's AI agent products.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads evaluation strategy for AI agent integrations at Datadog",
-      "cat_fingerprint": "605835dea154a557",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - DevOps Monitoring"
     },
     {
@@ -7600,10 +7444,9 @@
       "what_theyre_really_hiring_for": "A strong generalist engineer who can code fast, embed on-site with clinical/IT stakeholders, and ship regulated production integrations.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "embeds with healthcare orgs to deploy AI systems in production",
-      "cat_fingerprint": "3c1e86671317b662",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -7891,10 +7734,9 @@
       "what_theyre_really_hiring_for": "A technical enablement lead who helps external partner organizations build on Claude \u2014 closer to partner engineering/BD than to customer-facing measurement or solutions work.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Applied AI Architect in partnerships",
-      "cat_fingerprint": "03e90f7e9b54b90c",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -7927,10 +7769,9 @@
       "what_theyre_really_hiring_for": "A locally-embedded technical account owner for OpenAI's Japan enterprise business.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "applies AI to customers in Tokyo for real-world impact",
-      "cat_fingerprint": "5bc4b2a7725c8835",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -7963,10 +7804,9 @@
       "what_theyre_really_hiring_for": "An early-to-mid-career modeler to execute client deliverables under senior oversight.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "05 Practice Lead at Consultancy",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads client engagements as a consultant at a consultancy",
-      "cat_fingerprint": "39ef44bdddb3361b",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Data - Marketing Analytics"
     },
     {
@@ -8286,10 +8126,9 @@
       "what_theyre_really_hiring_for": "Same as NYC/Seattle FDE \u2014 a technical builder for frontier-model customer deployments.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads complex AI deployments in production alongside customers",
-      "cat_fingerprint": "d7c32a7dbd50aa71",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -8322,10 +8161,9 @@
       "what_theyre_really_hiring_for": "Same as NYC FDE \u2014 a builder who can own end-to-end technical delivery.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads complex AI deployments in production alongside customers",
-      "cat_fingerprint": "1f793e8d561847aa",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -8358,10 +8196,9 @@
       "what_theyre_really_hiring_for": "An engineer-consultant hybrid who can turn a legal practitioner's workflow into a working prototype fast.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "embeds with legal orgs to deploy AI systems in production",
-      "cat_fingerprint": "a8d473a266a511ff",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -8394,10 +8231,9 @@
       "what_theyre_really_hiring_for": "Same as above \u2014 a technical builder who embeds with legal teams and ships a hero workflow.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "embeds with legal orgs to deploy AI systems in production",
-      "cat_fingerprint": "7b53e861d0382ef3",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -8466,10 +8302,9 @@
       "what_theyre_really_hiring_for": "A technical FDE leader who can run field deployments under pressure in Japan.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "manages forward deployed engineers in Tokyo for customer deployments",
-      "cat_fingerprint": "a2d3d1cec8c8cd22",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -8646,10 +8481,9 @@
       "what_theyre_really_hiring_for": "A technical engineering manager with a research pedigree to lead applied ML scientists building core recommendation/ranking models.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Sr. Manager, Machine Learning Engineering-Applied Research",
-      "cat_fingerprint": "c5d10b7acf41e14e",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -8754,10 +8588,9 @@
       "what_theyre_really_hiring_for": "A technically hands-on advisor who can help startups build on the OpenAI platform, not a measurement strategist.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "helps startups deploy AI in production",
-      "cat_fingerprint": "0a2970cbea2ab8fe",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -8790,11 +8623,47 @@
       "what_theyre_really_hiring_for": "A hands-on data/reporting engineer to maintain operational scorecards and dashboards, not a strategy or causal inference leader.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Measurement Engineer role",
-      "cat_fingerprint": "f633f8e1efe158d3",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Industrial Software"
+    },
+    {
+      "id": "anthropic-applied-ai-architect-industries",
+      "source": "live",
+      "org": "Anthropic",
+      "title": "Applied AI Architect, Industries",
+      "url": "https://job-boards.greenhouse.io/anthropic/jobs/5390765008",
+      "location": "London, UK",
+      "role_cat": "03 Applied AI Architect",
+      "priority": 2,
+      "status": "00 New find",
+      "date_opened": null,
+      "date_applied": null,
+      "outcome": null,
+      "outcome_label": null,
+      "days_to_outcome": null,
+      "outcome_display": null,
+      "notes": null,
+      "comp_range": null,
+      "fit_fingerprint": "55ba0a1f3c939d3e",
+      "fit_score": 15,
+      "seniority_read": "Level is roughly comparable (Senior Director/Principal vs Architect), but track is wrong: this is a hands-on, customer-facing solutions-engineering/architecture role, not a measurement-science leadership role.",
+      "why": "The candidate's entire career is marketing/measurement science - MMM, attribution, propensity and segmentation models built on classical ML and analytics stacks (scikit-learn, statsmodels, Snowflake, Databricks). Anthropic's Applied AI Architect role is about designing and building generative-AI/LLM solutions with enterprise customers across industries, which is a different technical domain (LLM application architecture, prompt/agent design, API integration) that the resume only gestures at with one vague Arjentic bullet ('custom agentic solutions').",
+      "top_gaps": [
+        "No demonstrated hands-on experience building with LLMs/foundation models, prompt engineering, or agentic frameworks - only a single unelaborated resume bullet",
+        "Role is customer-facing solutions architecture/engineering, not measurement or causal inference - core resume skills don't transfer directly",
+        "Based in New York; role is London-based with no relocation signal"
+      ],
+      "what_theyre_really_hiring_for": "A technically deep, hands-on AI engineer/architect who can sit with enterprise customers in a given industry vertical and design, prototype, and ship Claude-based solutions - closer to a forward-deployed engineer than a data science strategy leader.",
+      "pitch_angle": null,
+      "recommendation": "skip",
+      "suggested_role_cat": "03 Applied AI Architect",
+      "suggestion_confidence": "high",
+      "suggestion_reason": "Applied AI Architect, Industries",
+      "cat_fingerprint": "dea11f8cc873be67",
+      "sector": "Tech - AI Lab",
+      "store_id": "anthropic-applied-ai-architect-industries"
     },
     {
       "id": "anthropic-applied-ai-engineer-enterprise-tech",
@@ -9114,10 +8983,9 @@
       "what_theyre_really_hiring_for": "A protocol/integration engineer to build the plumbing that lets external services plug into ChatGPT/Codex safely.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "helps partners adopt agent-enabled sites and services",
-      "cat_fingerprint": "45231a87777933ca",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -9187,10 +9055,9 @@
       "what_theyre_really_hiring_for": "A technical engineer who can own healthcare system integrations end to end.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "embeds with healthcare orgs to deploy AI systems in production",
-      "cat_fingerprint": "6fb2e983dc902ea8",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -9547,10 +9414,9 @@
       "what_theyre_really_hiring_for": "A principal-level backend engineer to own experimentation infrastructure, not a data scientist.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads technical strategy for large-scale experimentation platform",
-      "cat_fingerprint": "8b9a3ba5f13cd69a",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Retail - E-commerce Tech"
     },
     {
@@ -9583,10 +9449,9 @@
       "what_theyre_really_hiring_for": "A builder who ships customer-facing AI integrations in code, not someone who models marketing outcomes.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "helps organizations deploy AI into production systems",
-      "cat_fingerprint": "8ace2d29c58b51f1",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -9619,10 +9484,9 @@
       "what_theyre_really_hiring_for": "A deployment engineer for complex enterprise accounts in Brazil.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "helps enterprise customers deploy AI in production",
-      "cat_fingerprint": "9dd6f11b90aeee1f",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -9799,10 +9663,9 @@
       "what_theyre_really_hiring_for": "A technical engineer to own healthcare system deployments end to end, based in Seattle.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "embeds with healthcare orgs to deploy AI systems in production",
-      "cat_fingerprint": "c9bddfb68c590aaa",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -10160,10 +10023,9 @@
       "what_theyre_really_hiring_for": "A principal-level engineer to build the experimentation platform, not someone to design or interpret experiments.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "architects enterprise software for marketing experimentation and personalization",
-      "cat_fingerprint": "7dd978078240f021",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Finance - Banking & Fintech"
     },
     {
@@ -10232,10 +10094,9 @@
       "what_theyre_really_hiring_for": "A principal-level data engineer to architect Netflix's ads measurement data foundations.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads data engineering for ads signals and measurement infrastructure",
-      "cat_fingerprint": "1e43a52866ffd687",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Media - Streaming"
     },
     {
@@ -10341,10 +10202,9 @@
       "what_theyre_really_hiring_for": "A hands-on engineer who can sit inside a client's stack and ship integrations, not an analytics strategist.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "helps Japanese customers deploy AI in production",
-      "cat_fingerprint": "0add4d50aaceb625",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -10377,10 +10237,9 @@
       "what_theyre_really_hiring_for": "An engineer who can credibly advise other engineers on adopting Codex across their dev lifecycle.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "helps software engineering organizations adopt Codex in SDLC",
-      "cat_fingerprint": "b7b9fe919521870a",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -10485,10 +10344,9 @@
       "what_theyre_really_hiring_for": "A bilingual engineer to embed with Spanish-speaking customer teams out of London.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads AI deployments in production for customers in London",
-      "cat_fingerprint": "43ff16e3685fdf5e",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -10521,10 +10379,9 @@
       "what_theyre_really_hiring_for": "A bilingual engineer based in Madrid embedding with Spanish-speaking customers.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads AI deployments in production for customers in Madrid",
-      "cat_fingerprint": "2b5ebc67449459c2",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -10557,10 +10414,9 @@
       "what_theyre_really_hiring_for": "A locally-based engineer to run APAC customer deployments.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads AI deployments in production for customers in Singapore",
-      "cat_fingerprint": "8e8d3fee748e5323",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -10593,10 +10449,9 @@
       "what_theyre_really_hiring_for": "A locally-based engineer running ANZ customer deployments.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads AI deployments in production for customers in Sydney",
-      "cat_fingerprint": "12ce3d48725deaac",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -11097,10 +10952,9 @@
       "what_theyre_really_hiring_for": "A deep systems engineer to scale ads ML training/serving infra at Reddit's scale \u2014 an engineering-org hire, not a measurement/analytics one.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Senior Staff Machine Learning Systems Engineer, Ads ML Platform",
-      "cat_fingerprint": "aaff8d81c5825841",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -11133,10 +10987,9 @@
       "what_theyre_really_hiring_for": "A technologist with real cyber/security operations fluency who can also build AI solutions.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Applied AI Architect in cyber",
-      "cat_fingerprint": "e3b72245024f3df3",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -11459,10 +11312,9 @@
       "what_theyre_really_hiring_for": "An internal marketing ops leader to run business-partner campaign delivery and stakeholder alignment.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "05 Practice Lead at Consultancy",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "VP leading marketing business partner function at a consultancy",
-      "cat_fingerprint": "767a85c127c41622",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Cybersecurity Consulting"
     },
     {
@@ -11495,10 +11347,9 @@
       "what_theyre_really_hiring_for": "A Japan-based engineer-facing Codex adoption specialist.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "helps Japanese customers adopt Codex in SDLC",
-      "cat_fingerprint": "52c6409a8b60b3dc",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -11531,10 +11382,9 @@
       "what_theyre_really_hiring_for": "A product engineer who can both build platform features and manage partner integration engagements.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "helps partners build integrations into ChatGPT and Codex",
-      "cat_fingerprint": "04337ff09f13cd83",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -11567,10 +11417,9 @@
       "what_theyre_really_hiring_for": "An engineer to build the GTM agent tooling itself, not someone to measure GTM performance.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "builds AI-native products for GTM and B2B marketing",
-      "cat_fingerprint": "3fbeabe7deb88c2b",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -11675,10 +11524,9 @@
       "what_theyre_really_hiring_for": "A locally-embedded engineer serving Korean enterprise customers.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads AI deployments in production for customers in Seoul",
-      "cat_fingerprint": "afc52507c288d30d",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -11711,10 +11559,9 @@
       "what_theyre_really_hiring_for": "A locally-embedded engineer serving Japanese enterprise customers.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "leads AI deployments in production for customers in Tokyo",
-      "cat_fingerprint": "b27c9e5e3afa1e04",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -12107,10 +11954,9 @@
       "what_theyre_really_hiring_for": "An ML engineering manager for core feed ranking/recommendation infrastructure.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Machine Learning Manager, Feed Ecosystems",
-      "cat_fingerprint": "8da91bcb678c80b6",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -12143,10 +11989,9 @@
       "what_theyre_really_hiring_for": "An ML engineering manager for feed retrieval systems.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Machine Learning Manager, Feed Relevance (Retrieval)",
-      "cat_fingerprint": "07d12967fd4df1a6",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -12215,10 +12060,9 @@
       "what_theyre_really_hiring_for": "A backend/infrastructure software engineer for ML observability tooling (Neptune).",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "builds analytics platform for understanding model behavior and quality",
-      "cat_fingerprint": "1f40576bba467f6f",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -12323,10 +12167,9 @@
       "what_theyre_really_hiring_for": "A cleared or clearance-eligible technologist who understands government procurement and can build AI solutions for national security customers.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Applied AI Architect in public sector (national security)",
-      "cat_fingerprint": "ec088bad2da81d2b",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -12791,10 +12634,9 @@
       "what_theyre_really_hiring_for": "A backend engineer to build and operate the A/B testing platform itself.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "designs and maintains scalable experimentation platform services for AI",
-      "cat_fingerprint": "8da0e77bff6abd9d",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Software & Cloud"
     },
     {
@@ -13582,10 +13424,9 @@
       "what_theyre_really_hiring_for": "An ML engineering manager for video ranking models.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "01 Meas/Mkt Science Lead AI Ads or Platform",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Senior Machine Learning Manager, Video Ranking",
-      "cat_fingerprint": "9b1a2bdc9fc5f7db",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -13618,10 +13459,9 @@
       "what_theyre_really_hiring_for": "Core ML platform engineering headcount for Reddit's broader ML org.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Staff Machine Learning Systems Engineer",
-      "cat_fingerprint": "441e96c85ae2d458",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -13690,10 +13530,9 @@
       "what_theyre_really_hiring_for": "A systems-minded ML engineer to harden Codex's core execution loop.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "builds the kernel of Codex agent for real-world use",
-      "cat_fingerprint": "4b778ebc5123797a",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -13726,10 +13565,9 @@
       "what_theyre_really_hiring_for": "A security practitioner who can validate AI use in cyber workflows, not a marketing data scientist.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "helps developers deploy AI securely in cyber contexts",
-      "cat_fingerprint": "21eb27acf1bd36cd",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -13762,10 +13600,9 @@
       "what_theyre_really_hiring_for": "A cyber specialist with security clearance potential to serve government cyber missions.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "helps government agencies deploy AI securely in cyber contexts",
-      "cat_fingerprint": "113bbc40c837b83a",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -13871,10 +13708,9 @@
       "what_theyre_really_hiring_for": "A Japan-based cyber-domain AI engineer.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "helps Japanese customers deploy AI securely in cyber contexts",
-      "cat_fingerprint": "16bf7523aebe4d31",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -14159,10 +13995,9 @@
       "what_theyre_really_hiring_for": "A systems engineer to build and maintain embedding serving infrastructure.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Staff Machine Learning Infrastructure Engineer, Embedding Platform",
-      "cat_fingerprint": "6a05cdf1340070fc",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -15206,10 +15041,9 @@
       "what_theyre_really_hiring_for": "A systems engineer to build the ads ML experimentation/serving platform.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Senior Machine Learning Systems Engineer, Ads ML Experience Platform",
-      "cat_fingerprint": "5b421bcab2e42923",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -15494,10 +15328,9 @@
       "what_theyre_really_hiring_for": "An engineering-adjacent TPM who has run physical datacenter/GPU cluster buildouts with vendors and construction firms \u2014 pure infra ops, not analytics.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "manages large-scale compute infrastructure for AI workloads",
-      "cat_fingerprint": "1c65f1cc6d6f50f2",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -15853,10 +15686,9 @@
       "what_theyre_really_hiring_for": "A hardware/chip-design engineer to embed with semiconductor customers.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "embeds with semiconductor companies to deploy AI systems in chip design",
-      "cat_fingerprint": "937a2d9b72eb1d22",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - AI Lab"
     },
     {
@@ -15925,10 +15757,9 @@
       "what_theyre_really_hiring_for": "A hands-on infra engineer to build and scale an embedding-serving platform.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Senior Machine Learning Infrastructure Engineer, Embedding Platform",
-      "cat_fingerprint": "df9081e6502d693f",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -15961,10 +15792,9 @@
       "what_theyre_really_hiring_for": "A hands-on ML systems engineer for core infra.",
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "04 Technical Deployment Lead / Strategist",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Senior Machine Learning Systems Engineer",
-      "cat_fingerprint": "8c752d70b3154638",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -16386,10 +16216,9 @@
       "what_theyre_really_hiring_for": null,
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Machine Learning Engineer, Monetization Engineering",
-      "cat_fingerprint": "e8c18d5133bab4a0",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -16419,10 +16248,9 @@
       "what_theyre_really_hiring_for": null,
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Principal Machine Learning Engineer, Ads Delivery",
-      "cat_fingerprint": "b99995adc7422bac",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -16452,10 +16280,9 @@
       "what_theyre_really_hiring_for": null,
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Sr. Machine Learning Engineer, Applied Science",
-      "cat_fingerprint": "2f6e8f0cbb42ec08",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -16485,10 +16312,9 @@
       "what_theyre_really_hiring_for": null,
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Sr. Machine Learning Engineer, Core Engineering",
-      "cat_fingerprint": "3a7aef1bbe484189",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -16518,10 +16344,9 @@
       "what_theyre_really_hiring_for": null,
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Sr. Machine Learning Engineer, Monetization Engineering",
-      "cat_fingerprint": "fdfe323097bf6db4",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -16551,10 +16376,9 @@
       "what_theyre_really_hiring_for": null,
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Sr. Staff Machine Learning Engineer, Content Quality",
-      "cat_fingerprint": "30d4df940fc2054c",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -16584,10 +16408,9 @@
       "what_theyre_really_hiring_for": null,
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Sr. Staff Machine Learning Engineer, Monetization Engineering",
-      "cat_fingerprint": "0821951ee0cc320d",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -16617,10 +16440,9 @@
       "what_theyre_really_hiring_for": null,
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Staff Machine Learning Engineer, Ads Conversion Core Modeling",
-      "cat_fingerprint": "dfaaebae62c00bf7",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -16650,10 +16472,9 @@
       "what_theyre_really_hiring_for": null,
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Staff Machine Learning Engineer, Visual AI",
-      "cat_fingerprint": "be0fe2fd56b4bbe2",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -16716,10 +16537,9 @@
       "what_theyre_really_hiring_for": null,
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Senior Machine Learning Engineer",
-      "cat_fingerprint": "f765385c656b330b",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -16749,10 +16569,9 @@
       "what_theyre_really_hiring_for": null,
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Senior Machine Learning Engineer, Ads Optimization",
-      "cat_fingerprint": "ce5c69e125519265",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -16782,10 +16601,9 @@
       "what_theyre_really_hiring_for": null,
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Senior Staff Machine Learning Engineer, Feed Relevance",
-      "cat_fingerprint": "bbb8467d9c0438e5",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -16815,10 +16633,9 @@
       "what_theyre_really_hiring_for": null,
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Senior Staff Machine Learning Engineer, GenAI Platform",
-      "cat_fingerprint": "a12d4f5439c70058",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -16848,10 +16665,9 @@
       "what_theyre_really_hiring_for": null,
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Senior Staff Machine Learning Engineer, Notifications",
-      "cat_fingerprint": "cf7936231bb1d80a",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -16881,10 +16697,9 @@
       "what_theyre_really_hiring_for": null,
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Staff Machine Learning Engineer, Ads Foundational Representations",
-      "cat_fingerprint": "e0a4cbe5856c8d09",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     },
     {
@@ -16914,10 +16729,9 @@
       "what_theyre_really_hiring_for": null,
       "pitch_angle": null,
       "recommendation": "skip",
-      "suggested_role_cat": "03 Applied AI Architect",
-      "suggestion_confidence": "high",
-      "suggestion_reason": "Staff Machine Learning Engineer, Consumer",
-      "cat_fingerprint": "a2d25d5cdd7849ac",
+      "suggested_role_cat": null,
+      "suggestion_confidence": null,
+      "suggestion_reason": null,
       "sector": "Tech - Social Media"
     }
   ],
@@ -17909,22 +17723,22 @@
     {
       "org": "Anthropic",
       "sector": "Tech - AI Lab",
-      "role_count": 78,
-      "open_count": 3,
+      "role_count": 76,
+      "open_count": 0,
       "applied_count": 0,
       "closed_count": 74,
       "status_mix": {
-        "01 Open": 3,
+        "00 New find": 1,
         "02 Researching": 1,
         "04 Closed": 74
       },
       "recommendation_mix": {
         "apply": 0,
-        "research": 9,
+        "research": 7,
         "skip": 69
       },
       "best_fit_score": 54,
-      "median_fit_score": 14,
+      "median_fit_score": 12,
       "best_role": {
         "title": "Data Scientist, Marketing",
         "fit_score": 54,
