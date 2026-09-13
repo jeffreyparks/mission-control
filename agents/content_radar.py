@@ -287,8 +287,12 @@ give this specific person a reason to publish something that is actually his.
 
 HARD RULES ON HONESTY
 - Most articles are not worth a post. Say so by leaving them out.
-- 3 to 6 picks is the target. Fewer is better than padded. ZERO picks is a
-  fully acceptable and correct answer when the week is genuinely dead.
+- 6 picks is the target, not a ceiling to stop at early. Review every
+  candidate article before deciding you are done - do not settle for 2 or 3
+  strong ones without checking whether the rest of the batch has 3 more that
+  genuinely clear the bar. That said, fewer is still better than padded, and
+  ZERO picks is a fully acceptable and correct answer when the week is
+  genuinely dead.
 - Never invent a connection to the candidate's background. If the link is
   thin, skip it. Do not force it.
 - Never restate a headline as "insight". If you cannot state a specific angle
