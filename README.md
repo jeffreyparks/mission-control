@@ -12,8 +12,8 @@ Run `mc dashboard` to browse and edit your results in the browser.
 ## Getting started
 
 ```bash
-uv sync              # installs everything, including the `mc` command
-uv run mc setup      # one command: set up your `me/` folder and do a first run
+uv tool install --editable .    # one-time: puts the `mc` command on your PATH
+mc setup                        # set up your `me/` folder and do a first run
 ```
 
 `mc setup` walks you through it - drop in your resume, write a couple lines about what you're
@@ -27,24 +27,24 @@ copy from - see `me/README.md` (created on first run) for what each file is.
 Want to peek before running anything for real?
 
 ```bash
-uv run mc setup --status    # what's filled in, what's missing - no LLM calls
-uv run mc setup --dry-run   # see what a real run would scan - still no LLM calls
+mc setup --status    # what's filled in, what's missing - no LLM calls
+mc setup --dry-run   # see what a real run would scan - still no LLM calls
 ```
 
 Once you're set up:
 
 ```bash
-uv run mc run                 # pulls new roles, judges fit, rebuilds the pages
+mc run                 # pulls new roles, judges fit, rebuilds the pages
 open artifacts/html/index.html
 
-uv run mc dashboard            # optional: browse and edit your results in the browser
+mc dashboard            # optional: browse and edit your results in the browser
 open http://127.0.0.1:8787
 ```
 
-`uv run mc <command>` just works from inside the repo, no install step needed. If you'd rather
-type `mc setup` on its own from anywhere, run `uv tool install --editable .` once and it's on
-your PATH. (`setup.py`, `run_daily.py`, and `dashboard.py` still run directly too, if you
-prefer that - `mc` is just a shortcut on top.) Forgot the commands? `uv run mc help` lists them.
+Skip the install and just want it running from inside the repo? `uv run mc setup` works the
+same way, no PATH changes needed - the only difference is typing `uv run` first. (`setup.py`,
+`run_daily.py`, and `dashboard.py` also still run directly, if you prefer that - `mc` is just a
+shortcut on top.) Forgot the commands? `mc help` lists them.
 
 ## What it does
 
@@ -57,11 +57,11 @@ prefer that - `mc` is just a shortcut on top.) Forgot the commands? `uv run mc h
 ## Using it day to day
 
 ```bash
-uv run mc run                       # normal run
-uv run mc run --force-radar         # run the weekly radar now
-uv run mc run --only jobs           # profiles | jobs | radar | synthesis | render
-uv run mc run --refresh-intel       # re-judge every role
-uv run mc run --no-intel            # legacy keyword scanner instead of LLM fit
+mc run                       # normal run
+mc run --force-radar         # run the weekly radar now
+mc run --only jobs           # profiles | jobs | radar | synthesis | render
+mc run --refresh-intel       # re-judge every role
+mc run --no-intel            # legacy keyword scanner instead of LLM fit
 
 # add one job posting from a URL
 uv run add_role.py <url> [--org X] [--title Y] [--priority 1|2|3] [--notes "..."]
@@ -90,7 +90,7 @@ fetch actually succeeds.
 **Want to edit things by hand?** Fire up the dashboard:
 
 ```bash
-uv run mc dashboard
+mc dashboard
 ```
 
 It serves your pages on `127.0.0.1:8787` with a small edit API. Status, Priority, Role Cat,
@@ -112,7 +112,7 @@ which commit it's actually running, so you can compare it to `git rev-parse --sh
 Want this running on its own every morning?
 
 ```cron
-0 6 * * * cd /Users/jeff/Dev/jeffreyparks/mission-control && uv run mc run
+0 6 * * * cd /Users/jeff/Dev/jeffreyparks/mission-control && mc run
 ```
 
 ## Architecture

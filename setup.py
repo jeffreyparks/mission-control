@@ -132,7 +132,7 @@ def status():
     ready = resume_ok and profile_ok and (
         (backend == "api" and anthropic_key) or (backend == "cli" and claude_cli)
     )
-    print("\n" + ("Ready for `uv run run_daily.py`." if ready
+    print("\n" + ("Ready for `mc run`." if ready
                     else "Not ready yet - run `uv run setup.py` to finish."))
     return ready
 
@@ -150,7 +150,7 @@ def dry_run():
     print(f"Would scan {n_feeds} RSS feeds (config/content-sources.yaml)")
     print()
     status()
-    print("\nNo LLM calls made. Run `uv run run_daily.py` for the real thing.")
+    print("\nNo LLM calls made. Run `mc run` for the real thing.")
 
 
 # ---------- interactive wizard ----------
