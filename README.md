@@ -1,14 +1,19 @@
 # Mission Control
 
-Career operations automation. Two feeds, separate cadences, judged by the same standard.
+Agentic CareerOps :)
 
-Output is three static HTML pages. The source of record is a SQLite database; the Excel
-tracker is exported on every run and stays a real physical backup.
+Run `mc setup` to enter your professional profile and goals in the `me/` folder. Add your
+resume/cv and your LinkedIn PDF export. Define your top target companies, job search boards, etc.
+
+Produces daily job search results and assessments, weekly news topics and thought-starters.
+
+Run `mc dashboard` to browse and edit your results in the browser.
 
 ## Getting started
 
 ```bash
-uv run setup.py                      # one command: scaffold me/, enter your basics, first run
+uv sync                              # sync packages, installs the `mc` command
+uv run mc setup                      # one command: scaffold me/, enter your basics, first run
 ```
 
 `me/` is your single input folder - resume, target roles, optional LinkedIn export. `.env`
@@ -17,19 +22,24 @@ holds secrets (API keys, BlueSky app password). Both are gitignored; `templates/
 `me/README.md` (created on first run) for what each file does.
 
 ```bash
-uv run setup.py --status             # what's configured, no prompts, no LLM calls
-uv run setup.py --dry-run            # preview scan scope before spending anything
+uv run mc setup --status             # what's configured, no prompts, no LLM calls
+uv run mc setup --dry-run            # preview scan scope before spending anything
 ```
 
 Once `me/` and `.env` are filled in:
 
 ```bash
-uv run run_daily.py                  # respects cadences, rebuilds HTML
+uv run mc run                        # respects cadences, rebuilds HTML
 open artifacts/html/index.html       # read-only
 
-uv run serve.py                      # optional: editable dashboard on localhost
-open http://127.0.0.1:8787/job-tracker.html
+uv run mc dashboard                  # optional: editable dashboard on localhost
+open http://127.0.0.1:8787
 ```
+
+`uv run mc <command>` works from inside the repo with no install step. Run
+`uv tool install --editable .` once to get bare `mc setup` / `mc run` / `mc dashboard`
+on your PATH from anywhere. The underlying scripts (`setup.py`, `run_daily.py`,
+`dashboard.py`) still work standalone too - `mc` is a thin wrapper, not a replacement.
 
 ## What it does
 
@@ -42,11 +52,11 @@ open http://127.0.0.1:8787/job-tracker.html
 ## Using it day to day
 
 ```bash
-uv run run_daily.py                 # normal run
-uv run run_daily.py --force-radar   # run the weekly radar now
-uv run run_daily.py --only jobs     # profiles | jobs | radar | synthesis | render
-uv run run_daily.py --refresh-intel # re-judge every role
-uv run run_daily.py --no-intel      # legacy keyword scanner instead of LLM fit
+uv run mc run                       # normal run
+uv run mc run --force-radar         # run the weekly radar now
+uv run mc run --only jobs           # profiles | jobs | radar | synthesis | render
+uv run mc run --refresh-intel       # re-judge every role
+uv run mc run --no-intel            # legacy keyword scanner instead of LLM fit
 
 # add one job posting from a URL
 uv run add_role.py <url> [--org X] [--title Y] [--priority 1|2|3] [--notes "..."]
@@ -75,7 +85,7 @@ until the fetch succeeds, so a bad URL never leaves a partial row. Both failure 
 **Editable dashboard (optional):**
 
 ```bash
-uv run serve.py
+uv run mc dashboard
 ```
 
 Serves `artifacts/html/` on `127.0.0.1:8787` and exposes a small JSON API. `Status`, `Priority`,
@@ -89,16 +99,16 @@ simply fails and the table stays read-only. Nothing breaks.
 Limits are deliberate: loopback only, a closed list of editable fields (or, for Notes/Salary, a
 length cap instead of a vocabulary), and a closed vocabulary of accepted values everywhere else.
 
-**Restart `serve.py` after any code change.** Python does not hot-reload a running process, so
-a long-lived `serve.py` keeps serving whatever code was current when it started - a new field,
-a bug fix, anything - until you stop it and run it again. `/api/health`'s `server_commit` shows
-which commit the running process actually started from; compare it to `git rev-parse --short
-HEAD` if the dashboard seems to be missing something you know shipped.
+**Restart `mc dashboard` after any code change.** Python does not hot-reload a running process,
+so a long-lived dashboard process keeps serving whatever code was current when it started - a
+new field, a bug fix, anything - until you stop it and run it again. `/api/health`'s
+`server_commit` shows which commit the running process actually started from; compare it to
+`git rev-parse --short HEAD` if the dashboard seems to be missing something you know shipped.
 
 ## Automation
 
 ```cron
-0 6 * * * cd /Users/jeff/Dev/jeffreyparks/mission-control && uv run run_daily.py
+0 6 * * * cd /Users/jeff/Dev/jeffreyparks/mission-control && uv run mc run
 ```
 
 ## Architecture
@@ -209,6 +219,11 @@ Columns added by the system: Fit Score, Fit Rationale, Recommendation, Sector, D
 ### Layout
 
 ```
+src/mission_control/
+  __init__.py         `mc` CLI - thin dispatcher to setup.py/run_daily.py/dashboard.py
+setup.py               scaffold me/, first run
+run_daily.py            the daily/weekly pipeline
+dashboard.py            editable local dashboard (formerly serve.py)
 agents/
   llm.py              LLM client, hash-cached, routed
   routing.py          tag -> tier -> model selector

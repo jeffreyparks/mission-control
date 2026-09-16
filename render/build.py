@@ -74,7 +74,7 @@ def render_radar(env, d):
 def _tracker_context(d):
     """Everything the tracker template needs, computed from d["roles"]/d["orgs"].
 
-    Pulled out of render_tracker so serve.py can render the exact same page
+    Pulled out of render_tracker so dashboard.py can render the exact same page
     against live database values - overlaid onto a copy of d - without writing
     anything to disk.
     """
@@ -88,7 +88,7 @@ def _tracker_context(d):
     # Derived from the roles actually being rendered, not the counts baked into
     # the intel json at pipeline-run time. Recommendation is user-editable from
     # the dashboard now, so d["counts"] can go stale between pipeline runs; the
-    # roles list itself is what serve.py overlays with live database values.
+    # roles list itself is what dashboard.py overlays with live database values.
     rec_counts = Counter(r.get("recommendation") for r in roles if r.get("recommendation"))
     recs = {
         "apply": rec_counts.get("apply", 0),

@@ -2,7 +2,7 @@
 """
 Local writeback server for the Mission Control dashboard.
 
-    uv run serve.py            # http://127.0.0.1:8787
+    uv run dashboard.py            # http://127.0.0.1:8787
 
 Serves artifacts/html/ and exposes a tiny JSON API so the dashboard can edit
 fields that a human owns - status first. Writes go through agents/store.py, so
@@ -35,7 +35,7 @@ def _server_commit():
     """The commit this running process was started from, so a stale process -
     still serving code from before a `git pull` or an agent edit - is obvious
     from /api/health instead of silently behaving like an old version. Python
-    does not hot-reload; every code change here needs `serve.py` restarted."""
+    does not hot-reload; every code change here needs `dashboard.py` restarted."""
     try:
         out = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=str(BASE),
                              capture_output=True, text=True, timeout=3)

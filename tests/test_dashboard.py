@@ -1,4 +1,4 @@
-"""API tests for serve.py. Runs a real server on a temp copy of the data."""
+"""API tests for dashboard.py. Runs a real server on a temp copy of the data."""
 import json, shutil, sys, tempfile, threading, time
 from pathlib import Path
 
@@ -9,7 +9,7 @@ sys.path.insert(0, str(REPO / "agents"))
 import pandas as pd
 import requests
 
-import serve as srv
+import dashboard as srv
 from store import Store
 
 fails = []

@@ -25,7 +25,7 @@ from dotenv import load_dotenv
 
 import routing
 
-# Repo-root .env, not cwd-relative - every entry point (run_daily.py, serve.py,
+# Repo-root .env, not cwd-relative - every entry point (run_daily.py, dashboard.py,
 # setup.py, a bare `python agents/llm.py`) must see the same secrets regardless
 # of where it was launched from. Never overrides an already-exported env var.
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
