@@ -39,6 +39,70 @@ open http://127.0.0.1:8787/job-tracker.html
 | **Content Radar** | weekly | Editorial brief: what is worth writing about, and the angle to take |
 | **Profiles** | daily | GitHub, LinkedIn, BlueSky scans |
 
+## Using it day to day
+
+```bash
+uv run run_daily.py                 # normal run
+uv run run_daily.py --force-radar   # run the weekly radar now
+uv run run_daily.py --only jobs     # profiles | jobs | radar | synthesis | render
+uv run run_daily.py --refresh-intel # re-judge every role
+uv run run_daily.py --no-intel      # legacy keyword scanner instead of LLM fit
+
+# add one job posting from a URL
+uv run add_role.py <url> [--org X] [--title Y] [--priority 1|2|3] [--notes "..."]
+
+# history / trends
+uv run python agents/history.py --show
+uv run python render/build.py       # rebuild HTML only
+```
+
+Stages are isolated. One failure does not stop the run.
+
+**Cadence rule:** Content Radar runs only when the newest `artifacts/content/radar-*.json` is
+7 or more days old. Everything else runs daily.
+
+**Adding a role by hand:**
+
+```bash
+uv run add_role.py https://job-boards.greenhouse.io/acme/jobs/123
+```
+
+Fetches the posting (Greenhouse, Lever, Ashby, LinkedIn, or generic), runs one fit analysis,
+appends a row with Status `01 Open` and Source `manual-add`, then rebuilds the HTML. Refuses
+duplicates by canonical URL (tracking parameters stripped) and by org+title. Nothing is written
+until the fetch succeeds, so a bad URL never leaves a partial row. Both failure paths exit 1.
+
+**Editable dashboard (optional):**
+
+```bash
+uv run serve.py
+```
+
+Serves `artifacts/html/` on `127.0.0.1:8787` and exposes a small JSON API. `Status`, `Priority`,
+`Role Cat`, `Outcomes`, `Notes`, and `Salary` are all editable from the dashboard; changing one
+writes to the database and re-exports the spreadsheet immediately. `Recommendation` is shown as
+a plain badge, not editable - it is the model's fit judgement, not a status you set.
+
+The page is a static file first. Opened with `file://`, or with the server off, `/api/health`
+simply fails and the table stays read-only. Nothing breaks.
+
+Limits are deliberate: loopback only, a closed list of editable fields (or, for Notes/Salary, a
+length cap instead of a vocabulary), and a closed vocabulary of accepted values everywhere else.
+
+**Restart `serve.py` after any code change.** Python does not hot-reload a running process, so
+a long-lived `serve.py` keeps serving whatever code was current when it started - a new field,
+a bug fix, anything - until you stop it and run it again. `/api/health`'s `server_commit` shows
+which commit the running process actually started from; compare it to `git rev-parse --short
+HEAD` if the dashboard seems to be missing something you know shipped.
+
+## Automation
+
+```cron
+0 6 * * * cd /Users/jeff/Dev/jeffreyparks/mission-control && uv run run_daily.py
+```
+
+## Architecture
+
 ### Analysis model
 
 Deterministic where lexical matching is genuinely correct, LLM where judgment is required.
@@ -96,7 +160,7 @@ verdicts automatically. `PROMPT_VERSION` remains as a manual override.
 
 `--refresh-intel` forces a full re-judge. `--no-intel` falls back to the legacy keyword scanner.
 
-## Data model
+### Data model
 
 `data/mission-control.db` is the source of record. `artifacts/jobs/org-roles-tracker.xlsx` is
 re-exported on every write, so the spreadsheet remains a physical backup you can open or restore
@@ -117,30 +181,32 @@ records everything the pipeline has seen. Manual columns are left blank for you,
 already exist are asserted byte-identical. Set `AUTO_ADD_LIVE = False` in `agents/job_intel.py`
 to keep the tracker hand-curated.
 
-## Editable dashboard (optional)
+### Role categories
 
-```bash
-uv run serve.py
-```
+The system proposes an archetype for uncategorised roles and writes it to
+**`Role Cat (suggested)`**. Your manual `Role Cat` column is never written. Suggestions render
+dimmed with a dashed "suggested" chip so a proposal never reads as a fact. When you fill in
+`Role Cat` yourself, the suggestion is cleared.
 
-Serves `artifacts/html/` on `127.0.0.1:8787` and exposes a small JSON API. `Status`, `Priority`,
-`Role Cat`, `Outcomes`, `Notes`, and `Salary` are all editable from the dashboard; changing one
-writes to the database and re-exports the spreadsheet immediately. `Recommendation` is shown as
-a plain badge, not editable - it is the model's fit judgement, not a status you set.
+"none" is an accepted answer. In the current run, 23 of 60 uncategorised roles got a suggestion
+and 37 were left unmapped rather than forced.
 
-The page is a static file first. Opened with `file://`, or with the server off, `/api/health`
-simply fails and the table stays read-only. Nothing breaks.
+### History
 
-Limits are deliberate: loopback only, a closed list of editable fields (or, for Notes/Salary, a
-length cap instead of a vocabulary), and a closed vocabulary of accepted values everywhere else.
+`data/history.db` snapshots every run and computes deltas: new and disappeared roles, fit score
+movement, verdict changes, status changes, and LinkedIn coverage movement. The daily brief opens
+with a "What changed" section. With a single snapshot it says so plainly instead of inventing
+movement.
 
-**Restart `serve.py` after any code change.** Python does not hot-reload a running process, so
-a long-lived `serve.py` keeps serving whatever code was current when it started - a new field,
-a bug fix, anything - until you stop it and run it again. `/api/health`'s `server_commit` shows
-which commit the running process actually started from; compare it to `git rev-parse --short
-HEAD` if the dashboard seems to be missing something you know shipped.
+### Tracker
 
-## Layout
+`artifacts/jobs/org-roles-tracker.xlsx` is the source of record. It is backed up before every
+write. Your manual columns (Role Cat, Priority, Status, Outcomes, Notes) are asserted unchanged
+in code after each update.
+
+Columns added by the system: Fit Score, Fit Rationale, Recommendation, Sector, Days To Outcome.
+
+### Layout
 
 ```
 agents/
@@ -175,72 +241,4 @@ artifacts/
   content/                radar-*.json + .md
   profiles/  synthesis/
 attic/                    retired Streamlit dashboard and one-off scripts
-```
-
-## Commands
-
-```bash
-uv run run_daily.py                 # normal run
-uv run run_daily.py --force-radar   # run the weekly radar now
-uv run run_daily.py --only jobs     # profiles | jobs | radar | synthesis | render
-uv run run_daily.py --refresh-intel # re-judge every role
-uv run run_daily.py --no-intel      # legacy keyword scanner instead of LLM fit
-
-# add one job posting from a URL
-uv run add_role.py <url> [--org X] [--title Y] [--priority 1|2|3] [--notes "..."]
-
-# history / trends
-uv run python agents/history.py --show
-uv run python render/build.py       # rebuild HTML only
-```
-
-Stages are isolated. One failure does not stop the run.
-
-## Cadence rule
-
-Content Radar runs only when the newest `artifacts/content/radar-*.json` is 7 or more days old.
-Everything else runs daily.
-
-## Adding a role
-
-```bash
-uv run add_role.py https://job-boards.greenhouse.io/acme/jobs/123
-```
-
-Fetches the posting (Greenhouse, Lever, Ashby, LinkedIn, or generic), runs one fit analysis,
-appends a row with Status `01 Open` and Source `manual-add`, then rebuilds the HTML.
-
-Refuses duplicates by canonical URL (tracking parameters stripped) and by org+title. Nothing is
-written until the fetch succeeds, so a bad URL never leaves a partial row. Both failure paths
-exit 1.
-
-## Role categories
-
-The system proposes an archetype for uncategorised roles and writes it to
-**`Role Cat (suggested)`**. Your manual `Role Cat` column is never written. Suggestions render
-dimmed with a dashed "suggested" chip so a proposal never reads as a fact. When you fill in
-`Role Cat` yourself, the suggestion is cleared.
-
-"none" is an accepted answer. In the current run, 23 of 60 uncategorised roles got a suggestion
-and 37 were left unmapped rather than forced.
-
-## History
-
-`data/history.db` snapshots every run and computes deltas: new and disappeared roles, fit score
-movement, verdict changes, status changes, and LinkedIn coverage movement. The daily brief opens
-with a "What changed" section. With a single snapshot it says so plainly instead of inventing
-movement.
-
-## Tracker
-
-`artifacts/jobs/org-roles-tracker.xlsx` is the source of record. It is backed up before every
-write. Your manual columns (Role Cat, Priority, Status, Outcomes, Notes) are asserted unchanged
-in code after each update.
-
-Columns added by the system: Fit Score, Fit Rationale, Recommendation, Sector, Days To Outcome.
-
-## Automation
-
-```cron
-0 6 * * * cd /Users/jeff/Dev/jeffreyparks/mission-control && uv run run_daily.py
 ```
