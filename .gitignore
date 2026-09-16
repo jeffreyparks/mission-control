@@ -44,6 +44,16 @@ artifacts/jobs/org-roles-tracker-backup-*.xlsx
 logs/
 data/last-daily-run.txt
 
+# User data (career/job-search content - local record only, not upstream)
+artifacts/jobs/
+artifacts/profiles/
+artifacts/samples/
+artifacts/html/*.html
+data/job-descriptions.json
+data/mission-control.db
+data/org-sectors.json
+data/role-categories.json
+
 # Scratch: probes, one-off repairs, pre-migration copies
 attic/_*.py
 attic/*.xlsx
