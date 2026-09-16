@@ -52,6 +52,9 @@ data/role-categories.json
 # templates/me/ (the placeholders) stays tracked; me/ (your real data) never does.
 /me/
 
+# mc CLI runtime state (dashboard pidfile/log)
+/.mc/
+
 # Scratch: probes, one-off repairs, pre-migration copies
 attic/_*.py
 attic/*.xlsx

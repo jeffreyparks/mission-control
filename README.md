@@ -7,7 +7,8 @@ resume/cv and your LinkedIn PDF export. Define your top target companies, job se
 
 Produces daily job search results and assessments, weekly news topics and thought-starters.
 
-Run `mc dashboard` to browse and edit your results in the browser.
+Run `mc dashboard` to browse and edit your results in the browser (runs in the
+background; `mc dashboard stop` shuts it down).
 
 ## Getting started
 
@@ -37,7 +38,7 @@ Once you're set up:
 mc run                 # pulls new roles, judges fit, rebuilds the pages
 open artifacts/html/index.html
 
-mc dashboard            # optional: browse and edit your results in the browser
+mc dashboard            # optional: browse and edit your results (runs in the background)
 open http://127.0.0.1:8787
 ```
 
@@ -90,7 +91,8 @@ fetch actually succeeds.
 **Want to edit things by hand?** Fire up the dashboard:
 
 ```bash
-mc dashboard
+mc dashboard          # starts in the background, prints the URL, hands your terminal back
+mc dashboard stop     # shuts it down
 ```
 
 It serves your pages on `127.0.0.1:8787` with a small edit API. Status, Priority, Role Cat,
@@ -98,14 +100,19 @@ Outcomes, Notes, and Salary are all editable right there - change one and it's s
 database and the spreadsheet immediately. `Recommendation` is the model's call, not yours to
 overwrite, so it's shown as a plain badge instead.
 
+Running it again while it's already up just tells you it's already running, not a second copy.
+Prefer to watch it run in this terminal instead (Ctrl-C to stop)? `mc dashboard --foreground`.
+Background output goes to `.mc/dashboard.log`.
+
 No server running? The page still opens fine, just read-only - nothing breaks. And it only
 listens on your own machine, with a fixed list of fields and values it will accept - no
 free-for-all editing from a stray request.
 
-One thing to remember: **restart the dashboard after any code change.** It doesn't hot-reload,
-so a long-lived process keeps serving whatever code was current when it started, until you stop
-it and start it again. If something looks stale, check `/api/health` - `server_commit` tells you
-which commit it's actually running, so you can compare it to `git rev-parse --short HEAD`.
+One thing to remember: **restart the dashboard after any code change** (`mc dashboard stop` then
+`mc dashboard`). It doesn't hot-reload, so a long-lived process keeps serving whatever code was
+current when it started, until you stop it and start it again. If something looks stale, check
+`/api/health` - `server_commit` tells you which commit it's actually running, so you can compare
+it to `git rev-parse --short HEAD`.
 
 ## Automation
 
@@ -252,6 +259,7 @@ me/                        your single input folder - gitignored, local only
   linkedin/                optional LinkedIn export
 templates/me/               placeholder scaffold for me/, tracked in git
 .env                        secrets (API keys, BlueSky password) - gitignored, see .env.example
+.mc/                        mc dashboard runtime state (pidfile, log) - gitignored
 data/
   llm-cache/              hash-keyed response cache
 artifacts/
