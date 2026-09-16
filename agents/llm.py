@@ -21,10 +21,18 @@ import time
 from pathlib import Path
 
 import requests
+from dotenv import load_dotenv
 
 import routing
 
+# Repo-root .env, not cwd-relative - every entry point (run_daily.py, serve.py,
+# setup.py, a bare `python agents/llm.py`) must see the same secrets regardless
+# of where it was launched from. Never overrides an already-exported env var.
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+ANTHROPIC_URL = "https://api.anthropic.com/v1/messages"
+ANTHROPIC_VERSION = "2023-06-01"
 AUTH_FILE = Path.home() / ".prime/agent/auth.json"
 
 STRICTER = (
@@ -45,6 +53,17 @@ def _openrouter_key():
         return json.loads(AUTH_FILE.read_text())["openrouter"]["key"]
     except Exception:  # noqa: BLE001
         return None
+
+
+def _anthropic_api_key():
+    return os.environ.get("ANTHROPIC_API_KEY")
+
+
+def llm_backend():
+    """Explicit choice, read from .env / the environment. "cli" (default) uses
+    the local claude CLI under your Claude subscription; "api" bills
+    ANTHROPIC_API_KEY per token. No silent auto-fallback between the two."""
+    return (os.environ.get("LLM_BACKEND") or "cli").strip().lower()
 
 
 class LLM:
@@ -112,6 +131,11 @@ class LLM:
             )
         except subprocess.TimeoutExpired:
             raise LLMError(f"claude CLI timed out after {self.timeout}s")
+        except FileNotFoundError:
+            raise LLMError(
+                "claude CLI not found. Install it and run `claude login`, or "
+                "set LLM_BACKEND=api and ANTHROPIC_API_KEY in .env instead."
+            )
 
         if proc.returncode != 0:
             raise LLMError(f"claude CLI failed ({proc.returncode}): {proc.stderr[:400]}")
@@ -124,6 +148,49 @@ class LLM:
 
         self.stats["cost_usd"] += float(envelope.get("total_cost_usd") or 0.0)
         return envelope.get("result", "")
+
+    def _call_anthropic_api(self, prompt, model=None):
+        """Direct Anthropic Messages API call. Alternative to _call_claude when
+        LLM_BACKEND=api - billed per token instead of riding the CLI subscription."""
+        key = _anthropic_api_key()
+        if not key:
+            raise LLMError(
+                "LLM_BACKEND=api but ANTHROPIC_API_KEY is not set in .env"
+            )
+        model_id = model.split("/", 1)[-1] if model and "/" in model else (model or "claude-sonnet-5")
+        try:
+            resp = requests.post(
+                ANTHROPIC_URL,
+                headers={
+                    "x-api-key": key,
+                    "anthropic-version": ANTHROPIC_VERSION,
+                    "content-type": "application/json",
+                },
+                json={
+                    "model": model_id,
+                    "max_tokens": 4096,
+                    "messages": [{"role": "user", "content": prompt}],
+                },
+                timeout=self.timeout,
+            )
+        except requests.RequestException as exc:
+            raise LLMError(f"anthropic api request failed: {exc}")
+
+        if resp.status_code != 200:
+            raise LLMError(f"anthropic api {resp.status_code}: {resp.text[:300]}")
+        body = resp.json()
+        try:
+            content = "".join(
+                block.get("text", "") for block in body.get("content", [])
+                if block.get("type") == "text"
+            )
+        except Exception:  # noqa: BLE001
+            raise LLMError(f"unexpected anthropic body: {str(body)[:300]}")
+
+        # complete_json() already records calls/seconds per selector after
+        # dispatch returns; the Anthropic API gives token counts, not USD, so
+        # cost_usd (unlike the CLI and OpenRouter paths) is not incremented here.
+        return content
 
     def _call_openrouter(self, prompt, selector):
         key = _openrouter_key()
@@ -163,6 +230,11 @@ class LLM:
     def _dispatch(self, prompt, selector):
         if selector.startswith("openrouter/"):
             return self._call_openrouter(prompt, selector)
+        # anthropic/* selectors and the "claude-cli-default" sentinel both
+        # target Claude; LLM_BACKEND picks which transport reaches it. This
+        # is an explicit choice, never a silent runtime fallback.
+        if llm_backend() == "api":
+            return self._call_anthropic_api(prompt, selector)
         return self._call_claude(prompt, selector)
 
     # ---------- core call ----------

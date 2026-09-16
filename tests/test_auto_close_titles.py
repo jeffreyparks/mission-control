@@ -67,7 +67,8 @@ cols = ["Org","Title","Role Cat","Priority","Date Opened","Date Applied","Status
 seed = pd.DataFrame([{c: None for c in cols}])
 seed.loc[0, ["Org", "Title", "Status"]] = ["Seed Co", "Seed Role", "01 Open"]
 seed.to_excel(work / "artifacts/jobs/org-roles-tracker.xlsx", index=False)
-shutil.copy2(REPO / "config/career-goals.md", work / "config/career-goals.md")
+(work / "me").mkdir(parents=True, exist_ok=True)
+shutil.copy2(REPO / "templates/me/profile.md", work / "me/profile.md")
 (work / "config/job-sources.yaml").write_text("""
 companies: []
 rules:

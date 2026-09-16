@@ -16,7 +16,8 @@ work = Path(tempfile.mkdtemp())
 (work / "artifacts/jobs").mkdir(parents=True)
 (work / "data").mkdir(parents=True)
 (work / "config").mkdir(parents=True)
-shutil.copy2(REPO / "config/career-goals.md", work / "config/career-goals.md")
+(work / "me").mkdir(parents=True, exist_ok=True)
+shutil.copy2(REPO / "templates/me/profile.md", work / "me/profile.md")
 
 cols = ["Org","Title","Role Cat","Priority","Date Opened","Date Applied","Status","Outcomes",
         "Source","Match Score","Keywords Matched","Role Link","Range","Notes","Other Links",

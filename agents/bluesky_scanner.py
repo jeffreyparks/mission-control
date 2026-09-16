@@ -2,12 +2,12 @@
 BlueSky Profile Scanner
 Analyzes BlueSky activity via AT Protocol with custom PDS support
 """
+import os
 import requests
 from datetime import datetime, timedelta
 from pathlib import Path
 from collections import Counter
 import re
-import configparser
 
 class BlueSkyScanner:
     def __init__(self, handle, base_dir):
@@ -17,23 +17,14 @@ class BlueSkyScanner:
         self.session = None
         
     def load_credentials(self):
-        """Load BlueSky credentials from config file"""
-        config_path = self.base_dir / "config/bluesky.conf"
+        """Load BlueSky credentials from the environment (.env: BLUESKY_HANDLE,
+        BLUESKY_APP_PASSWORD, BLUESKY_PDS_URL). No credentials means the scan
+        is skipped - BlueSky scanning is optional."""
+        handle = (os.environ.get('BLUESKY_HANDLE') or '').strip()
+        password = (os.environ.get('BLUESKY_APP_PASSWORD') or '').strip()
+        pds_url = (os.environ.get('BLUESKY_PDS_URL') or '').strip()
         
-        if not config_path.exists():
-            return None, None, None
-        
-        config = configparser.ConfigParser()
-        config.read(config_path)
-        
-        if 'bluesky' not in config:
-            return None, None, None
-        
-        handle = config['bluesky'].get('handle', '').strip()
-        password = config['bluesky'].get('app_password', '').strip()
-        pds_url = config['bluesky'].get('pds_url', '').strip()
-        
-        if not handle or not password or password == 'YOUR_APP_PASSWORD_HERE':
+        if not handle or not password:
             return None, None, None
         
         # Use custom PDS if provided, otherwise default to bsky.social
@@ -48,7 +39,7 @@ class BlueSkyScanner:
         handle, password, pds_url = self.load_credentials()
         
         if not handle or not password:
-            print("⚠️  No credentials found in config/bluesky.conf")
+            print("⚠️  No credentials found - set BLUESKY_HANDLE and BLUESKY_APP_PASSWORD in .env")
             return False
         
         # Create session (use the correct base URL set in load_credentials)
@@ -167,7 +158,7 @@ class BlueSkyScanner:
     
     def load_career_goals(self):
         """Parse career goals from config"""
-        goals_path = self.base_dir / "config/career-goals.md"
+        goals_path = self.base_dir / "me/profile.md"
         if not goals_path.exists():
             return {"keywords": []}
         
@@ -304,7 +295,7 @@ class BlueSkyScanner:
         try:
             # Authenticate
             if not self.authenticate():
-                print(f"✗ Authentication failed - check config/bluesky.conf")
+                print(f"✗ Authentication failed - check BLUESKY_HANDLE/BLUESKY_APP_PASSWORD in .env")
                 return None
             
             # Fetch data
@@ -330,7 +321,7 @@ class BlueSkyScanner:
         except requests.exceptions.HTTPError as e:
             print(f"✗ BlueSky API error: {e}")
             if e.response.status_code == 401:
-                print(f"  Check credentials in config/bluesky.conf")
+                print(f"  Check credentials in .env (BLUESKY_HANDLE / BLUESKY_APP_PASSWORD)")
             elif e.response.status_code == 404:
                 print(f"  Handle not found: @{self.handle}")
             return None
@@ -341,5 +332,6 @@ class BlueSkyScanner:
             return None
 
 if __name__ == "__main__":
-    scanner = BlueSkyScanner("jeff.at.arjentic.ai", Path(__file__).parent.parent)
+    import os as _os
+    scanner = BlueSkyScanner(_os.environ.get("BLUESKY_HANDLE", ""), Path(__file__).parent.parent)
     scanner.run()

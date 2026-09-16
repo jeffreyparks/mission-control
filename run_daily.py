@@ -18,12 +18,16 @@ Usage:
 """
 import argparse
 import json
+import os
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 BASE = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE / "agents"))
+load_dotenv(BASE / ".env")
 
 RADAR_INTERVAL_DAYS = 7
 
@@ -80,12 +84,21 @@ def run_profiles():
     from linkedin_scanner import LinkedInScanner
     from bluesky_scanner import BlueSkyScanner
 
+    github_user = os.environ.get("GITHUB_USERNAME", "").strip()
+    bluesky_handle = os.environ.get("BLUESKY_HANDLE", "").strip()
+
+    runners = [("linkedin", lambda: LinkedInScanner(BASE).run())]
+    if github_user:
+        runners.insert(0, ("github", lambda: GitHubScanner(github_user, BASE).run()))
+    else:
+        log("   github scanner skipped (GITHUB_USERNAME not set in .env)")
+    if bluesky_handle:
+        runners.append(("bluesky", lambda: BlueSkyScanner(bluesky_handle, BASE).run()))
+    else:
+        log("   bluesky scanner skipped (BLUESKY_HANDLE not set in .env)")
+
     done = []
-    for label, runner_fn in (
-        ("github", lambda: GitHubScanner("jeffreyparks", BASE).run()),
-        ("linkedin", lambda: LinkedInScanner(BASE).run()),
-        ("bluesky", lambda: BlueSkyScanner("jeff.at.arjentic.ai", BASE).run()),
-    ):
+    for label, runner_fn in runners:
         try:
             if runner_fn():
                 done.append(label)

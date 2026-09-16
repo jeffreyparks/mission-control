@@ -1,0 +1,3 @@
+<!-- Replace this file with your resume, plain text is fine.
+Or drop a resume.pdf in this same folder instead - it will be parsed
+automatically and cached here as resume.txt on first run. -->

@@ -20,7 +20,8 @@ work = Path(tempfile.mkdtemp())
 (work / "config").mkdir(parents=True)
 (work / "artifacts/jobs").mkdir(parents=True)
 (work / "data").mkdir(parents=True)
-shutil.copy2(REPO / "config/career-goals.md", work / "config/career-goals.md")
+(work / "me").mkdir(parents=True, exist_ok=True)
+shutil.copy2(REPO / "templates/me/profile.md", work / "me/profile.md")
 
 cols = list(__import__("store").COLUMN_MAP.keys())
 rows = [
@@ -34,7 +35,7 @@ intel = JobIntel(work)
 df = intel.load_tracker()
 roles = intel.tracker_roles(df)
 archetypes = load_archetypes(work, df)
-check("archetypes loaded from career-goals.md", len(archetypes) > 0, str(len(archetypes)))
+check("archetypes loaded from me/profile.md", len(archetypes) > 0, str(len(archetypes)))
 
 first_id = archetypes[0]["id"]
 first_label = archetypes[0]["label"]

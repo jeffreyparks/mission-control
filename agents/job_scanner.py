@@ -29,7 +29,7 @@ class JobScanner:
     
     def load_career_goals(self):
         """Parse career goals from config"""
-        goals_path = self.base_dir / "config/career-goals.md"
+        goals_path = self.base_dir / "me/profile.md"
         if not goals_path.exists():
             return {"keywords": []}
         

@@ -5,6 +5,24 @@ Career operations automation. Two feeds, separate cadences, judged by the same s
 Output is three static HTML pages. The source of record is a SQLite database; the Excel
 tracker is exported on every run and stays a real physical backup.
 
+## Getting started
+
+```bash
+uv run setup.py                      # one command: scaffold me/, enter your basics, first run
+```
+
+`me/` is your single input folder - resume, target roles, optional LinkedIn export. `.env`
+holds secrets (API keys, BlueSky app password). Both are gitignored; `templates/me/` and
+`.env.example` ship in the repo so a fresh checkout always has something to copy from. See
+`me/README.md` (created on first run) for what each file does.
+
+```bash
+uv run setup.py --status             # what's configured, no prompts, no LLM calls
+uv run setup.py --dry-run            # preview scan scope before spending anything
+```
+
+Once `me/` and `.env` are filled in:
+
 ```bash
 uv run run_daily.py                  # respects cadences, rebuilds HTML
 open artifacts/html/index.html       # read-only
@@ -27,7 +45,7 @@ Deterministic where lexical matching is genuinely correct, LLM where judgment is
 
 - **Keyword coverage is used for LinkedIn only.** LinkedIn search and ATS parsing are literally
   lexical, so the metric is meaningful there. It is not used anywhere else.
-- **Everything else uses LLM inference** against ground truth: `config/career-goals.md` plus your
+- **Everything else uses LLM inference** against ground truth: `me/profile.md` plus your
   parsed resume.
 
 Prompts explicitly reward negative and empty verdicts. "Nothing this week", "no change", and
@@ -38,8 +56,10 @@ and 10 of 12 repos as no-change. That is the system working.
 
 `agents/llm.py` speaks to two backends and picks one per call:
 
-- the local **`claude` CLI** in headless mode (no API key, runs on your subscription)
-- **OpenRouter** for cheap open-weight models
+- **Claude**, via either the local `claude` CLI (subscription, no API key) or the Anthropic API
+  directly (`ANTHROPIC_API_KEY`, billed per token) - choose explicitly with `LLM_BACKEND=cli|api`
+  in `.env`; default is `cli`
+- **OpenRouter** for cheap open-weight models (`OPENROUTER_API_KEY` in `.env`)
 
 `agents/routing.py` decides, reading the machine-wide compute-routing policy at
 `~/.prime/agent/skills/compute-routing/config.toml`. `config/model-routing.toml` maps each call
@@ -127,7 +147,7 @@ agents/
   llm.py              LLM client, hash-cached, routed
   routing.py          tag -> tier -> model selector
   store.py            SQLite source of record + xlsx export
-  context.py          ground truth: career goals + resume
+  context.py          ground truth: me/profile.md + me/resume
   job_intel.py        fit analysis, org enrichment, outcome timing   (daily)
   content_radar.py    full-article fetch + editorial brief           (weekly)
   job_scanner.py      Greenhouse / Lever fetchers (used by job_intel)
@@ -138,12 +158,16 @@ render/
   theme.css           shared design system
   index / radar / tracker .html.j2
 config/
-  career-goals.md         positioning + keywords  (ground truth)
-  content-sources.yaml    RSS feeds
-  job-sources.yaml        target companies + rules
+  content-sources.yaml    RSS feeds (project defaults)
+  job-sources.yaml        target companies + rules (project defaults)
+  model-routing.toml      tag -> tier map, versioned with the pipeline
+me/                        your single input folder - gitignored, local only
+  profile.md               positioning + keywords  (ground truth)
+  resume.pdf / resume.txt  parsed into LLM context automatically
+  linkedin/                optional LinkedIn export
+templates/me/               placeholder scaffold for me/, tracked in git
+.env                        secrets (API keys, BlueSky password) - gitignored, see .env.example
 data/
-  resumes/*.pdf           parsed into LLM context automatically
-  linkedin/profile.pdf    LinkedIn export
   llm-cache/              hash-keyed response cache
 artifacts/
   html/                   the three rendered pages

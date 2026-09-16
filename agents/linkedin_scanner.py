@@ -12,19 +12,19 @@ import json
 class LinkedInScanner:
     def __init__(self, base_dir):
         self.base_dir = Path(base_dir)
-        self.export_path = self.base_dir / "data/linkedin/linkedin-export.zip"
-        self.extract_dir = self.base_dir / "data/linkedin/extracted"
+        self.export_path = self.base_dir / "me/linkedin/linkedin-export.zip"
+        self.extract_dir = self.base_dir / "me/linkedin/extracted"
 
     def check_pdf_exists(self):
         """Check if PDF profile exists"""
-        pdf_path = self.base_dir / "data/linkedin/profile.pdf"
+        pdf_path = self.base_dir / "me/linkedin/profile.pdf"
         return pdf_path.exists()
     
     def parse_pdf_profile(self):
         """Parse LinkedIn PDF profile export"""
         from pypdf import PdfReader
         
-        pdf_path = self.base_dir / "data/linkedin/profile.pdf"
+        pdf_path = self.base_dir / "me/linkedin/profile.pdf"
         reader = PdfReader(pdf_path)
         
         # Extract all text
@@ -281,7 +281,7 @@ class LinkedInScanner:
     
     def load_career_goals(self):
         """Parse career goals from config"""
-        goals_path = self.base_dir / "config/career-goals.md"
+        goals_path = self.base_dir / "me/profile.md"
         if not goals_path.exists():
             return {"keywords": []}
         
@@ -408,8 +408,8 @@ class LinkedInScanner:
         # Fall back to ZIP export if no PDF or PDF failed
         if not self.check_export_exists():
             print(f"❌ LinkedIn export not found")
-            print(f"   Drop profile.pdf OR linkedin-export.zip in: {self.base_dir}/data/linkedin/")
-            print(f"   See: {self.base_dir}/data/linkedin/README.md for instructions")
+            print(f"   Drop profile.pdf OR linkedin-export.zip in: {self.base_dir}/me/linkedin/")
+            print(f"   See: {self.base_dir}/me/linkedin/README.md for instructions")
             return None
         
         print(f"Extracting LinkedIn export...")

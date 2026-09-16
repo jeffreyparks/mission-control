@@ -47,7 +47,8 @@ work = Path(tempfile.mkdtemp())
 (work / "config").mkdir(parents=True)
 (work / "artifacts/jobs").mkdir(parents=True)
 (work / "data").mkdir(parents=True)
-shutil.copy2(REPO / "config/career-goals.md", work / "config/career-goals.md")
+(work / "me").mkdir(parents=True, exist_ok=True)
+shutil.copy2(REPO / "templates/me/profile.md", work / "me/profile.md")
 shutil.copy2(REPO / "config/job-sources.yaml", work / "config/job-sources.yaml")
 
 import pandas as pd

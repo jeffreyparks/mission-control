@@ -31,7 +31,8 @@ rows = [
 ]
 pd.DataFrame(rows, columns=cols).to_excel(work / "artifacts/jobs/org-roles-tracker.xlsx", index=False)
 (work / "artifacts/html/job-tracker.html").write_text("<html>stub</html>")
-shutil.copy2(REPO / "config/career-goals.md", work / "config/career-goals.md")
+(work / "me").mkdir(parents=True, exist_ok=True)
+shutil.copy2(REPO / "templates/me/profile.md", work / "me/profile.md")
 
 # A minimal but real intel snapshot, so GET /job-tracker.html exercises the
 # live-overlay render path instead of falling back to the static stub above.
@@ -171,7 +172,7 @@ try:
           "recommendation" not in health["editable"])
     check("outcomes is editable", "outcomes" in health["editable"], str(health["editable"].get("outcomes")))
     check("role_cat is editable", "role_cat" in health["editable"], str(health["editable"].get("role_cat")))
-    check("role_cat vocabulary is populated from career-goals.md",
+    check("role_cat vocabulary is populated from me/profile.md",
           len(health["editable"].get("role_cat", [])) > 1, str(health["editable"].get("role_cat")))
 
     pri = requests.post(f"{API}/api/role/{rid}", json={"field": "priority", "value": "2"}, timeout=5).json()

@@ -7,7 +7,7 @@ Fetching stays where it works: JobScanner.fetch_greenhouse_jobs / fetch_lever_jo
 WHAT IT DOES
   1. FIT ANALYSIS   - every tracker role + a prefiltered slice of live roles is judged
                       by the LLM in batches (~16 roles per call), against the candidate
-                      context block (career-goals.md + resume).
+                      context block (me/profile.md + resume).
   2. ORG ENRICHMENT - one batched call labels each distinct org with a sector sub-line
                       ("Tech - Advertising", "Healthcare - Health Tech"). Cached on disk.
   3. OUTCOME TIMING - parses free-text Outcomes ("Rejected (2d)") and/or Date Applied vs
@@ -279,21 +279,21 @@ def parse_outcome(outcome_text, date_applied=None, last_updated=None):
 
 
 # --------------------------------------------------------------------------
-# role archetypes (career-goals.md "## Target Roles")
+# role archetypes (me/profile.md "## Target Roles")
 # --------------------------------------------------------------------------
 
 _TARGET_ROLE_RE = re.compile(r"^\s*(\d+)\.\s+(.+?)\s*$")
 
 
 def load_archetypes(base_dir, tracker_df=None):
-    """Return [{"id": "01", "label": ..., "description": ...}] from career-goals.md.
+    """Return [{"id": "01", "label": ..., "description": ...}] from me/profile.md.
 
     The numbered list under "## Target Roles" is the source of truth for the set.
     Where the user already uses a label in the tracker's Role Cat column for the
     same number, that exact label wins, so suggestions read like the user's own
     vocabulary instead of a paraphrase.
     """
-    path = Path(base_dir) / "config/career-goals.md"
+    path = Path(base_dir) / "me/profile.md"
     if not path.exists():
         return []
 
@@ -953,7 +953,7 @@ Return ONLY a JSON array, one object per role, echoing the id exactly:
         fingerprint. Returns the number of roles sent to the model.
         """
         if not archetypes:
-            print("  categorisation: no archetypes in career-goals.md, skipped")
+            print("  categorisation: no archetypes in me/profile.md, skipped")
             return 0
 
         cache = self.load_cat_cache()

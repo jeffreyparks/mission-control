@@ -81,8 +81,8 @@ class GitHubScanner:
         }
     
     def load_career_goals(self):
-        """Parse career goals from config"""
-        goals_path = self.base_dir / "config/career-goals.md"
+        """Parse career goals from me/profile.md"""
+        goals_path = self.base_dir / "me/profile.md"
         if not goals_path.exists():
             return {"keywords": []}
         
@@ -109,7 +109,7 @@ class GitHubScanner:
         """Check alignment between activity and career goals"""
         keywords = set(goals.get("keywords", []))
         if not keywords:
-            return {"status": "No keywords defined in career-goals.md"}
+            return {"status": "No keywords defined in me/profile.md"}
         
         # Check languages
         languages_str = " ".join(analysis["languages"].keys()).lower()

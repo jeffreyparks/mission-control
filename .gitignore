@@ -17,13 +17,7 @@ __pycache__/
 # Mission Control
 artifacts/content/*
 artifacts/history/*
-data/linkedin/extracted/
-data/linkedin/*.zip
-data/linkedin/*.pdf
 data/llm-cache/*.json
-data/resumes/*.pdf
-data/resumes/*.docx
-data/resumes/*.txt
 history.db
 
 
@@ -53,6 +47,10 @@ data/job-descriptions.json
 data/mission-control.db
 data/org-sectors.json
 data/role-categories.json
+
+# Personal onboarding data - single input folder, local machine only.
+# templates/me/ (the placeholders) stays tracked; me/ (your real data) never does.
+/me/
 
 # Scratch: probes, one-off repairs, pre-migration copies
 attic/_*.py

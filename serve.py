@@ -58,7 +58,7 @@ WEB_ROOT = BASE / "artifacts/html"
 # Fields the dashboard may write, and the values it may write for them. A closed
 # vocabulary keeps a stray request from inventing a status or a category that
 # does not exist. status/priority/recommendation are fixed; role_cat and
-# outcomes are computed at startup from your own data (career-goals.md and the
+# outcomes are computed at startup from your own data (me/profile.md and the
 # tracker's existing labels), so they can never drift from what the rest of
 # the pipeline understands.
 EDITABLE = {
@@ -298,7 +298,7 @@ def serve(host="127.0.0.1", port=8787, base=BASE, quiet=False):
     try:
         archetypes = load_archetypes(base, store.to_df())
         editable["role_cat"] = [""] + [a["label"] for a in archetypes]
-    except Exception:  # noqa: BLE001 - a missing career-goals.md must not break serving
+    except Exception:  # noqa: BLE001 - a missing me/profile.md must not break serving
         editable["role_cat"] = [""]
 
     # A fresh Handler subclass per server, not the shared base class: Handler.store
