@@ -112,7 +112,7 @@ which commit it's actually running, so you can compare it to `git rev-parse --sh
 Want this running on its own every morning?
 
 ```cron
-0 6 * * * cd /Users/jeff/Dev/jeffreyparks/mission-control && mc run
+0 6 * * * cd /path-to-this-repo/mission-control && mc run
 ```
 
 ## Architecture
