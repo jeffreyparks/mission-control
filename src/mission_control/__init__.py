@@ -66,8 +66,13 @@ def main():
                     help="run the daily pipeline")
     sub.add_parser("dashboard", add_help=False,
                     help="editable local dashboard")
+    sub.add_parser("help", add_help=False,
+                    help="show this list of commands")
 
     args, remainder = ap.parse_known_args()
+    if args.command == "help":
+        ap.print_help()
+        return 0
     return _run_script(SCRIPTS[args.command], remainder)
 
 

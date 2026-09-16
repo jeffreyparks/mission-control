@@ -12,34 +12,39 @@ Run `mc dashboard` to browse and edit your results in the browser.
 ## Getting started
 
 ```bash
-uv sync                              # sync packages, installs the `mc` command
-uv run mc setup                      # one command: scaffold me/, enter your basics, first run
+uv sync              # installs everything, including the `mc` command
+uv run mc setup      # one command: set up your `me/` folder and do a first run
 ```
 
-`me/` is your single input folder - resume, target roles, optional LinkedIn export. `.env`
-holds secrets (API keys, BlueSky app password). Both are gitignored; `templates/me/` and
-`.env.example` ship in the repo so a fresh checkout always has something to copy from. See
-`me/README.md` (created on first run) for what each file does.
+`mc setup` walks you through it - drop in your resume, write a couple lines about what you're
+after, and you're basically done. Everything you enter lives in `me/`: your resume, your goals,
+an optional LinkedIn export. None of it gets committed to git.
+
+Secrets (API keys, your BlueSky app password) go in `.env` instead, also gitignored. Both `me/`
+and `.env` start from templates already in the repo, so a fresh clone always has something to
+copy from - see `me/README.md` (created on first run) for what each file is.
+
+Want to peek before running anything for real?
 
 ```bash
-uv run mc setup --status             # what's configured, no prompts, no LLM calls
-uv run mc setup --dry-run            # preview scan scope before spending anything
+uv run mc setup --status    # what's filled in, what's missing - no LLM calls
+uv run mc setup --dry-run   # see what a real run would scan - still no LLM calls
 ```
 
-Once `me/` and `.env` are filled in:
+Once you're set up:
 
 ```bash
-uv run mc run                        # respects cadences, rebuilds HTML
-open artifacts/html/index.html       # read-only
+uv run mc run                 # pulls new roles, judges fit, rebuilds the pages
+open artifacts/html/index.html
 
-uv run mc dashboard                  # optional: editable dashboard on localhost
+uv run mc dashboard            # optional: browse and edit your results in the browser
 open http://127.0.0.1:8787
 ```
 
-`uv run mc <command>` works from inside the repo with no install step. Run
-`uv tool install --editable .` once to get bare `mc setup` / `mc run` / `mc dashboard`
-on your PATH from anywhere. The underlying scripts (`setup.py`, `run_daily.py`,
-`dashboard.py`) still work standalone too - `mc` is a thin wrapper, not a replacement.
+`uv run mc <command>` just works from inside the repo, no install step needed. If you'd rather
+type `mc setup` on its own from anywhere, run `uv tool install --editable .` once and it's on
+your PATH. (`setup.py`, `run_daily.py`, and `dashboard.py` still run directly too, if you
+prefer that - `mc` is just a shortcut on top.) Forgot the commands? `uv run mc help` lists them.
 
 ## What it does
 
@@ -66,46 +71,45 @@ uv run python agents/history.py --show
 uv run python render/build.py       # rebuild HTML only
 ```
 
-Stages are isolated. One failure does not stop the run.
+Each stage runs on its own - if one fails, the rest still finish.
 
-**Cadence rule:** Content Radar runs only when the newest `artifacts/content/radar-*.json` is
-7 or more days old. Everything else runs daily.
+**Cadence:** Content Radar only runs about once a week (whenever the newest radar file is 7+
+days old). Everything else runs every day.
 
-**Adding a role by hand:**
+**Found a role the scanner missed?** Add it yourself:
 
 ```bash
 uv run add_role.py https://job-boards.greenhouse.io/acme/jobs/123
 ```
 
-Fetches the posting (Greenhouse, Lever, Ashby, LinkedIn, or generic), runs one fit analysis,
-appends a row with Status `01 Open` and Source `manual-add`, then rebuilds the HTML. Refuses
-duplicates by canonical URL (tracking parameters stripped) and by org+title. Nothing is written
-until the fetch succeeds, so a bad URL never leaves a partial row. Both failure paths exit 1.
+It fetches the posting (Greenhouse, Lever, Ashby, LinkedIn, or generic), runs one fit check, and
+appends a row - Status `01 Open`, Source `manual-add` - then rebuilds the HTML. It won't add the
+same role twice (checked by URL and by org+title), and it won't write anything at all unless the
+fetch actually succeeds.
 
-**Editable dashboard (optional):**
+**Want to edit things by hand?** Fire up the dashboard:
 
 ```bash
 uv run mc dashboard
 ```
 
-Serves `artifacts/html/` on `127.0.0.1:8787` and exposes a small JSON API. `Status`, `Priority`,
-`Role Cat`, `Outcomes`, `Notes`, and `Salary` are all editable from the dashboard; changing one
-writes to the database and re-exports the spreadsheet immediately. `Recommendation` is shown as
-a plain badge, not editable - it is the model's fit judgement, not a status you set.
+It serves your pages on `127.0.0.1:8787` with a small edit API. Status, Priority, Role Cat,
+Outcomes, Notes, and Salary are all editable right there - change one and it's saved to the
+database and the spreadsheet immediately. `Recommendation` is the model's call, not yours to
+overwrite, so it's shown as a plain badge instead.
 
-The page is a static file first. Opened with `file://`, or with the server off, `/api/health`
-simply fails and the table stays read-only. Nothing breaks.
+No server running? The page still opens fine, just read-only - nothing breaks. And it only
+listens on your own machine, with a fixed list of fields and values it will accept - no
+free-for-all editing from a stray request.
 
-Limits are deliberate: loopback only, a closed list of editable fields (or, for Notes/Salary, a
-length cap instead of a vocabulary), and a closed vocabulary of accepted values everywhere else.
-
-**Restart `mc dashboard` after any code change.** Python does not hot-reload a running process,
-so a long-lived dashboard process keeps serving whatever code was current when it started - a
-new field, a bug fix, anything - until you stop it and run it again. `/api/health`'s
-`server_commit` shows which commit the running process actually started from; compare it to
-`git rev-parse --short HEAD` if the dashboard seems to be missing something you know shipped.
+One thing to remember: **restart the dashboard after any code change.** It doesn't hot-reload,
+so a long-lived process keeps serving whatever code was current when it started, until you stop
+it and start it again. If something looks stale, check `/api/health` - `server_commit` tells you
+which commit it's actually running, so you can compare it to `git rev-parse --short HEAD`.
 
 ## Automation
+
+Want this running on its own every morning?
 
 ```cron
 0 6 * * * cd /Users/jeff/Dev/jeffreyparks/mission-control && uv run mc run
