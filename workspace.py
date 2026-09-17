@@ -108,9 +108,20 @@ def load_env(ws=None):
     the profile scanners skip themselves - which is safer than silently falling
     back to whoever ran last.
     """
+    import os
+
     from dotenv import load_dotenv
 
     load_dotenv(REPO / ".env")
+
+    # Identity may ONLY come from the workspace. Clearing these between the two
+    # loads means a stale key in the shared repo .env - or one left in the
+    # ambient environment - can never be inherited by a workspace that does not
+    # set it itself. Without this, a workspace with no .env silently adopts
+    # whoever the shared file names, and scans the wrong person's accounts.
+    for key in IDENTITY_KEYS:
+        os.environ.pop(key, None)
+
     if ws is not None:
         load_dotenv(env_path(ws), override=True)
     return ws

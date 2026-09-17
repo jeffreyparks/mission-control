@@ -244,16 +244,11 @@ def wizard():
 
 
 def _set_env(key, value):
-    lines = ENV_PATH.read_text().splitlines() if ENV_PATH.exists() else []
-    found = False
-    for i, line in enumerate(lines):
-        if line.strip().startswith(f"{key}="):
-            lines[i] = f"{key}={value}"
-            found = True
-            break
-    if not found:
-        lines.append(f"{key}={value}")
-    ENV_PATH.write_text("\n".join(lines) + "\n")
+    """Write to whichever file owns this key: identity to the workspace, machine
+    secrets to the repo. Writing every key to the repo .env - as this function
+    used to - silently put one person's identity in the file every workspace
+    shares."""
+    workspace.set_env(_env_file(key), key, value)
 
 
 def main():
