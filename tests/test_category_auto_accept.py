@@ -29,7 +29,8 @@ rows = [
     {**{c: None for c in cols}, "Org": "Widgets", "Title": "Support Rep", "Status": "01 Open",
      "Role Cat": "06 Head of AI at Non-AI Native"},  # user already set this one
 ]
-pd.DataFrame(rows, columns=cols).to_excel(work / "artifacts/jobs/org-roles-tracker.xlsx", index=False)
+from store import Store
+Store(work).save_df(pd.DataFrame(rows, columns=cols), actor="test-seed")
 
 intel = JobIntel(work)
 df = intel.load_tracker()
@@ -65,7 +66,7 @@ check("role 1 was never even given a suggestion (it was skipped entirely)",
 df, added = intel.append_new_finds(df, roles)  # no-op: both roles already have row_index
 intel.update_tracker(df, roles)
 
-reloaded = pd.read_excel(work / "artifacts/jobs/org-roles-tracker.xlsx")
+reloaded = Store(work).to_df()
 acme_row = reloaded[reloaded["Org"] == "Acme"].iloc[0]
 widgets_row = reloaded[reloaded["Org"] == "Widgets"].iloc[0]
 check("tracker Role Cat is auto-filled for the previously-blank row",
@@ -87,9 +88,13 @@ archetypes2 = load_archetypes(work, df2)
 made2 = intel2.categorize_roles(roles2, archetypes2)
 check("second run makes no LLM call (already has Role Cat, skipped up front)", made2 == 0, str(made2))
 
-# A user can still change an auto-accepted category by hand afterward.
-reloaded.loc[reloaded["Org"] == "Acme", "Role Cat"] = "02 Field CTO / Head AI Solutions at Vendor"
-reloaded.to_excel(work / "artifacts/jobs/org-roles-tracker.xlsx", index=False)
+# A user can still change an auto-accepted category afterward - through the
+# dashboard now, which writes straight to the store, rather than by hand in a
+# spreadsheet.
+_store = Store(work)
+_acme_id = _store.to_df().query('Org == "Acme"').iloc[0]["_id"]
+_store.set_field(_acme_id, "role_cat", "02 Field CTO / Head AI Solutions at Vendor",
+                  actor="dashboard")
 intel3 = JobIntel(work)
 intel3.llm.complete_json = _boom
 df3 = intel3.load_tracker()

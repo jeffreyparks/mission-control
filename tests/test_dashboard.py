@@ -29,7 +29,7 @@ rows = [
     {**{c: None for c in cols}, "Org": "Acme", "Title": "Head of Measurement", "Status": "01 Open", "Priority": 1},
     {**{c: None for c in cols}, "Org": "Beta", "Title": "Director, Analytics", "Status": "03 Applied"},
 ]
-pd.DataFrame(rows, columns=cols).to_excel(work / "artifacts/jobs/org-roles-tracker.xlsx", index=False)
+_seed = pd.DataFrame(rows, columns=cols)
 (work / "artifacts/html/job-tracker.html").write_text("<html>stub</html>")
 (work / "me").mkdir(parents=True, exist_ok=True)
 shutil.copy2(REPO / "templates/me/profile.md", work / "me/profile.md")
@@ -54,7 +54,7 @@ intel_fixture = {
 }
 
 store = Store(work)
-store.load(verbose=False)
+store.save_df(_seed, actor="test-seed")
 rid = store.to_df().iloc[0]["_id"]
 
 intel_fixture["roles"][0]["store_id"] = rid
@@ -82,8 +82,10 @@ try:
     fresh = Store(work).to_df()
     check("db holds the new status", fresh.iloc[0]["Status"] == "04 Closed", str(fresh.iloc[0]["Status"]))
 
-    exported = pd.read_excel(work / "artifacts/jobs/org-roles-tracker.xlsx")
-    check("xlsx re-exported on write", exported.iloc[0]["Status"] == "04 Closed", str(exported.iloc[0]["Status"]))
+    # The database is the only record now - no spreadsheet is written on a change.
+    check("the write lands in the database", fresh.iloc[0]["Status"] == "04 Closed",
+          str(fresh.iloc[0]["Status"]))
+    check("no spreadsheet is produced", not list((work / "artifacts/jobs").glob("*.xlsx")))
 
     again = requests.post(f"{API}/api/role/{rid}", json={"field": "status", "value": "04 Closed"}, timeout=5).json()
     check("idempotent write reports no change", again.get("changed") is False, str(again))
@@ -127,7 +129,7 @@ try:
     for sub in ("artifacts/jobs", "artifacts/html", "data", "config"):
         (empty_work / sub).mkdir(parents=True)
     (empty_work / "artifacts/html/job-tracker.html").write_text("<html>stub, no intel yet</html>")
-    pd.DataFrame(rows, columns=cols).to_excel(empty_work / "artifacts/jobs/org-roles-tracker.xlsx", index=False)
+    Store(empty_work).save_df(pd.DataFrame(rows, columns=cols), actor="test-seed")
     httpd2 = srv.serve(port=8800, base=empty_work, quiet=True)
     threading.Thread(target=httpd2.serve_forever, daemon=True).start()
     time.sleep(0.3)

@@ -166,7 +166,7 @@ def write_fit(intel, df, idx, role):
         df.at[idx, column] = value
 
     _assert_manual_untouched(before, df)
-    df.to_excel(intel.tracker_path, index=False)
+    intel.save_tracker(df, actor="add-role")
     return df
 
 
@@ -245,7 +245,7 @@ def main(argv=None):
     intel.save_jd_cache()
 
     df, idx = append_row(intel, df, posting, priority=args.priority, notes=args.notes)
-    df.to_excel(intel.tracker_path, index=False)
+    intel.save_tracker(df, actor="add-role")
     print(f"  added row {idx + 1}: {posting['org']} - {posting['title']}")
 
     # Rebuild the role exactly as job_intel.py sees it, so the one call we make here

@@ -54,7 +54,7 @@ shutil.copy2(REPO / "config/job-sources.yaml", work / "config/job-sources.yaml")
 import pandas as pd
 cols = list(__import__("store").COLUMN_MAP.keys())
 seed_df = pd.DataFrame([{**{c: None for c in cols}, "Org": "Seed Co", "Title": "Seed Role", "Status": "01 Open"}])
-seed_df.to_excel(work / "artifacts/jobs/org-roles-tracker.xlsx", index=False)
+__import__("store").Store(work).save_df(seed_df, actor="test-seed")
 
 intel = JobIntel(work, max_live_roles=0)
 check("max_live_roles is stored as given", intel.max_live_roles == 0)

@@ -1,7 +1,5 @@
 
-import sys, os, pathlib, tempfile, pandas as pd, datetime, shutil, numpy as np
-# add uv site-packages for openpyxl
-sys.path.append(r"/Users/jeff/.local/share/uv/python/cpython-3.11-macos-aarch64-none/lib/python311/site-packages")
+import sys, os, pathlib, tempfile, pandas as pd, datetime, shutil, numpy as np, sqlite3
 # ensure store module is importable
 sys.path.insert(0, r"/Users/jeff/Dev/jeffreyparks/mission-control/agents")
 from store import Store, COLUMN_MAP
@@ -19,9 +17,9 @@ def make_store(df):
     base = tempfile.mkdtemp()
     base_path = pathlib.Path(base)
     (base_path / "artifacts/jobs").mkdir(parents=True, exist_ok=True)
-    xlsx_path = base_path / "artifacts/jobs/org-roles-tracker.xlsx"
-    df.to_excel(xlsx_path, index=False)
-    return Store(base), base_path, xlsx_path
+    store = Store(base)
+    store.save_df(df, actor="seed")
+    return store, base_path
 
 cols = list(COLUMN_MAP.keys())
 
@@ -61,9 +59,9 @@ row1.update({"Org": "Acme", "Title": "Engineer", "Status": "Open", "Priority": 1
 row2 = {col: None for col in cols}
 row2.update({"Org": "Beta", "Title": "Analyst", "Status": "Closed", "Priority": 2})
 base_df = pd.DataFrame([row1, row2])
-store, base_path, xlsx_path = make_store(base_df)
+store, base_path = make_store(base_df)
 loaded = store.load()
-check('load_migrates_row_count', len(loaded) == len(base_df))
+check('load_row_count', len(loaded) == len(base_df))
 match = True
 msg = ''
 for col in cols:
@@ -82,36 +80,38 @@ check('load_idempotent_row_count', store.count() == len(base_df))
 changes = store.history()
 check('load_idempotent_changes_count', len(changes) == len(base_df))
 
-# 3. hand edit xlsx status change
-mod_df = loaded.copy()
-mod_df.at[0, "Status"] = "InProgress"
-mod_df.to_excel(xlsx_path, index=False)
-os.utime(xlsx_path, None)
-store.load()
-loaded = store.load()  # refresh after edit
-log = store.history()
-actor_entries = [c for c in log if c['actor'] == 'xlsx-edit']
-check('xlsx_edit_logged', any(e['field'] == 'status' and e['old_value'] == 'Open' and e['new_value'] == 'InProgress' for e in actor_entries))
+# 3. the database is backed up WAL-safely, and rotates
+backup = store.backup_db()
+check('backup_db_created', backup.exists())
+conn = sqlite3.connect(backup)
+backed_up = conn.execute("select count(*) from roles").fetchone()[0]
+conn.close()
+check('backup_db_complete', backed_up == store.count(), f"{backed_up} vs {store.count()}")
 
-# 4. export roundtrip
-export_path = store.export_xlsx()
-new_base = tempfile.mkdtemp()
-new_path = pathlib.Path(new_base) / "artifacts/jobs/org-roles-tracker.xlsx"
-new_path.parent.mkdir(parents=True, exist_ok=True)
-shutil.copy2(export_path, new_path)
-new_store = Store(new_base)
-new_df = new_store.load()
-match2 = True
-msg2 = ''
-for col in cols:
-    for i in range(len(loaded)):
-        if not _same(loaded.at[i, col], new_df.at[i, col]):
-            match2 = False
-            msg2 = f"col {col} row {i} loaded {loaded.at[i,col]!r} exported {new_df.at[i,col]!r}"
-            break
-    if not match2:
-        break
-check('export_roundtrip_equal', match2, msg2)
+for _ in range(9):
+    import time as _t; _t.sleep(1.02)
+    store.backup_db(keep=3)
+kept = list((base_path / "data/backups").glob("mission-control-*.db"))
+check('backup_db_rotates', len(kept) == 3, str(len(kept)))
+
+# 4. the CSV copy is complete, readable without this tool, and rotates
+csv_path = store.export_csv()
+csv_df = pd.read_csv(csv_path)
+check('csv_row_count', len(csv_df) == len(loaded), f"{len(csv_df)} vs {len(loaded)}")
+check('csv_has_display_headers', 'Org' in csv_df.columns and 'Status' in csv_df.columns,
+      str(list(csv_df.columns)[:4]))
+check('csv_omits_internal_id', '_id' not in csv_df.columns)
+check('csv_values_match', str(csv_df.iloc[0]['Org']) == str(loaded.iloc[0]['Org']),
+      f"{csv_df.iloc[0]['Org']!r} vs {loaded.iloc[0]['Org']!r}")
+
+for _ in range(4):
+    import time as _t; _t.sleep(1.02)
+    store.export_csv(keep=2)
+csvs = list((base_path / "artifacts/jobs").glob("org-roles-tracker-*.csv"))
+check('csv_rotates', len(csvs) == 2, str(len(csvs)))
+
+# the spreadsheet is gone for good: nothing writes one
+check('no_xlsx_written', not list((base_path / "artifacts/jobs").glob("*.xlsx")))
 
 # 5. set_field updates and logs
 first_id = loaded['_id'][0]
@@ -155,7 +155,7 @@ dup_rows = pd.DataFrame([
 for col in cols:
     if col not in dup_rows.columns:
         dup_rows[col] = None
-store2, _, _ = make_store(dup_rows)
+store2, _ = make_store(dup_rows)
 store2.load()
 ids = store2.to_df()['_id']
 check('duplicate_ids_distinct', len(set(ids)) == 2)
@@ -164,7 +164,7 @@ check('duplicate_ids_distinct', len(set(ids)) == 2)
 blank_df = pd.DataFrame([{col: None for col in cols}])
 blank_df.at[0, 'Org'] = 'Blank'
 blank_df.at[0, 'Title'] = 'Test'
-store3, _, _ = make_store(blank_df)
+store3, _ = make_store(blank_df)
 store3.load()
 bid = store3.to_df()['_id'][0]
 res_blank = store3.set_field(bid, 'status', '')
@@ -178,7 +178,7 @@ num_df = pd.DataFrame([{col: None for col in cols}])
 num_df.at[0, 'Org'] = 'Num'
 num_df.at[0, 'Title'] = 'NumTitle'
 num_df.at[0, 'Priority'] = 1
-store4, _, _ = make_store(num_df)
+store4, _ = make_store(num_df)
 store4.load()
 id_num = store4.to_df()['_id'][0]
 res_num = store4.set_field(id_num, 'priority', 1.0)

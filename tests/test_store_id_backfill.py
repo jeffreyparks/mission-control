@@ -27,7 +27,7 @@ shutil.copy2(REPO / "templates/me/profile.md", work / "me/profile.md")
 cols = list(__import__("store").COLUMN_MAP.keys())
 seed = pd.DataFrame([{c: None for c in cols}])
 seed.loc[0, ["Org", "Title", "Status"]] = ["Seed Co", "Seed Role", "01 Open"]
-seed.to_excel(work / "artifacts/jobs/org-roles-tracker.xlsx", index=False)
+__import__("store").Store(work).save_df(seed, actor="test-seed")
 
 intel = JobIntel(work)
 intel.ctx = "CONTEXT"

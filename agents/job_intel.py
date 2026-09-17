@@ -96,6 +96,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from llm import LLM, output_budget, LLMError            # noqa: E402
 from context import context_block        # noqa: E402
 from job_scanner import JobScanner       # noqa: E402
+from store import COLUMN_MAP             # noqa: E402 - the column contract only, not the Store
 
 
 # Titles worth spending judgment on. Deliberately generous: the LLM does the
@@ -123,11 +124,8 @@ CAT_PROMPT_VERSION = 1
 # Bump when the fit prompt changes; it invalidates every stored judgment.
 PROMPT_VERSION = 1
 
-# Tracker backups kept on disk, newest first. One is written per run.
-KEEP_BACKUPS = 7
-
 # Live finds are appended to the tracker automatically under this status, so the
-# spreadsheet stays a complete physical record. Set AUTO_ADD_LIVE = False to keep
+# record stays a complete physical record. Set AUTO_ADD_LIVE = False to keep
 # the tracker hand-curated.
 AUTO_ADD_LIVE = True
 NEW_FIND_STATUS = "00 New find"
@@ -142,7 +140,6 @@ AGGREGATOR_PRIORITY = 1
 LOWER_TIER_RESERVE_FRACTION = 0.25
 
 # Only prune backups this agent made. Anything else in that folder is left alone.
-BACKUP_RE = re.compile(r"^org-roles-tracker-backup-\d{8}-\d{6}\.xlsx$")
 
 # Written by merge_fit, carried forward verbatim when a role is unchanged.
 FIT_FIELDS = [
@@ -458,7 +455,6 @@ class JobIntel:
         self._jd_cache = None
         self._store = None
         self.base_dir = Path(base_dir)
-        self.tracker_path = self.base_dir / "artifacts/jobs/org-roles-tracker.xlsx"
         self.sector_cache_path = self.base_dir / "data/org-sectors.json"
         self.scanner = JobScanner(self.base_dir)
         self.batch_size = load_fit_batch_size(self.scanner) if batch_size is None else batch_size
@@ -481,17 +477,21 @@ class JobIntel:
         return self._store
 
     def load_tracker(self):
-        """Roles from the database, seeded from the spreadsheet on first run and
-        refreshed from it whenever the file was hand-edited since the last export."""
-        if not self.tracker_path.exists() and self.store.is_empty():
-            return pd.DataFrame()
+        """Roles from the database.
+
+        A workspace with nothing yet gets an empty frame that still has the real
+        columns. It used to get a bare DataFrame, which every caller then had to
+        treat as "no tracker at all" - so a brand new workspace could never
+        write its first rows, never got store ids, and its dashboard stayed
+        permanently read-only. An empty tracker is a tracker with no rows."""
+        if self.store.is_empty():
+            return pd.DataFrame(columns=list(COLUMN_MAP.keys()))
         return self.store.load()
 
     def save_tracker(self, df, actor="pipeline"):
-        """Persist to the database, then re-export the spreadsheet backup."""
-        summary = self.store.save_df(df, actor=actor)
-        self.store.export_xlsx()
-        return summary
+        """Persist to the database - the only record. The CSV copy is written
+        once at the end of the run, not on every save."""
+        return self.store.save_df(df, actor=actor)
 
     def tracker_roles(self, df):
         roles, cache = [], self.load_jd_cache()
@@ -1327,45 +1327,23 @@ Return ONLY a JSON object mapping each company name exactly as given to its sect
     # ---------------- tracker update ----------------
 
     def backup_tracker(self):
-        if not self.tracker_path.exists():
-            return None
-        stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-        dest = self.tracker_path.with_name(f"org-roles-tracker-backup-{stamp}.xlsx")
-        dest.write_bytes(self.tracker_path.read_bytes())
+        """Back up the record itself - the database - before this run writes to it."""
+        dest = self.store.backup_db()
         print(f"  backup -> {dest.name}")
-        self.prune_backups()
         return dest
-
-    def prune_backups(self, keep=KEEP_BACKUPS):
-        """Keep the newest `keep` backups written by this agent, delete older ones."""
-        mine = sorted(
-            (p for p in self.tracker_path.parent.glob("org-roles-tracker-backup-*.xlsx")
-             if BACKUP_RE.match(p.name)),
-            reverse=True,
-        )
-        dropped = []
-        for path in mine[keep:]:
-            try:
-                path.unlink()
-                dropped.append(path.name)
-            except OSError as exc:
-                print(f"    ! could not remove {path.name}: {exc}")
-        if dropped:
-            print(f"  pruned {len(dropped)} old backup(s), kept newest {keep}")
-        return dropped
 
     def append_new_finds(self, df, roles):
         """Append live-scan roles that are not in the tracker yet.
 
-        The spreadsheet is the physical record, so anything the pipeline has seen
-        belongs in it - not only the rows typed by hand. New rows land as
+        The tracker is the record, so anything the pipeline has seen belongs in
+        it - not only the rows typed by hand. New rows land as
         NEW_FIND_STATUS so they are obviously machine-added and can be filtered
         out; every manual column except Status is left blank for the user.
 
         Returns (df, number_appended). Mutates each appended role's row_index so
         update_tracker fills its intel columns in the same pass.
         """
-        if df.empty or not AUTO_ADD_LIVE:
+        if not AUTO_ADD_LIVE:
             return df, 0
 
         known_ids = {
@@ -1571,7 +1549,9 @@ Return ONLY a JSON object mapping each company name exactly as given to its sect
         for role in roles:
             role["sector"] = sectors.get(role["org"])
 
-        if not df.empty:
+        # Runs even when the tracker is empty: that is exactly the case where a
+        # new workspace needs its first rows written.
+        if df is not None:
             self.backup_tracker()
             df, _added = self.append_new_finds(df, roles)
             self.update_tracker(df, roles)
@@ -1627,6 +1607,13 @@ Return ONLY a JSON object mapping each company name exactly as given to its sect
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(json.dumps(payload, indent=2))
         print(f"  wrote {out_path}")
+
+        # A plain-text copy of the tracker, rotated like the database backups.
+        # Readable without this tool, or any tool, if it is ever needed.
+        if not self.store.is_empty():
+            csv_path = self.store.export_csv()
+            print(f"  csv -> {csv_path.name}")
+
         print(f"  {self.llm.report()}")
         return out_path
 

@@ -1,15 +1,17 @@
 """
 SQLite store for Mission Control.
 
-The database at data/mission-control.db is the source of record. The Excel
-tracker is still written on every run, so the spreadsheet stays a real physical
-backup you can open, mail, or restore from - it just stops being the thing the
-pipeline depends on.
+The database at data/mission-control.db is the only source of record.
 
-Two-way safety:
-  - Hand edits to the xlsx are NOT lost. If the file changed since the last
-    export, load() imports it before the run and logs every field it changed.
+Durability, since one SQLite file now holds everything:
+  - backup_db() takes a rotating, WAL-safe copy of the database before each run.
+  - export_csv() writes a rotating plain-text copy of the tracker, readable
+    without this tool - or any tool.
   - Every write goes through a change log, so any field can be traced back.
+
+An Excel tracker used to be written on every change and imported back at the
+start of each run, so edits made in the spreadsheet were not lost. The dashboard
+owns those edits now, so the round trip - and the spreadsheet - are gone.
 
 Nothing here imports the rest of the pipeline, so it can be used from the daily
 run, from a writeback server, or from a REPL.
@@ -24,8 +26,11 @@ import pandas as pd
 
 DB_NAME = "data/mission-control.db"
 
-# xlsx header  ->  db column. This mapping is the contract between the two
-# formats; add a column here and both sides follow.
+# Rotating copies kept for the database and the CSV export.
+KEEP_BACKUPS = 7
+
+# Display header -> db column. The headers the tracker, the CSV export and the
+# dashboard all use; add a column here and every surface follows.
 COLUMN_MAP = {
     "Org": "org",
     "Title": "title",
@@ -50,7 +55,7 @@ COLUMN_MAP = {
     "Days To Outcome": "days_to_outcome",
     "Role Cat (suggested)": "role_cat_suggested",
 }
-DB_TO_XLSX = {v: k for k, v in COLUMN_MAP.items()}
+DB_TO_HEADER = {v: k for k, v in COLUMN_MAP.items()}
 
 # Columns a human owns. The pipeline never overwrites these.
 MANUAL_FIELDS = ("role_cat", "priority", "status", "outcomes", "notes",
@@ -112,7 +117,7 @@ def _slug(org, title):
 
 
 def _norm(value):
-    """xlsx and sqlite disagree about blanks. One representation: None."""
+    """Spreadsheet-style blanks and sqlite NULLs: one representation, None."""
     if value is None or value is pd.NA:
         return None
     if isinstance(value, float) and pd.isna(value):
@@ -146,7 +151,6 @@ class Store:
     def __init__(self, base_dir):
         self.base_dir = Path(base_dir)
         self.db_path = self.base_dir / DB_NAME
-        self.xlsx_path = self.base_dir / "artifacts/jobs/org-roles-tracker.xlsx"
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self._init()
 
@@ -199,13 +203,13 @@ class Store:
     # ---------- reads ----------
 
     def to_df(self):
-        """The tracker as the pipeline expects it: xlsx headers, xlsx order."""
+        """The tracker as the pipeline expects it: display headers, display order."""
         with self.connect() as conn:
             rows = conn.execute(
                 "SELECT * FROM roles ORDER BY row_order, rowid").fetchall()
         records = []
         for row in rows:
-            record = {header: row[field] for field, header in DB_TO_XLSX.items()}
+            record = {header: row[field] for field, header in DB_TO_HEADER.items()}
             record["_id"] = row["id"]
             records.append(record)
         columns = list(COLUMN_MAP.keys()) + ["_id"]
@@ -288,7 +292,7 @@ class Store:
 
     def set_field(self, role_id, field, value, actor="dashboard"):
         """Single-field update. This is what the writeback server will call."""
-        if field not in DB_TO_XLSX:
+        if field not in DB_TO_HEADER:
             raise ValueError(f"unknown field: {field}")
         with self.connect() as conn:
             row = conn.execute("SELECT * FROM roles WHERE id=?", (role_id,)).fetchone()
@@ -304,45 +308,70 @@ class Store:
             self._log(conn, role_id, field, old, value, actor)
         return {"changed": True, "old": old, "new": _norm(value)}
 
-    # ---------- xlsx bridge ----------
 
-    def _xlsx_stamp(self):
-        if not self.xlsx_path.exists():
-            return None
-        stat = self.xlsx_path.stat()
-        return f"{int(stat.st_mtime)}:{stat.st_size}"
+    def backup_db(self, keep=KEEP_BACKUPS):
+        """Timestamped copy of the database, newest `keep` retained.
 
-    def import_xlsx(self, actor="xlsx"):
-        frame = pd.read_excel(self.xlsx_path)
-        frame["_id"] = self._assign_ids(frame)
-        summary = self.save_df(frame, actor=actor)
-        self.set_meta("xlsx_stamp", self._xlsx_stamp())
-        return summary
+        Uses SQLite's own backup API rather than copying the file. The database
+        runs in WAL mode, so a plain file copy can catch it mid-transaction and
+        miss everything still in the write-ahead log - a backup that looks fine
+        until the day it is needed.
 
-    def export_xlsx(self):
-        frame = self.to_df().drop(columns=["_id"])
-        self.xlsx_path.parent.mkdir(parents=True, exist_ok=True)
-        frame.to_excel(self.xlsx_path, index=False)
-        self.set_meta("xlsx_stamp", self._xlsx_stamp())
-        self.set_meta("last_export", datetime.now().isoformat(timespec="seconds"))
-        return self.xlsx_path
+        This is the real record. Until now the only thing backed up was the
+        exported spreadsheet, which is derived from it."""
+        dest_dir = self.db_path.parent / "backups"
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+        dest = dest_dir / f"mission-control-{stamp}.db"
+
+        src = sqlite3.connect(self.db_path)
+        try:
+            target = sqlite3.connect(dest)
+            try:
+                src.backup(target)
+            finally:
+                target.close()
+        finally:
+            src.close()
+
+        self._prune(dest_dir.glob("mission-control-*.db"), keep, "database backup")
+        return dest
+
+    def export_csv(self, keep=KEEP_BACKUPS):
+        """Timestamped CSV of the tracker, newest `keep` retained.
+
+        Plain text, no dependency, opens in any spreadsheet - a copy of the
+        record that outlives this tool and does not need it to be read back."""
+        frame = self.to_df().drop(columns=["_id"], errors="ignore")
+        out_dir = self.base_dir / "artifacts/jobs"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+        dest = out_dir / f"org-roles-tracker-{stamp}.csv"
+        frame.to_csv(dest, index=False)
+        self._prune(out_dir.glob("org-roles-tracker-*.csv"), keep, "csv export")
+        self.set_meta("last_csv_export", datetime.now().isoformat(timespec="seconds"))
+        return dest
+
+    @staticmethod
+    def _prune(paths, keep, label):
+        """Delete all but the newest `keep` of a rotating set."""
+        ordered = sorted(paths, reverse=True)
+        dropped = []
+        for path in ordered[keep:]:
+            try:
+                path.unlink()
+                dropped.append(path.name)
+            except OSError as exc:
+                print(f"    ! could not remove {path.name}: {exc}")
+        if dropped:
+            print(f"  pruned {len(dropped)} old {label}(s), kept newest {keep}")
+        return dropped
 
     def load(self, verbose=True):
-        """Start-of-run entry point.
+        """Start-of-run entry point: the tracker as a DataFrame.
 
-        Seeds the database from the spreadsheet the first time, and afterwards
-        pulls in any hand edits made to the spreadsheet since the last export, so
-        editing the xlsx by hand stays legal. Returns the tracker DataFrame.
+        The database is the only record now. This used to import the
+        spreadsheet first, so hand edits made in Excel were not lost; the
+        dashboard owns those edits today, and the spreadsheet is gone.
         """
-        if self.is_empty() and self.xlsx_path.exists():
-            summary = self.import_xlsx(actor="migration")
-            if verbose:
-                print(f"  store: migrated {summary['inserted']} row(s) from the spreadsheet")
-        elif self.xlsx_path.exists():
-            stamp = self._xlsx_stamp()
-            if stamp != self.get_meta("xlsx_stamp"):
-                summary = self.import_xlsx(actor="xlsx-edit")
-                if verbose and (summary["fields"] or summary["inserted"]):
-                    print(f"  store: pulled {summary['fields']} hand edit(s) and "
-                          f"{summary['inserted']} new row(s) from the spreadsheet")
         return self.to_df()

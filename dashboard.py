@@ -9,8 +9,8 @@ Serves the chosen workspace's artifacts/html/ and exposes a tiny JSON API so
 the dashboard can edit fields that a human owns - status first. Pick the
 workspace with --user NAME; it defaults to workspace/default.
 
-Writes go through agents/store.py, so every change is logged and the
-spreadsheet is re-exported immediately.
+Writes go through agents/store.py, so every change is logged straight into the
+database - the only record.
 
 The dashboard degrades on purpose: opened as a file:// page, or with the server
 off, it is simply read-only. Nothing breaks, the dropdowns just do not appear.
@@ -277,7 +277,6 @@ class Handler(SimpleHTTPRequestHandler):
         try:
             with _write_lock:
                 result = self.store.set_field(role_id, field, value or None, actor="dashboard")
-                exported = self.store.export_xlsx() if result["changed"] else None
         except KeyError:
             return self._json({"error": f"unknown role: {role_id}"}, 404)
         except ValueError as exc:
@@ -290,7 +289,6 @@ class Handler(SimpleHTTPRequestHandler):
             "changed": result["changed"],
             "old": result["old"],
             "new": result["new"],
-            "exported": bool(exported),
         })
 
 

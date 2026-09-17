@@ -97,7 +97,7 @@ mc dashboard stop     # shuts it down
 
 It serves your pages on `127.0.0.1:8787` with a small edit API. Status, Priority, Role Cat,
 Outcomes, Notes, and Salary are all editable right there - change one and it's saved to the
-database and the spreadsheet immediately. `Recommendation` is the model's call, not yours to
+database immediately. `Recommendation` is the model's call, not yours to
 overwrite, so it's shown as a plain badge instead.
 
 Running it again while it's already up just tells you it's already running, not a second copy.
@@ -205,13 +205,19 @@ verdicts automatically. `PROMPT_VERSION` remains as a manual override.
 
 ### Data model
 
-`workspace/<name>/data/mission-control.db` is the source of record. That workspace's
-`artifacts/jobs/org-roles-tracker.xlsx` is
-re-exported on every write, so the spreadsheet remains a physical backup you can open or restore
-from.
+`workspace/<name>/data/mission-control.db` is the only source of record. Edits go through the
+dashboard, which writes straight to it.
 
-Hand-editing the spreadsheet is still legal. The next run notices the file changed and imports
-your edits before it does anything else, logged as actor `xlsx-edit`.
+Because one SQLite file holds everything, every run takes two rotating copies, newest 7 kept:
+
+| copy | where | why |
+|---|---|---|
+| `data/backups/mission-control-*.db` | before the run writes | restore the record itself; taken with SQLite's backup API, so it is safe under WAL |
+| `artifacts/jobs/org-roles-tracker-*.csv` | at the end of the run | plain text, readable without this tool - or any tool |
+
+There used to be an Excel tracker, re-exported on every write and imported back at the start of
+each run so hand edits were not lost. The dashboard owns those edits now, so the spreadsheet and
+its round trip are gone. Any `.xlsx` left in a workspace is inert and can be deleted.
 
 Every write is recorded in a `changes` table with the field, old value, new value, actor and
 timestamp:
@@ -244,8 +250,8 @@ movement.
 
 ### Tracker
 
-`workspace/<name>/artifacts/jobs/org-roles-tracker.xlsx` is the source of record. It is backed up before every
-write. Your manual columns (Role Cat, Priority, Status, Outcomes, Notes) are asserted unchanged
+`workspace/<name>/data/mission-control.db` is the source of record. It is backed up before every
+run. Your manual columns (Role Cat, Priority, Status, Outcomes, Notes) are asserted unchanged
 in code after each update.
 
 Columns added by the system: Fit Score, Fit Rationale, Recommendation, Sector, Days To Outcome.
@@ -271,7 +277,7 @@ dashboard.py            editable local dashboard (formerly serve.py)
 agents/
   llm.py              LLM client, hash-cached, routed
   routing.py          tag -> tier (config) -> model (.env)
-  store.py            SQLite source of record + xlsx export
+  store.py            SQLite source of record + db backup + csv export
   context.py          ground truth: me/profile.md + me/resume
   job_intel.py        fit analysis, org enrichment, outcome timing   (daily)
   content_radar.py    full-article fetch + editorial brief           (weekly)
@@ -300,11 +306,12 @@ workspace/                  ALL user data - gitignored in full, never upstream
       linkedin/                 optional LinkedIn export
     data/
       mission-control.db        source of record
+      backups/                  rotating db backups, newest 7
       history.db                run-over-run snapshots
       llm-cache/                hash-keyed response cache
     artifacts/
       html/                     the three rendered pages
-      jobs/                     org-roles-tracker.xlsx + intel-*.json + backups
+      jobs/                     intel-*.json + rotating org-roles-tracker-*.csv
       content/                  radar-*.json + .md
       profiles/
     config/                     THIS person's targets and feeds

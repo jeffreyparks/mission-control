@@ -26,7 +26,6 @@ class JobScanner:
     def __init__(self, base_dir):
         self.base_dir = Path(base_dir)
         self.sources_path = _config_path(self.base_dir, "job-sources.yaml")
-        self.tracker_path = self.base_dir / "artifacts/jobs/org-roles-tracker.xlsx"
         
     def load_sources(self):
         """Load job sources from YAML config"""
@@ -62,11 +61,13 @@ class JobScanner:
         return {"keywords": keywords}
     
     def load_existing_tracker(self):
-        """Load existing role tracker"""
-        if not self.tracker_path.exists():
+        """Existing roles, from the database - the only record."""
+        from store import Store
+
+        store = Store(self.base_dir)
+        if store.is_empty():
             return pd.DataFrame()
-        
-        return pd.read_excel(self.tracker_path)
+        return store.load(verbose=False)
     
     def fetch_greenhouse_jobs(self, company_name, api_url):
         """Fetch jobs from Greenhouse API"""
@@ -293,7 +294,7 @@ class JobScanner:
         return all_jobs
     
     def update_tracker(self, new_jobs, existing_df):
-        """Add new jobs to tracker Excel file"""
+        """Add new jobs to the tracker database."""
         if not new_jobs:
             print("⊘ No new jobs to add")
             return 0
@@ -327,14 +328,16 @@ class JobScanner:
                 'Last Updated': datetime.now()
             })
         
-        # Append to existing data
+        # Append to existing data and persist to the database, which assigns
+        # ids and logs every field it writes.
         new_df = pd.DataFrame(new_rows)
         combined = pd.concat([existing_df, new_df], ignore_index=True)
-        
-        # Save
-        combined.to_excel(self.tracker_path, index=False)
+
+        from store import Store
+
+        Store(self.base_dir).save_df(combined, actor="keyword-scan")
         print(f"✓ Added {len(new_rows)} new roles to tracker")
-        
+
         return len(new_rows)
     
     def generate_report(self, new_jobs, added_count, linkedin_urls):
@@ -386,7 +389,7 @@ Scanned company career pages and found {len(new_jobs)} roles matching your caree
         report += f"""
 ## Next Steps
 
-1. Review new roles in: `artifacts/jobs/org-roles-tracker.xlsx`
+1. Review new roles in the dashboard: `mc dashboard`
 2. Fill in 'Role Cat' for new roles (01-06 from your career goals)
 3. Update 'Priority' if needed
 4. Click LinkedIn links above to see aggregated results
