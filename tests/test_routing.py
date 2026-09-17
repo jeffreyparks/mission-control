@@ -1,4 +1,5 @@
 """Unit tests for routing + the LLM fallback ladder. No network."""
+import os
 import sys
 from pathlib import Path
 
@@ -36,7 +37,12 @@ check("escalate walks every tier in tier_order, not a hardcoded count",
       routing.escalate(_order[-1], _pol) is None and all(
           routing.escalate(_order[i], _pol) == _order[i + 1] for i in range(len(_order) - 1)),
       str(_order))
-check("job-fit is unrouted", routing.ladder_for_tag("job-fit-16") == [])
+# job-fit is routed like every other call now. An unrouted tag has no model
+# name, and the Anthropic API cannot accept that - it 404s on the CLI sentinel.
+_fit = routing.ladder_for_tag("job-fit-16")
+check("job-fit is routed and starts at its configured tier",
+      bool(_fit) and routing.tier_for_tag("job-fit-16") == "T3", str(_fit))
+check("job-fit never resolves to the CLI sentinel", "claude-cli-default" not in _fit, str(_fit))
 check("unknown tag is unrouted", routing.ladder_for_tag("mystery") == [])
 
 # --- escalation walks the whole ladder, retrying once per model ------------
@@ -107,6 +113,10 @@ def _fake_run(cmd, **kwargs):
     class R: returncode = 1; stdout = ""; stderr = "stubbed, no real call made"
     return R()
 _subprocess.run = _fake_run
+# LLM_BACKEND decides the transport, so pin it: this check is about the CLI
+# path receiving a bare --model value, not about which backend .env selects.
+_saved_backend = os.environ.get("LLM_BACKEND")
+os.environ["LLM_BACKEND"] = "cli"
 try:
     llm4 = LLM(BASE)
     llm4._dispatch = LLM._dispatch.__get__(llm4)   # real dispatch/claude path
@@ -117,6 +127,10 @@ try:
         pass
 finally:
     _subprocess.run = real_run
+    if _saved_backend is None:
+        os.environ.pop("LLM_BACKEND", None)
+    else:
+        os.environ["LLM_BACKEND"] = _saved_backend
 
 claude_cmds = [c for c in captured_cmds if c[0] == "claude"]
 check("the claude CLI was reached (T4 escalation happened)", bool(claude_cmds), str(len(claude_cmds)))

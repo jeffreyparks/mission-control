@@ -146,21 +146,38 @@ and 10 of 12 repos as no-change. That is the system working.
   in `.env`; default is `cli`
 - **OpenRouter** for cheap open-weight models (`OPENROUTER_API_KEY` in `.env`)
 
-`agents/routing.py` decides, reading the machine-wide compute-routing policy at
-`~/.prime/agent/skills/compute-routing/config.toml`. `config/model-routing.toml` maps each call
-to a tier and is versioned with the pipeline. Every run logs its routing:
+`agents/routing.py` decides, from two files this project owns - no machine-wide or external
+policy is consulted:
+
+| file | says | example |
+|---|---|---|
+| `.env` | **which model** each tier is, beside the keys that pay for them | `MC_MODEL_T1=openrouter/qwen/qwen3-30b-a3b-instruct-2507` |
+| `config/model-routing.toml` | **which tier** a call starts at, versioned with the pipeline | `"job-fit" = "T3"` |
+
+```bash
+MC_TIER_ORDER=T1,T2,T3,T4
+MC_MODEL_T1=openrouter/qwen/qwen3-30b-a3b-instruct-2507
+MC_MODEL_T2=openrouter/openai/gpt-oss-120b
+MC_MODEL_T3=claude-sonnet-5
+MC_MODEL_T4=claude-opus-5
+```
+
+One model per tier is the simple case; a comma separated list gives more than one attempt inside
+a tier. Model names are transport agnostic: an `openrouter/` prefix goes to OpenRouter, anything
+else is a Claude model reached by CLI or API according to `LLM_BACKEND`. So `LLM_BACKEND` chooses
+**who bills you, never which model answers.** Every run logs its routing:
 
 ```
-route: job-fit        -> claude CLI default
+route: job-fit        -> claude-sonnet-5
 route: role-cat       -> qwen/qwen3-30b-a3b-instruct-2507
 route: org-sectors    -> qwen/qwen3-30b-a3b-instruct-2507
 route: content-radar  -> openai/gpt-oss-120b
 ```
 
-**Fit judgement deliberately stays on claude.** Measured against existing claude verdicts over
+**Fit judgement deliberately stays on Claude.** Measured against existing claude verdicts over
 18 real roles, the best cheap model drifted 6.8 points and flipped 1 recommendation in 6. That
-is too much drift for the output you act on. The mechanical calls are routed; the judgement is
-not. One line in `config/model-routing.toml` flips it.
+is too much drift for the output you act on. So `job-fit` starts at the frontier tier while the
+mechanical calls start cheap. One line in `config/model-routing.toml` changes that.
 
 Cheap answers are validated before use. Wrong shape, dropped roles, a score outside 0-100 or an
 invented recommendation are rejected, retried once with a stricter prompt, then escalated up the
@@ -242,7 +259,7 @@ run_daily.py            the daily/weekly pipeline
 dashboard.py            editable local dashboard (formerly serve.py)
 agents/
   llm.py              LLM client, hash-cached, routed
-  routing.py          tag -> tier -> model selector
+  routing.py          tag -> tier (config) -> model (.env)
   store.py            SQLite source of record + xlsx export
   context.py          ground truth: me/profile.md + me/resume
   job_intel.py        fit analysis, org enrichment, outcome timing   (daily)
@@ -257,7 +274,7 @@ render/
 config/                     STARTER TEMPLATES, tracked in git
   content-sources.yaml    example RSS feeds       -> seeded into each workspace
   job-sources.yaml        example companies+rules -> seeded into each workspace
-  model-routing.toml      tag -> tier map (app config, stays repo-level)
+  model-routing.toml      tag -> tier map (models live in .env)
 templates/me/               placeholder scaffold for a workspace's me/, tracked in git
 .env                        secrets (API keys, BlueSky password) - gitignored, see .env.example
 .mc/                        mc dashboard runtime state (pidfile, log) - gitignored
@@ -291,7 +308,7 @@ workspace/                  ALL user data - gitignored in full, never upstream
 
 | file | holds | shared |
 |---|---|---|
-| `.env` (repo root) | `LLM_BACKEND`, `ANTHROPIC_API_KEY`, `OPENROUTER_API_KEY` | yes - machine-wide |
+| `.env` (repo root) | `LLM_BACKEND`, `ANTHROPIC_API_KEY`, `OPENROUTER_API_KEY`, `MC_TIER_ORDER`, `MC_MODEL_T*` | yes - machine-wide |
 | `workspace/<name>/.env` | `GITHUB_USERNAME`, `BLUESKY_HANDLE`, `BLUESKY_APP_PASSWORD`, `BLUESKY_PDS_URL` | no - one person |
 
 Identity follows `--user`. `mc run --user ariel` reads ariel's `.env`, so it can

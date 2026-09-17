@@ -1,21 +1,28 @@
 """
 Model routing for Mission Control.
 
-Reads the machine-wide compute-routing policy that Prime Agent already uses:
+Two files, one job each, both owned by this project:
 
-    ~/.prime/agent/skills/compute-routing/config.toml
-    (override with PRIME_COMPUTE_ROUTING_CONFIG)
+  .env                        WHICH MODEL each tier is, machine-wide, beside the
+                              API keys that pay for them:
+                                  MC_TIER_ORDER=T1,T2,T3,T4
+                                  MC_MODEL_T1=openrouter/qwen/qwen3-30b-...
+                                  MC_MODEL_T4=claude-opus-5
+                              One model per tier is the simple case; a comma
+                              separated list is allowed if you want more than
+                              one attempt inside a tier.
 
-That file owns the tier ladder (T1..T4) and the ordered model selectors in each
-tier. This module adds the one thing the pipeline needs on top: a map from an
-LLM call tag ("job-fit-16", "org-sectors", ...) to a tier.
+  config/model-routing.toml   WHICH TIER each call starts at, versioned with the
+                              pipeline: "job-fit" = "T3", and so on.
 
-The tag map lives in the repo at config/model-routing.toml so pipeline routing
-is versioned with the pipeline, while the model lists stay machine-wide.
+Model names are transport agnostic. An "openrouter/" prefix picks OpenRouter;
+anything else is a Claude model reached either through the claude CLI or the
+Anthropic API, depending on LLM_BACKEND. So LLM_BACKEND chooses who bills you,
+never which model answers.
 
-If the policy file is missing, unreadable, or disabled, every lookup returns an
-empty ladder and callers fall back to the default claude CLI. Routing must never
-be able to break the daily run.
+If no MC_MODEL_* is configured, or the tag map is disabled, every lookup returns
+an empty ladder and callers fall back to the default Claude model. Routing must
+never be able to break the daily run.
 """
 import os
 import tomllib
@@ -23,8 +30,10 @@ from pathlib import Path
 
 BASE = Path(__file__).resolve().parent.parent
 
-DEFAULT_POLICY = Path.home() / ".prime/agent/skills/compute-routing/config.toml"
 REPO_TAGMAP = BASE / "config/model-routing.toml"
+
+# Tier ladder used when MC_TIER_ORDER is not set.
+_DEFAULT_TIER_ORDER = ["T1", "T2", "T3", "T4"]
 
 # Used when config/model-routing.toml is absent.
 FALLBACK_TAGS = {
@@ -34,17 +43,12 @@ FALLBACK_TAGS = {
     "content-radar": "T2",
 }
 
-# Used only when the policy carries no tier_order (older config, or the file
-# is unreadable). The policy is the live source of truth; this is a floor.
-_TIER_ORDER_FALLBACK = ["T1", "T2", "T3", "T4", "T5"]
-
-
 def tier_order(policy=None):
     policy = policy if policy is not None else load_policy()
     order = policy.get("tier_order")
     if isinstance(order, list) and order and all(isinstance(t, str) for t in order):
         return list(order)
-    return list(_TIER_ORDER_FALLBACK)
+    return list(_DEFAULT_TIER_ORDER)
 
 
 def _read_toml(path):
@@ -55,13 +59,31 @@ def _read_toml(path):
         return {}
 
 
-def policy_path():
-    override = os.environ.get("PRIME_COMPUTE_ROUTING_CONFIG")
-    return Path(override) if override else DEFAULT_POLICY
+def _models_for(tier):
+    """MC_MODEL_<TIER> - one selector, or several separated by commas."""
+    raw = os.environ.get(f"MC_MODEL_{tier.upper()}", "")
+    return [m.strip() for m in raw.split(",") if m.strip()]
 
 
 def load_policy():
-    return _read_toml(policy_path())
+    """Build the tier ladder from the environment.
+
+    Returns the same shape the rest of this module already expects, so only the
+    source changed: the models now come from .env beside the keys that pay for
+    them, instead of a machine-wide file owned by another tool.
+    """
+    raw_order = os.environ.get("MC_TIER_ORDER", "")
+    order = [t.strip() for t in raw_order.split(",") if t.strip()] or list(_DEFAULT_TIER_ORDER)
+
+    tiers = {}
+    for tier in order:
+        models = _models_for(tier)
+        if models:
+            tiers[tier] = {"models": models}
+
+    # No models configured means no routing - callers fall back to the default
+    # Claude model rather than erroring.
+    return {"enabled": bool(tiers), "tier_order": order, "tiers": tiers}
 
 
 def load_tagmap():

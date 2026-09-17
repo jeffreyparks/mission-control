@@ -1,14 +1,16 @@
 """
 LLM client for Mission Control.
 
-Two backends:
-  - the local `claude` CLI in headless mode (no API key needed)
-  - OpenRouter over HTTPS, for cheap open-weight models
+Three transports, chosen by the model name and LLM_BACKEND:
+  - the local `claude` CLI in headless mode (no API key needed)  LLM_BACKEND=cli
+  - the Anthropic Messages API, billed per token                 LLM_BACKEND=api
+  - OpenRouter over HTTPS, for "openrouter/" selectors
 
-Which one runs is decided per call by agents/routing.py, which reads the same
-machine-wide compute-routing policy Prime Agent uses. A cheap model is tried
-first; if it fails to return usable JSON the client walks up the tier ladder and
-ends at the frontier model, so quality is never silently traded away.
+Which model runs is decided per call by agents/routing.py, from the tier ladder
+in .env and the tag map in config/model-routing.toml - this project owns both.
+A cheap model is tried first; if it fails to return usable JSON the client walks
+up the tier ladder and ends at the frontier model, so quality is never silently
+traded away.
 
 Results are cached by content hash so we never pay twice for the same input.
 """
@@ -33,7 +35,12 @@ load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 ANTHROPIC_URL = "https://api.anthropic.com/v1/messages"
 ANTHROPIC_VERSION = "2023-06-01"
-AUTH_FILE = Path.home() / ".prime/agent/auth.json"
+
+# Sentinel for "no routed model - let the transport pick". The CLI understands
+# this by simply being given no --model; the API cannot, so it is translated to
+# DEFAULT_API_MODEL before any request is built.
+CLI_DEFAULT = "claude-cli-default"
+DEFAULT_API_MODEL = "claude-sonnet-5"
 
 STRICTER = (
     "\n\nIMPORTANT: your previous answer could not be parsed. "
@@ -46,13 +53,7 @@ class LLMError(RuntimeError):
 
 
 def _openrouter_key():
-    key = os.environ.get("OPENROUTER_API_KEY")
-    if key:
-        return key
-    try:
-        return json.loads(AUTH_FILE.read_text())["openrouter"]["key"]
-    except Exception:  # noqa: BLE001
-        return None
+    return os.environ.get("OPENROUTER_API_KEY")
 
 
 def _anthropic_api_key():
@@ -117,11 +118,11 @@ class LLM:
 
     def _call_claude(self, prompt, model=None):
         cmd = ["claude", "-p", prompt, "--output-format", "json"]
-        if model and model != "claude-cli-default":
-            # The compute-routing policy carries a provider prefix ("anthropic/
-            # claude-sonnet-5"), which the CLI itself rejects with a 404 - it
-            # wants the bare model name or alias. Escalating to T4 without this
-            # strip fails outright, silently defeating the whole fallback ladder.
+        if model and model != CLI_DEFAULT:
+            # A selector may carry a provider prefix ("anthropic/claude-sonnet-5"),
+            # which the CLI itself rejects with a 404 - it wants the bare model
+            # name or alias. Stripping here keeps the fallback ladder working
+            # whatever form the configured name takes.
             cli_model = model.split("/", 1)[-1] if "/" in model else model
             cmd += ["--model", cli_model]
         try:
@@ -157,7 +158,12 @@ class LLM:
             raise LLMError(
                 "LLM_BACKEND=api but ANTHROPIC_API_KEY is not set in .env"
             )
-        model_id = model.split("/", 1)[-1] if model and "/" in model else (model or "claude-sonnet-5")
+        # "claude-cli-default" means "whatever the CLI would pick" - it is a
+        # sentinel, not a model name, and the API 404s on it. Any unrouted tag
+        # arrives here holding it, so translate before building the request.
+        if model == CLI_DEFAULT:
+            model = None
+        model_id = model.split("/", 1)[-1] if model and "/" in model else (model or DEFAULT_API_MODEL)
         try:
             resp = requests.post(
                 ANTHROPIC_URL,
@@ -195,7 +201,7 @@ class LLM:
     def _call_openrouter(self, prompt, selector):
         key = _openrouter_key()
         if not key:
-            raise LLMError("no OpenRouter key (env OPENROUTER_API_KEY or ~/.prime/agent/auth.json)")
+            raise LLMError("no OpenRouter key - set OPENROUTER_API_KEY in .env")
         model_id = selector.split("/", 1)[1]  # strip the "openrouter/" prefix
         try:
             resp = requests.post(
@@ -230,7 +236,7 @@ class LLM:
     def _dispatch(self, prompt, selector):
         if selector.startswith("openrouter/"):
             return self._call_openrouter(prompt, selector)
-        # anthropic/* selectors and the "claude-cli-default" sentinel both
+        # anthropic/* selectors and the CLI_DEFAULT sentinel both
         # target Claude; LLM_BACKEND picks which transport reaches it. This
         # is an explicit choice, never a silent runtime fallback.
         if llm_backend() == "api":
@@ -257,9 +263,9 @@ class LLM:
         if self.model:
             ladder = [self.model]
         elif self.route:
-            ladder = routing.ladder_for_tag(tag) or ["claude-cli-default"]
+            ladder = routing.ladder_for_tag(tag) or [CLI_DEFAULT]
         else:
-            ladder = ["claude-cli-default"]
+            ladder = [CLI_DEFAULT]
 
         retries = 1
         policy = routing.load_policy()

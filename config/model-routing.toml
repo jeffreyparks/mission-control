@@ -1,22 +1,22 @@
-# Mission Control - which tier handles which LLM call.
+# Mission Control - which TIER each LLM call starts at.
 #
-# Model selectors come from the machine-wide policy:
-#   ~/.prime/agent/skills/compute-routing/config.toml
-# This file only decides which TIER each pipeline call starts at.
+# The models themselves are defined per tier in .env, beside the API keys that
+# pay for them:
+#     MC_TIER_ORDER=T1,T2,T3,T4
+#     MC_MODEL_T1=openrouter/qwen/qwen3-30b-a3b-instruct-2507
+#     MC_MODEL_T4=claude-opus-5
 #
-# A tag that is not listed here is not routed at all: it goes to the default
-# `claude` CLI, exactly as before routing existed.
-# Set enabled = false to send every call back to the claude CLI.
+# This file only says which tier a call begins at. A call that fails JSON
+# validation escalates to the next tier, so the last tier is the safety net.
+#
+# A tag that is not listed here is not routed: it goes to the default Claude
+# model. Set enabled = false to send every call there.
 
 enabled = true
-
-# Try at most this many models per tier before escalating a tier.
-max_models_per_tier = 1
 
 [tags]
 # Prefix match; the longest matching prefix wins.
 
-# --- routed to cheap open-weight models -----------------------------------
 # role-cat: advisory archetype suggestion for uncategorised roles.
 #   Eval 2026-09-12 (8 roles, truth = claude): qwen3-30b agreed 6/8, $0.0001, 3.5s.
 #   Larger models agreed LESS (gpt-oss-20b 3/8, gpt-oss-120b 2/8).
@@ -30,20 +30,8 @@ max_models_per_tier = 1
 # content-radar: summarise articles and repos. Weekly, tolerant of paraphrase.
 "content-radar" = "T2"
 
-# --- deliberately NOT routed ----------------------------------------------
-# job-fit stays on the claude CLI. It is the judgement you actually read and
-# act on, and the claude CLI runs on your existing subscription, so the
-# frontier answer has no marginal dollar cost.
-#
-#   Eval 2026-09-12, 18 real roles over two batches, truth = claude:
-#     gpt-oss-120b   MAE 6.8 pts, recommendation agreement 15/18, ~$0.0013
-#     glm-4.6        MAE 12.9 pts, agreement 8/10, $0.0126, 130s
-#     qwen3-30b      MAE 12.9 pts, and it flattened four distinct roles to 50/50/50/50
-#   gpt-oss-120b is genuinely good and by far the best value, but a ~7 point
-#   drift moved roles across your scoring bands (Chewy 38 -> 55), and one in six
-#   apply/research/skip calls flipped. That is too much drift for the one output
-#   that decides where you spend your week.
-#
-# To route it anyway, uncomment the next line. Validators and tier escalation
-# will still catch malformed or gutted answers.
-# "job-fit" = "T2"
+# job-fit: the judgement you actually read and act on, so it starts at the
+# frontier tier rather than being routed down. It is named here like every
+# other call - an unrouted tag has no model name, which the Anthropic API
+# cannot accept.
+"job-fit" = "T3"
