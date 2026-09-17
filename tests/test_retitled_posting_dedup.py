@@ -6,9 +6,11 @@ Root cause found live: Anthropic's board showed one job (same URL) as both
 (live, permanently un-appended and therefore uneditable on the dashboard).
 """
 import sys
+import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
+SCRATCH = Path(tempfile.mkdtemp())   # never write cache into the repo or a real workspace
 sys.path.insert(0, str(REPO / "agents"))
 
 from job_intel import JobIntel
@@ -19,7 +21,7 @@ def check(name, cond, detail=""):
     if not cond:
         fails.append(name)
 
-intel = JobIntel(REPO)
+intel = JobIntel(SCRATCH)
 intel.max_live_roles = 50
 
 SAME_URL = "https://job-boards.greenhouse.io/anthropic/jobs/5192805008"

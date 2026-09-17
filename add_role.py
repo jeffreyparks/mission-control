@@ -33,6 +33,9 @@ from pathlib import Path
 
 BASE = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE / "agents"))
+sys.path.insert(0, str(BASE))
+
+import workspace  # noqa: E402
 
 import pandas as pd  # noqa: E402
 
@@ -173,7 +176,8 @@ def refresh(intel, role):
     """Rebuild intel JSON and HTML, reusing the verdict we already paid for."""
     seed = {role["fit_fingerprint"]: role}
     out = intel.run(seed_fits=seed)
-    build = subprocess.run([sys.executable, str(BASE / "render/build.py")],
+    build = subprocess.run([sys.executable, str(BASE / "render/build.py"),
+                            "--user", str(intel.base_dir)],
                            capture_output=True, text=True, cwd=str(BASE))
     print(build.stdout.strip() or build.stderr.strip())
     return out
@@ -204,13 +208,14 @@ def main(argv=None):
     ap.add_argument("--title", help="override the scraped role title")
     ap.add_argument("--priority", type=int, choices=[1, 2, 3], help="your priority for this role")
     ap.add_argument("--notes", help="free text stored in the Notes column")
+    workspace.add_argument(ap)
     ap.add_argument("--max-live", type=int, default=0,
                     help="cap on live board postings included in the refresh "
                          "(default 0 = skip the scan entirely; adding one role should not "
                          "trigger a full board rescan and re-judge whatever it turns up)")
     args = ap.parse_args(argv)
 
-    intel = JobIntel(BASE, max_live_roles=args.max_live)
+    intel = JobIntel(workspace.resolve(args.user), max_live_roles=args.max_live)
 
     print(f"  fetching {args.url}")
     try:

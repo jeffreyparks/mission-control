@@ -12,10 +12,20 @@ from pathlib import Path
 from urllib.parse import quote_plus
 import re
 
+
+def _config_path(base_dir, filename):
+    """Per-workspace config when present, else the repo's tracked default, so a
+    new workspace works with no setup but can still override."""
+    from pathlib import Path as _P
+    local = _P(base_dir) / "config" / filename
+    if local.exists():
+        return local
+    return _P(__file__).resolve().parent.parent / "config" / filename
+
 class JobScanner:
     def __init__(self, base_dir):
         self.base_dir = Path(base_dir)
-        self.sources_path = self.base_dir / "config/job-sources.yaml"
+        self.sources_path = _config_path(self.base_dir, "job-sources.yaml")
         self.tracker_path = self.base_dir / "artifacts/jobs/org-roles-tracker.xlsx"
         
     def load_sources(self):

@@ -107,18 +107,30 @@ MAX_AGE_DAYS = 14
 MAX_ARTICLE_CHARS = 6000
 MAX_ENTRIES_PER_SOURCE = 6
 MAX_ARTICLES_TOTAL = 18
-GITHUB_USER = "jeffreyparks"
 FORMATS = ["LinkedIn post", "Tweet", "Short technical post", "LinkedIn comment + reply"]
 TIERS = ["primary", "secondary", "supporting"]
 UA = {"User-Agent": "Mozilla/5.0 (compatible; MissionControl/1.0; +content-radar)"}
 
 
+
+def _config_path(base_dir, filename):
+    """Per-workspace config when present, else the repo's tracked default, so a
+    new workspace works with no setup but can still override."""
+    from pathlib import Path as _P
+    local = _P(base_dir) / "config" / filename
+    if local.exists():
+        return local
+    return _P(__file__).resolve().parent.parent / "config" / filename
+
 class ContentRadar:
-    def __init__(self, base_dir, github_user=GITHUB_USER):
+    def __init__(self, base_dir, github_user=None):
         self.base_dir = Path(base_dir)
-        self.sources_path = self.base_dir / "config/content-sources.yaml"
+        self.sources_path = _config_path(self.base_dir, "content-sources.yaml")
         self.out_dir = self.base_dir / "artifacts/content"
-        self.github_user = github_user
+        # Whose repos to read. Comes from the workspace's own .env via the
+        # caller, so the radar and the profile scanner can never disagree about
+        # which person this run is for. Empty -> the GitHub section is skipped.
+        self.github_user = (github_user or "").strip()
         self.llm = LLM(self.base_dir)
 
     # ---------------- config ----------------
@@ -237,7 +249,10 @@ class ContentRadar:
         return out
 
     def fetch_repos(self):
-        """Public repos for the candidate's GitHub user."""
+        """Public repos for the candidate's GitHub user. No user configured for
+        this workspace means no GitHub section, not a request to /users//repos."""
+        if not self.github_user:
+            return []
         url = f"https://api.github.com/users/{self.github_user}/repos"
         try:
             resp = requests.get(url, timeout=20, headers=UA,

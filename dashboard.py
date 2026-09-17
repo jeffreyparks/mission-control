@@ -2,11 +2,15 @@
 """
 Local writeback server for the Mission Control dashboard.
 
-    uv run dashboard.py            # http://127.0.0.1:8787
+    uv run dashboard.py                  # http://127.0.0.1:8787
+    uv run dashboard.py --user ariel     # someone else's data, yours untouched
 
-Serves artifacts/html/ and exposes a tiny JSON API so the dashboard can edit
-fields that a human owns - status first. Writes go through agents/store.py, so
-every change is logged and the spreadsheet is re-exported immediately.
+Serves the chosen workspace's artifacts/html/ and exposes a tiny JSON API so
+the dashboard can edit fields that a human owns - status first. Pick the
+workspace with --user NAME; it defaults to workspace/default.
+
+Writes go through agents/store.py, so every change is logged and the
+spreadsheet is re-exported immediately.
 
 The dashboard degrades on purpose: opened as a file:// page, or with the server
 off, it is simply read-only. Nothing breaks, the dropdowns just do not appear.
@@ -15,7 +19,7 @@ Deliberate limits:
   - binds to loopback only, and refuses any client that is not loopback
   - only the fields in EDITABLE can be written
   - no shutdown, no shell, no arbitrary paths: static files are served from
-    artifacts/html/ and nowhere else
+    that workspace's artifacts/html/ and nowhere else
 """
 import argparse
 import json
@@ -52,8 +56,7 @@ from job_intel import JobIntel, load_archetypes, OUTCOME_LABELS, _clean, _date, 
 
 sys.path.insert(0, str(BASE))
 from render.build import _env, render_tracker as _render_tracker_page  # noqa: E402
-
-WEB_ROOT = BASE / "artifacts/html"
+import workspace  # noqa: E402
 
 # Fields the dashboard may write, and the values it may write for them. A closed
 # vocabulary keeps a stray request from inventing a status or a category that
@@ -172,10 +175,10 @@ class Handler(SimpleHTTPRequestHandler):
     quiet = False
 
     def __init__(self, *args, **kwargs):
-        # Per-instance, not the module-level WEB_ROOT: two servers can run in
+        # Per-instance, not a module-level constant: two servers can run in
         # the same process (tests do this) pointed at different base dirs, and
         # each must serve its own artifacts/html, not whichever ran last.
-        root = str(self.store.base_dir / "artifacts/html") if self.store else str(WEB_ROOT)
+        root = str(self.store.base_dir / "artifacts/html")
         super().__init__(*args, directory=root, **kwargs)
 
     # ---------- helpers ----------
@@ -291,7 +294,8 @@ class Handler(SimpleHTTPRequestHandler):
         })
 
 
-def serve(host="127.0.0.1", port=8787, base=BASE, quiet=False):
+def serve(host="127.0.0.1", port=8787, base=None, quiet=False):
+    base = Path(base) if base else workspace.resolve()
     store = Store(base)
     editable = dict(EDITABLE)
     editable["outcomes"] = _outcome_options()
@@ -321,17 +325,21 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[1])
     parser.add_argument("--port", type=int, default=8787)
     parser.add_argument("--host", default="127.0.0.1")
+    workspace.add_argument(parser)
     args = parser.parse_args()
+    base = workspace.resolve(args.user)
 
-    if not WEB_ROOT.exists():
-        print("no artifacts/html yet - run: uv run run_daily.py --only render")
+    if not any((base / "artifacts/html").glob("*.html")):
+        print(f"nothing rendered yet for workspace {base.name!r} - run: "
+              f"uv run render/build.py --user {base.name}")
         return 1
 
-    httpd = serve(args.host, args.port)
+    httpd = serve(args.host, args.port, base=base)
     store = httpd.mc_store
     print(f"Mission Control writeback server")
     print(f"  dashboard : http://{args.host}:{args.port}/job-tracker.html")
-    print(f"  database  : {store.db_path.relative_to(BASE)} ({store.count()} roles)")
+    print(f"  workspace : {base}")
+    print(f"  database  : {store.db_path.relative_to(base)} ({store.count()} roles)")
     print(f"  editable  : {', '.join(httpd.mc_editable)}")
     print(f"  commit    : {SERVER_COMMIT}  (restart this process after any code change - "
           f"Python does not hot-reload)")

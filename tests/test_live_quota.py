@@ -1,8 +1,10 @@
 """Unit tests for the live-scan judging quota split (job_intel.prefilter_live)."""
 import sys
+import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
+SCRATCH = Path(tempfile.mkdtemp())   # never write cache into the repo or a real workspace
 sys.path.insert(0, str(REPO / "agents"))
 
 from job_intel import JobIntel, AGGREGATOR_PRIORITY, LOWER_TIER_RESERVE_FRACTION
@@ -21,7 +23,7 @@ def make_jobs(n, company, title_fmt, priority):
 
 
 def run(raw, max_live_roles=200):
-    intel = JobIntel(REPO)
+    intel = JobIntel(SCRATCH)
     intel.max_live_roles = max_live_roles
     return intel.prefilter_live(raw, tracker_ids=set())
 
@@ -73,7 +75,7 @@ check("a flooded lower-tier source still leaves room for aggregator supply",
 salaried_job = {"company": "Acme", "title": "Marketing Science Lead", "url": "https://x/salary-1",
                 "location": "", "description": "measurement attribution marketing science",
                 "priority": 1, "comp_range": "$150,000 - $190,000"}
-intel = JobIntel(REPO)
+intel = JobIntel(SCRATCH)
 intel.max_live_roles = 10
 roles = intel.prefilter_live([salaried_job], tracker_ids=set())
 check("comp_range threads through prefilter_live into the role dict",

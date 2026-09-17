@@ -19,15 +19,33 @@ Usage:
 import argparse
 import json
 import os
+import shutil
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 
 from dotenv import load_dotenv
 
-BASE = Path(__file__).resolve().parent
+BASE = Path(__file__).resolve().parent          # the repo: code, templates, app config
 sys.path.insert(0, str(BASE / "agents"))
+sys.path.insert(0, str(BASE))
+import workspace  # noqa: E402
+
+# Machine-wide secrets now; the workspace's own identity is layered on top in
+# main(), once --user has been parsed. Loading identity at import time would
+# bind whoever the repo .env named, whatever workspace was asked for.
 load_dotenv(BASE / ".env")
+
+# The workspace every stage reads and writes. Set once in main() from --user, so
+# no stage can accidentally touch a different person's data mid-run.
+WS = None
+
+
+def ws():
+    global WS
+    if WS is None:
+        WS = workspace.resolve()
+    return WS
 
 RADAR_INTERVAL_DAYS = 7
 
@@ -64,7 +82,7 @@ def log_routing():
 
 
 def radar_is_due():
-    files = sorted((BASE / "artifacts/content").glob("radar-*.json"))
+    files = sorted((ws() / "artifacts/content").glob("radar-*.json"))
     if not files:
         return True, "no radar yet"
     try:
@@ -87,15 +105,15 @@ def run_profiles():
     github_user = os.environ.get("GITHUB_USERNAME", "").strip()
     bluesky_handle = os.environ.get("BLUESKY_HANDLE", "").strip()
 
-    runners = [("linkedin", lambda: LinkedInScanner(BASE).run())]
+    runners = [("linkedin", lambda: LinkedInScanner(ws()).run())]
     if github_user:
-        runners.insert(0, ("github", lambda: GitHubScanner(github_user, BASE).run()))
+        runners.insert(0, ("github", lambda: GitHubScanner(github_user, ws()).run()))
     else:
-        log("   github scanner skipped (GITHUB_USERNAME not set in .env)")
+        log(f"   github scanner skipped (no GITHUB_USERNAME in {workspace.env_path(ws())})")
     if bluesky_handle:
-        runners.append(("bluesky", lambda: BlueSkyScanner(bluesky_handle, BASE).run()))
+        runners.append(("bluesky", lambda: BlueSkyScanner(bluesky_handle, ws()).run()))
     else:
-        log("   bluesky scanner skipped (BLUESKY_HANDLE not set in .env)")
+        log(f"   bluesky scanner skipped (no BLUESKY_HANDLE in {workspace.env_path(ws())})")
 
     done = []
     for label, runner_fn in runners:
@@ -110,30 +128,38 @@ def run_profiles():
 def run_jobs():
     if not OPTS["intel"]:
         from job_scanner import JobScanner
-        out = JobScanner(BASE).run()
+        out = JobScanner(ws()).run()
         return f"legacy scan: {Path(out).name}" if out else "legacy scan: no output"
 
     from job_intel import JobIntel
-    out = JobIntel(BASE, refresh=OPTS["refresh"]).run()
+    out = JobIntel(ws(), refresh=OPTS["refresh"]).run()
     return f"job intel: {Path(out).name}" if out else "job intel: no output"
 
 
 def run_radar():
     from content_radar import ContentRadar
-    out = ContentRadar(BASE).run()
+    out = ContentRadar(ws(), github_user=os.environ.get("GITHUB_USERNAME", "").strip()).run()
     return f"radar: {Path(out).name}" if out else "radar: no output"
 
 
 def run_history():
     from history import History
-    out = History(BASE).run()
+    out = History(ws()).run()
     return f"history: {Path(out).name}" if out else "history: no output"
 
 
 def run_render():
     sys.path.insert(0, str(BASE / "render"))
     import build
-    build.main()
+    base = ws()
+    env = build._env()
+    (base / "artifacts/html").mkdir(parents=True, exist_ok=True)
+    shutil.copy2(build.RENDER / "theme.css", base / "artifacts/html/theme.css")
+    radar = build._load("radar-*.json", "artifacts/content", base=base)
+    intel = build._load("intel-*.json", "artifacts/jobs", base=base)
+    tracker_path, _html = build.render_tracker(env, intel, base=base)
+    build.render_index(env, intel, radar, base=base)
+    build.render_radar(env, radar, base=base)
     return "html rebuilt"
 
 
@@ -158,12 +184,16 @@ def main():
                        help="fall back to the legacy keyword JobScanner")
     ap.add_argument("--refresh-intel", action="store_true",
                     help="re-judge every role instead of reusing unchanged verdicts")
+    workspace.add_argument(ap)
     args = ap.parse_args()
 
+    global WS
+    WS = workspace.resolve(args.user)
+    workspace.load_env(WS)          # identity for THIS workspace, overriding the repo .env
     OPTS["intel"] = args.intel
     OPTS["refresh"] = args.refresh_intel
 
-    log("Mission Control run started")
+    log(f"Mission Control run started  (workspace: {WS.name})")
     log(f"   jobs: {'intel' + (' (refresh)' if args.refresh_intel else '')}" if args.intel
         else "   jobs: legacy keyword scan")
     log_routing()

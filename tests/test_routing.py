@@ -2,8 +2,13 @@
 import sys
 from pathlib import Path
 
-BASE = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(BASE / "agents"))
+REPO = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO / "agents"))
+
+# A scratch workspace, so the llm cache these tests touch never lands in the
+# repo or in anyone's real workspace/<name>/data.
+import tempfile
+BASE = Path(tempfile.mkdtemp())
 
 import routing
 from llm import LLM, LLMError

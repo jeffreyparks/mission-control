@@ -18,7 +18,11 @@ from datetime import datetime
 from pathlib import Path
 
 BASE = Path(__file__).resolve().parent.parent
-STATE = BASE / "data/last-daily-run.txt"
+sys.path.insert(0, str(BASE))
+import workspace  # noqa: E402
+
+WS = workspace.resolve()
+STATE = WS / "data/last-daily-run.txt"
 EARLIEST_HOUR = 7          # do not run before 07:00 local
 TIMEOUT_S = 1800           # 30 minutes
 

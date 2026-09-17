@@ -2,8 +2,13 @@
 
     mc setup       scaffold me/, fill in the basics, first run
     mc run         run the daily pipeline
+    mc render      rebuild the static dashboard from existing data
     mc dashboard   editable local dashboard (background by default)
+    mc users       list workspaces
     mc help        show this list of commands
+
+Every command takes --user NAME to run against workspace/NAME instead of
+workspace/default, so testing someone else's data never touches your own.
 
 Thin wrapper around the repo's top-level scripts (setup.py, run_daily.py,
 dashboard.py). The underlying scripts still work standalone
@@ -34,6 +39,7 @@ SCRIPTS = {
     "setup": "setup",
     "run": "run_daily",
     "dashboard": "dashboard",
+    "render": "render/build",
 }
 
 HELP_TEXT = """\
@@ -49,6 +55,13 @@ mc run [--force-radar] [--only STAGE] [--refresh-intel] [--no-intel]
     --refresh-intel  re-judge every role instead of reusing cached verdicts
     --no-intel       legacy keyword scanner instead of LLM fit
 
+mc render [--user NAME]
+    rebuild the static dashboard pages from that workspace's existing data
+    (no scans, no LLM calls)
+
+mc users
+    list the workspaces under workspace/
+
 mc dashboard [--host HOST] [--port PORT] [--foreground]
 mc dashboard stop
     editable local dashboard - starts in the background by default so it
@@ -59,6 +72,10 @@ mc dashboard stop
 
 mc help
     show this list of commands
+
+--user NAME works on setup, run, render and dashboard. It selects
+workspace/NAME - one person's entire dataset (artifacts, data, me, config).
+Defaults to $MC_WORKSPACE, then "default".
 
 Full detail for any subcommand's own options: mc <subcommand> --help
 """
@@ -73,11 +90,12 @@ def _run_script(script_name, argv):
     sys.path.insert(0, str(REPO_ROOT / "agents"))
 
     path = REPO_ROOT / f"{script_name}.py"
-    spec = importlib.util.spec_from_file_location(script_name, path)
+    module_name = script_name.replace("/", "_")
+    spec = importlib.util.spec_from_file_location(module_name, path)
     module = importlib.util.module_from_spec(spec)
 
     old_argv = sys.argv
-    sys.argv = [f"{script_name}.py", *argv]
+    sys.argv = [f"{path.name}", *argv]
     try:
         spec.loader.exec_module(module)  # the script's own `if __name__ ==
         # "__main__"` guard does not fire here - exec_module gives it the
@@ -181,6 +199,9 @@ def main():
                     help="scaffold me/, fill in the basics, first run")
     sub.add_parser("run", add_help=False,
                     help="run the daily pipeline")
+    sub.add_parser("render", add_help=False,
+                    help="rebuild static dashboard pages from existing data")
+    sub.add_parser("users", add_help=False, help="list workspaces")
     sub.add_parser("dashboard", add_help=False,
                     help="editable local dashboard (background by default)")
     sub.add_parser("help", add_help=False,
@@ -190,6 +211,17 @@ def main():
 
     if args.command == "help":
         print(HELP_TEXT)
+        return 0
+
+    if args.command == "users":
+        sys.path.insert(0, str(REPO_ROOT))
+        import workspace
+        names = workspace.available()
+        current = os.environ.get("MC_WORKSPACE") or workspace.DEFAULT
+        for n in names:
+            print(f"{'*' if n == current else ' '} {n}")
+        if not names:
+            print("no workspaces yet - run: mc setup")
         return 0
 
     if args.command == "dashboard":

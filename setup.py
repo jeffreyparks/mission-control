@@ -22,7 +22,11 @@ import sys
 from pathlib import Path
 
 BASE = Path(__file__).resolve().parent
-ME = BASE / "me"
+sys.path.insert(0, str(BASE))
+import workspace  # noqa: E402
+
+WS = workspace.resolve()          # rebound in main() once --user is parsed
+ME = WS / "me"
 TEMPLATES = BASE / "templates" / "me"
 ENV_PATH = BASE / ".env"
 ENV_EXAMPLE = BASE / ".env.example"
@@ -82,14 +86,13 @@ def _is_placeholder(path):
     return any(marker in text for marker in PLACEHOLDER_MARKERS) and len(text) < 2000
 
 
+def _env_file(key):
+    """Identity belongs to the workspace, machine secrets to the repo."""
+    return workspace.env_path(WS) if key in workspace.IDENTITY_KEYS else ENV_PATH
+
+
 def _env_value(key):
-    if not ENV_PATH.exists():
-        return ""
-    for line in ENV_PATH.read_text().splitlines():
-        line = line.strip()
-        if line.startswith(f"{key}="):
-            return line.split("=", 1)[1].strip()
-    return ""
+    return workspace.read_env(_env_file(key), key)
 
 
 def status():
@@ -113,16 +116,22 @@ def status():
         mark = "✓" if ok else "✗"
         print(f"  {mark} {label}{(' - ' + detail) if detail else ''}")
 
-    print("me/ (required for a first run)")
+    print(f"workspace: {WS.name}  ({WS})")
+
+    print("\nme/ (required for a first run)")
     line("resume", resume_ok)
     line("profile.md", profile_ok)
 
     print("\nme/ (optional)")
     line("linkedin", linkedin_ok, "skipped if absent")
-    line("bluesky handle+password", bool(bluesky_handle and bluesky_pw), "skipped if absent")
-    line("github username", bool(github_user), "skipped if absent")
 
-    print("\nLLM backend")
+    # Identity is per workspace: switching --user switches whose accounts get
+    # scanned, so say out loud which file these came from.
+    print(f"\nidentity ({workspace.env_path(WS)})")
+    line("bluesky handle+password", bool(bluesky_handle and bluesky_pw), "skipped if absent")
+    line("github username", bool(github_user), github_user or "skipped if absent")
+
+    print(f"\nLLM backend ({ENV_PATH} - shared by every workspace)")
     if backend == "api":
         line("LLM_BACKEND=api", anthropic_key, "ANTHROPIC_API_KEY " + ("set" if anthropic_key else "MISSING"))
     else:
@@ -142,8 +151,8 @@ def status():
 def dry_run():
     sys.path.insert(0, str(BASE))
     import yaml
-    companies = yaml.safe_load((BASE / "config/job-sources.yaml").read_text()) or {}
-    feeds = yaml.safe_load((BASE / "config/content-sources.yaml").read_text()) or {}
+    companies = yaml.safe_load(workspace.config_path(WS, "job-sources.yaml").read_text()) or {}
+    feeds = yaml.safe_load(workspace.config_path(WS, "content-sources.yaml").read_text()) or {}
     n_companies = len(companies.get("companies", []))
     n_feeds = len(feeds.get("sources", []))
     print(f"Would scan {n_companies} companies (config/job-sources.yaml)")
@@ -160,7 +169,7 @@ def wizard():
     if created:
         print("Created:", ", ".join(created))
     else:
-        print("me/ and .env already exist - editing in place.")
+        print(f"{WS.name}: me/ and .env already exist - editing in place.")
 
     print()
     if _is_placeholder(ME / "profile.md"):
@@ -212,7 +221,8 @@ def wizard():
     ready = status()
     if ready and yes("\nRun the pipeline now?", default=True):
         import subprocess
-        subprocess.run([sys.executable, str(BASE / "run_daily.py")], cwd=str(BASE))
+        subprocess.run([sys.executable, str(BASE / "run_daily.py"), "--user", str(WS)],
+                        cwd=str(BASE))
 
 
 def _set_env(key, value):
@@ -230,9 +240,16 @@ def _set_env(key, value):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[1])
+    workspace.add_argument(ap)
     ap.add_argument("--status", action="store_true", help="show what's configured, no prompts")
     ap.add_argument("--dry-run", action="store_true", help="preview scan scope, no LLM calls")
     args = ap.parse_args()
+
+    # Rebind the module-level workspace paths before any command runs, so every
+    # helper below writes into the workspace the user actually asked for.
+    global WS, ME
+    WS = workspace.resolve(args.user)
+    ME = WS / "me"
 
     if args.status:
         ok = status()

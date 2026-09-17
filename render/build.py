@@ -21,9 +21,16 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-BASE = Path(__file__).resolve().parent.parent
+BASE = Path(__file__).resolve().parent.parent   # the repo: templates and theme live here
 RENDER = BASE / "render"
-OUT = BASE / "artifacts/html"
+
+
+def _default_base():
+    """The workspace to render when a caller does not name one. Never the repo -
+    user data lives in workspace/<name>/ now."""
+    sys.path.insert(0, str(BASE))
+    import workspace
+    return workspace.resolve()
 
 
 def _env():
@@ -35,13 +42,14 @@ def _env():
     )
 
 
-def _latest(pattern, folder):
-    files = sorted((BASE / folder).glob(pattern))
+def _latest(pattern, folder, base=None):
+    base = base or _default_base()
+    files = sorted((base / folder).glob(pattern))
     return files[-1] if files else None
 
 
-def _load(pattern, folder):
-    src = _latest(pattern, folder)
+def _load(pattern, folder, base=None):
+    src = _latest(pattern, folder, base=base or _default_base())
     return json.loads(src.read_text()) if src else None
 
 
@@ -61,12 +69,12 @@ def _median_fit(roles):
 
 # ---------------------------------------------------------------- pages
 
-def render_radar(env, d):
+def render_radar(env, d, base=None):
     if not d:
         print("  radar: no json found, skipped")
         return None
     html = env.get_template("radar.html.j2").render(d=d, picks=_radar_picks(d))
-    out = OUT / "content-radar.html"
+    out = (base or _default_base()) / "artifacts/html" / "content-radar.html"
     out.write_text(html)
     return out
 
@@ -127,7 +135,7 @@ def _tracker_context(d):
     )
 
 
-def render_tracker(env, d, write=True):
+def render_tracker(env, d, write=True, base=None):
     """Job tracker page. Consumes the intel-*.json written by agents/job_intel.py.
 
     Returns (path_or_None, html). Set write=False to get the rendered string
@@ -141,28 +149,28 @@ def render_tracker(env, d, write=True):
     html = env.get_template("tracker.html.j2").render(**_tracker_context(d))
     out = None
     if write:
-        out = OUT / "job-tracker.html"
+        out = (base or _default_base()) / "artifacts/html" / "job-tracker.html"
         out.write_text(html)
     return out, html
 
 
-def _deltas():
+def _deltas(base=None):
     """Run-over-run movement from agents/history.py. None when history has not run."""
     try:
         sys.path.insert(0, str(BASE / "agents"))
         from history import get_deltas
-        return get_deltas(BASE)
+        return get_deltas(base or _default_base())
     except Exception as exc:  # noqa: BLE001 - the page must render without history
         print(f"  history deltas unavailable: {exc}")
         return None
 
 
-def render_index(env, intel, radar):
+def render_index(env, intel, radar, base=None):
     """Home page. Degrades cleanly when either feed has not run yet."""
     roles = intel["roles"] if intel else []
     shortlist = [r for r in roles if r.get("recommendation") == "apply"][:6]
     html = env.get_template("index.html.j2").render(
-        deltas=_deltas(),
+        deltas=_deltas(base=base),
         intel=intel,
         radar=radar,
         picks=_radar_picks(radar),
@@ -171,27 +179,37 @@ def render_index(env, intel, radar):
         median_fit=_median_fit(roles),
         built=datetime.now().strftime("%Y-%m-%d %H:%M"),
     )
-    out = OUT / "index.html"
+    out = (base or _default_base()) / "artifacts/html" / "index.html"
     out.write_text(html)
     return out
 
 
 def main():
-    OUT.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(RENDER / "theme.css", OUT / "theme.css")
+    import argparse
+    sys.path.insert(0, str(BASE))
+    import workspace
+
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[1])
+    workspace.add_argument(ap)
+    args = ap.parse_args()
+    base = workspace.resolve(args.user)
+
+    out = base / "artifacts/html"
+    out.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(RENDER / "theme.css", out / "theme.css")
 
     env = _env()
-    radar = _load("radar-*.json", "artifacts/content")
-    intel = _load("intel-*.json", "artifacts/jobs")
+    radar = _load("radar-*.json", "artifacts/content", base=base)
+    intel = _load("intel-*.json", "artifacts/jobs", base=base)
 
-    tracker_path, _tracker_html = render_tracker(env, intel)
+    tracker_path, _tracker_html = render_tracker(env, intel, base=base)
     written = [p for p in (
-        render_index(env, intel, radar),
-        render_radar(env, radar),
+        render_index(env, intel, radar, base=base),
+        render_radar(env, radar, base=base),
         tracker_path,
     ) if p]
     for p in written:
-        print(f"rendered {p.relative_to(BASE)}")
+        print(f"rendered {p.relative_to(base)}")
     return 0
 
 

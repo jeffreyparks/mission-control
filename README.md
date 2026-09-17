@@ -36,7 +36,7 @@ Once you're set up:
 
 ```bash
 mc run                 # pulls new roles, judges fit, rebuilds the pages
-open artifacts/html/index.html
+open workspace/default/artifacts/html/index.html
 
 mc dashboard            # optional: browse and edit your results (runs in the background)
 open http://127.0.0.1:8787
@@ -183,7 +183,8 @@ verdicts automatically. `PROMPT_VERSION` remains as a manual override.
 
 ### Data model
 
-`data/mission-control.db` is the source of record. `artifacts/jobs/org-roles-tracker.xlsx` is
+`workspace/<name>/data/mission-control.db` is the source of record. That workspace's
+`artifacts/jobs/org-roles-tracker.xlsx` is
 re-exported on every write, so the spreadsheet remains a physical backup you can open or restore
 from.
 
@@ -214,14 +215,14 @@ and 37 were left unmapped rather than forced.
 
 ### History
 
-`data/history.db` snapshots every run and computes deltas: new and disappeared roles, fit score
+`workspace/<name>/data/history.db` snapshots every run and computes deltas: new and disappeared roles, fit score
 movement, verdict changes, status changes, and LinkedIn coverage movement. The daily brief opens
 with a "What changed" section. With a single snapshot it says so plainly instead of inventing
 movement.
 
 ### Tracker
 
-`artifacts/jobs/org-roles-tracker.xlsx` is the source of record. It is backed up before every
+`workspace/<name>/artifacts/jobs/org-roles-tracker.xlsx` is the source of record. It is backed up before every
 write. Your manual columns (Role Cat, Priority, Status, Outcomes, Notes) are asserted unchanged
 in code after each update.
 
@@ -229,10 +230,14 @@ Columns added by the system: Fit Score, Fit Rationale, Recommendation, Sector, D
 
 ### Layout
 
+Code and app config live in the repo. **All user data lives in `workspace/<name>/`** -
+one directory per person, so a whole dataset is a single swappable unit.
+
 ```
 src/mission_control/
   __init__.py         `mc` CLI - thin dispatcher to setup.py/run_daily.py/dashboard.py
-setup.py               scaffold me/, first run
+workspace.py            resolves --user NAME -> workspace/NAME (one person's data)
+setup.py               scaffold a workspace's me/, first run
 run_daily.py            the daily/weekly pipeline
 dashboard.py            editable local dashboard (formerly serve.py)
 agents/
@@ -246,26 +251,72 @@ agents/
   profile_scanner.py  linkedin_scanner.py  bluesky_scanner.py
   synthesizer.py
 render/
-  build.py            renders all three pages
+  build.py            renders all three pages for one workspace
   theme.css           shared design system
   index / radar / tracker .html.j2
-config/
-  content-sources.yaml    RSS feeds (project defaults)
-  job-sources.yaml        target companies + rules (project defaults)
+config/                     project defaults, tracked in git
+  content-sources.yaml    RSS feeds
+  job-sources.yaml        target companies + rules
   model-routing.toml      tag -> tier map, versioned with the pipeline
-me/                        your single input folder - gitignored, local only
-  profile.md               positioning + keywords  (ground truth)
-  resume.pdf / resume.txt  parsed into LLM context automatically
-  linkedin/                optional LinkedIn export
-templates/me/               placeholder scaffold for me/, tracked in git
+templates/me/               placeholder scaffold for a workspace's me/, tracked in git
 .env                        secrets (API keys, BlueSky password) - gitignored, see .env.example
 .mc/                        mc dashboard runtime state (pidfile, log) - gitignored
-data/
-  llm-cache/              hash-keyed response cache
-artifacts/
-  html/                   the three rendered pages
-  jobs/                   org-roles-tracker.xlsx + intel-*.json + backups
-  content/                radar-*.json + .md
-  profiles/  synthesis/
+logs/                       daily run logs - gitignored
 attic/                    retired Streamlit dashboard and one-off scripts
+
+workspace/                  ALL user data - gitignored in full, never upstream
+  default/                    your data (the default workspace)
+    me/                       your single input folder
+      profile.md                positioning + keywords  (ground truth)
+      resume.pdf / resume.txt   parsed into LLM context automatically
+      linkedin/                 optional LinkedIn export
+    data/
+      mission-control.db        source of record
+      history.db                run-over-run snapshots
+      llm-cache/                hash-keyed response cache
+    artifacts/
+      html/                     the three rendered pages
+      jobs/                     org-roles-tracker.xlsx + intel-*.json + backups
+      content/                  radar-*.json + .md
+      profiles/
+    config/                     optional per-workspace overrides of config/ above
+    .env                        THIS person's identity: GITHUB_USERNAME,
+                                BLUESKY_HANDLE/APP_PASSWORD/PDS_URL
+  ariel/                      someone else's data, identical shape
 ```
+
+### Secrets: two files, on purpose
+
+| file | holds | shared |
+|---|---|---|
+| `.env` (repo root) | `LLM_BACKEND`, `ANTHROPIC_API_KEY`, `OPENROUTER_API_KEY` | yes - machine-wide |
+| `workspace/<name>/.env` | `GITHUB_USERNAME`, `BLUESKY_HANDLE`, `BLUESKY_APP_PASSWORD`, `BLUESKY_PDS_URL` | no - one person |
+
+Identity follows `--user`. `mc run --user ariel` reads ariel's `.env`, so it can
+never scan your GitHub or post-history instead of theirs. A workspace with no
+`.env` simply skips those scans - it never falls back to whoever ran last.
+
+`uv run setup.py --user NAME` writes each answer to the correct file. Start a
+new one from `templates/workspace.env.example`. Both files are gitignored.
+
+### Working with more than one dataset
+
+Every command takes `--user NAME`, selecting `workspace/NAME`. Nothing outside
+that directory is read or written, so testing against someone else's data can
+never disturb your own.
+
+```
+mc users                        # list workspaces ( * marks the active default )
+mc run --user ariel             # full pipeline against workspace/ariel
+mc render --user ariel          # rebuild just the HTML from existing data, no LLM calls
+mc dashboard --user ariel       # browse/edit that workspace
+```
+
+Defaults to `$MC_WORKSPACE`, then `default`. To set one for a whole shell
+session: `export MC_WORKSPACE=ariel`.
+
+To add a dataset, drop it in as `workspace/<name>/` with the shape above - at
+minimum `artifacts/jobs/intel-*.json` for the pages to have content, plus
+`me/profile.md` if you want role-category suggestions. Missing directories are
+created automatically on first use.
+
