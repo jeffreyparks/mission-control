@@ -42,6 +42,18 @@ ANTHROPIC_VERSION = "2023-06-01"
 CLI_DEFAULT = "claude-cli-default"
 DEFAULT_API_MODEL = "claude-sonnet-5"
 
+# Output budget. A fixed cap silently truncates the moment a caller asks for
+# more than it allows - which is how a 16-role fit batch died mid-JSON while
+# both models in the ladder "failed" for what looked like a quality reason.
+# Callers size their own budget with output_budget(); this is only the floor for
+# callers that do not.
+DEFAULT_MAX_TOKENS = 4096
+MAX_TOKENS_CEILING = 16000
+
+# Anthropic caches a stable prompt prefix and charges ~10% to read it back.
+# Worth it only above a minimum prefix size, which the API enforces anyway.
+CACHE_MIN_PREFIX_CHARS = 4000
+
 STRICTER = (
     "\n\nIMPORTANT: your previous answer could not be parsed. "
     "Return ONLY raw JSON. No prose, no markdown fences, no explanation."
@@ -50,6 +62,30 @@ STRICTER = (
 
 class LLMError(RuntimeError):
     pass
+
+
+class TruncatedResponse(LLMError):
+    """The model ran out of output budget mid-answer.
+
+    Distinct from unparseable output because the remedies are opposite: a
+    chatty model is worth retrying with a stricter instruction, while a
+    truncated one needs a bigger budget or a smaller request. Retrying or
+    escalating a truncation just spends a second, larger bill on the same
+    ceiling."""
+
+
+def _join_prompt(cache_prefix, prompt):
+    """The full prompt text, for transports that take one string."""
+    return f"{cache_prefix}\n\n{prompt}" if cache_prefix else prompt
+
+
+def output_budget(n_items, per_item=700, overhead=500, ceiling=MAX_TOKENS_CEILING):
+    """Output tokens to allow for a request covering n_items.
+
+    per_item=700 is ~1.5x the largest real fit verdict measured over 499 roles
+    (median 216, p90 307, max 480), so a normal batch has generous headroom and
+    an unusually wordy one still fits."""
+    return max(DEFAULT_MAX_TOKENS, min(ceiling, overhead + per_item * max(1, n_items)))
 
 
 def _openrouter_key():
@@ -75,7 +111,8 @@ class LLM:
         self.model = model          # explicit pin; disables routing
         self.timeout = timeout
         self.route = route and model is None
-        self.stats = {"hits": 0, "misses": 0, "cost_usd": 0.0, "by_model": {}}
+        self.stats = {"hits": 0, "misses": 0, "cost_usd": 0.0, "by_model": {},
+                       "cache_write_tokens": 0, "cache_read_tokens": 0}
 
     # ---------- cache ----------
 
@@ -150,9 +187,14 @@ class LLM:
         self.stats["cost_usd"] += float(envelope.get("total_cost_usd") or 0.0)
         return envelope.get("result", "")
 
-    def _call_anthropic_api(self, prompt, model=None):
+    def _call_anthropic_api(self, prompt, model=None, max_tokens=None, cache_prefix=None):
         """Direct Anthropic Messages API call. Alternative to _call_claude when
-        LLM_BACKEND=api - billed per token instead of riding the CLI subscription."""
+        LLM_BACKEND=api - billed per token instead of riding the CLI subscription.
+
+        cache_prefix goes in a cached system block: a stable prefix (the
+        candidate context and the scoring rules, identical for every batch in a
+        run) is uploaded once and read back at ~10% of the price, which is what
+        makes small, higher-quality batches affordable."""
         key = _anthropic_api_key()
         if not key:
             raise LLMError(
@@ -164,6 +206,19 @@ class LLM:
         if model == CLI_DEFAULT:
             model = None
         model_id = model.split("/", 1)[-1] if model and "/" in model else (model or DEFAULT_API_MODEL)
+        budget = max_tokens or DEFAULT_MAX_TOKENS
+
+        payload = {
+            "model": model_id,
+            "max_tokens": budget,
+            "messages": [{"role": "user", "content": prompt}],
+        }
+        if cache_prefix:
+            block = {"type": "text", "text": cache_prefix}
+            if len(cache_prefix) >= CACHE_MIN_PREFIX_CHARS:
+                block["cache_control"] = {"type": "ephemeral"}
+            payload["system"] = [block]
+
         try:
             resp = requests.post(
                 ANTHROPIC_URL,
@@ -172,11 +227,7 @@ class LLM:
                     "anthropic-version": ANTHROPIC_VERSION,
                     "content-type": "application/json",
                 },
-                json={
-                    "model": model_id,
-                    "max_tokens": 4096,
-                    "messages": [{"role": "user", "content": prompt}],
-                },
+                json=payload,
                 timeout=self.timeout,
             )
         except requests.RequestException as exc:
@@ -193,12 +244,24 @@ class LLM:
         except Exception:  # noqa: BLE001
             raise LLMError(f"unexpected anthropic body: {str(body)[:300]}")
 
-        # complete_json() already records calls/seconds per selector after
-        # dispatch returns; the Anthropic API gives token counts, not USD, so
-        # cost_usd (unlike the CLI and OpenRouter paths) is not incremented here.
+        usage = body.get("usage") or {}
+        self.stats["cache_write_tokens"] += usage.get("cache_creation_input_tokens") or 0
+        self.stats["cache_read_tokens"] += usage.get("cache_read_input_tokens") or 0
+
+        # Truncation is reported, not inferred from a JSON parse failure, so the
+        # caller can shrink the request instead of paying twice for the same
+        # ceiling. Raised even though `content` holds a partial answer: half a
+        # verdict is not a verdict.
+        if body.get("stop_reason") == "max_tokens":
+            raise TruncatedResponse(
+                f"response hit the {budget}-token output budget and was cut off "
+                f"({usage.get('output_tokens', '?')} output tokens); "
+                f"send fewer items per call or raise the budget"
+            )
         return content
 
-    def _call_openrouter(self, prompt, selector):
+
+    def _call_openrouter(self, prompt, selector, max_tokens=None):
         key = _openrouter_key()
         if not key:
             raise LLMError("no OpenRouter key - set OPENROUTER_API_KEY in .env")
@@ -212,6 +275,7 @@ class LLM:
                     "model": model_id,
                     "messages": [{"role": "user", "content": prompt}],
                     "temperature": 0,
+                    "max_tokens": max_tokens or DEFAULT_MAX_TOKENS,
                     "usage": {"include": True},
                 },
                 timeout=self.timeout,
@@ -233,25 +297,33 @@ class LLM:
         self.stats["cost_usd"] += float(usage.get("cost") or 0.0)
         return content
 
-    def _dispatch(self, prompt, selector):
+    def _dispatch(self, prompt, selector, max_tokens=None, cache_prefix=None):
+        """prompt is the VARIABLE part; cache_prefix is the stable part. Only the
+        Anthropic path can cache a prefix, so the other transports just receive
+        the two concatenated - identical text, no behaviour change."""
         if selector.startswith("openrouter/"):
-            return self._call_openrouter(prompt, selector)
+            return self._call_openrouter(_join_prompt(cache_prefix, prompt), selector, max_tokens)
         # anthropic/* selectors and the CLI_DEFAULT sentinel both
         # target Claude; LLM_BACKEND picks which transport reaches it. This
         # is an explicit choice, never a silent runtime fallback.
         if llm_backend() == "api":
-            return self._call_anthropic_api(prompt, selector)
-        return self._call_claude(prompt, selector)
+            return self._call_anthropic_api(prompt, selector, max_tokens, cache_prefix)
+        return self._call_claude(_join_prompt(cache_prefix, prompt), selector)
 
     # ---------- core call ----------
 
-    def complete_json(self, prompt, tag="generic", force=False, validate=None):
+    def complete_json(self, prompt, tag="generic", force=False, validate=None,
+                       max_tokens=None, cache_prefix=None):
         """Send a prompt, return parsed JSON. Cached.
 
         validate: optional callable(data) -> bool. A model whose output fails it
         is treated exactly like unparseable output: retry, then escalate.
+        max_tokens: output budget; see output_budget() for sizing by batch.
+        cache_prefix: stable leading text, cached by the Anthropic backend. The
+        response cache key covers prefix and prompt together, so splitting a
+        prompt this way never changes which entry it hits.
         """
-        key = self._key(prompt, tag)
+        key = self._key(_join_prompt(cache_prefix, prompt), tag)
         path = self._cache_path(key)
 
         if path.exists() and not force:
@@ -278,10 +350,14 @@ class LLM:
                 text = prompt if attempt == 0 else prompt + STRICTER
                 started = time.time()
                 try:
-                    raw = self._dispatch(text, selector)
+                    raw = self._dispatch(text, selector, max_tokens, cache_prefix)
                     data = self._extract_json(raw)
                     if validate and not validate(data):
                         raise LLMError("failed caller validation")
+                except TruncatedResponse as exc:
+                    # Neither a stricter instruction nor a bigger model buys more
+                    # room, so stop here and let the caller split the request.
+                    raise TruncatedResponse(f"{selector}: {exc}")
                 except LLMError as exc:
                     errors.append(f"{selector} try{attempt + 1}: {exc}")
                     continue
@@ -304,4 +380,8 @@ class LLM:
             parts = [f"{s.split('/')[-1]} x{v['calls']}"
                      for s, v in self.stats["by_model"].items()]
             line += " [" + ", ".join(parts) + "]"
+        read = self.stats.get("cache_read_tokens") or 0
+        written = self.stats.get("cache_write_tokens") or 0
+        if read or written:
+            line += f" (prompt cache: {read} read, {written} written)"
         return line

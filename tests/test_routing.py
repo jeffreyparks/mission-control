@@ -48,7 +48,7 @@ check("unknown tag is unrouted", routing.ladder_for_tag("mystery") == [])
 # --- escalation walks the whole ladder, retrying once per model ------------
 calls = []
 llm = LLM(BASE)
-llm._dispatch = lambda prompt, selector: calls.append(selector) or "not json at all"
+llm._dispatch = lambda prompt, selector, *a, **k: calls.append(selector) or "not json at all"
 try:
     llm.complete_json("x", tag="org-sectors", force=True)
     check("bad output raises", False)
@@ -61,7 +61,7 @@ check("retried each model", len(calls) == len(ladder) * (retries + 1), f"{len(ca
 # --- a valid answer from the first model stops the ladder -----------------
 calls2 = []
 llm2 = LLM(BASE)
-llm2._dispatch = lambda p, s: calls2.append(s) or '{"Acme": "Tech - SaaS"}'
+llm2._dispatch = lambda p, s, *a, **k: calls2.append(s) or '{"Acme": "Tech - SaaS"}'
 out = llm2.complete_json("x", tag="org-sectors", force=True,
                          validate=make_sector_validator(["Acme"]))
 check("first model wins", calls2 == ladder[:1], str(calls2))
@@ -71,7 +71,7 @@ check("payload returned", out == {"Acme": "Tech - SaaS"})
 calls3 = []
 answers = iter(['{"Acme": "TechSaaS"}', '{"Acme": "Tech - SaaS"}'])
 llm3 = LLM(BASE)
-llm3._dispatch = lambda p, s: calls3.append(s) or next(answers)
+llm3._dispatch = lambda p, s, *a, **k: calls3.append(s) or next(answers)
 out3 = llm3.complete_json("y", tag="org-sectors", force=True,
                           validate=make_sector_validator(["Acme"]))
 check("bad shape rejected then retried", len(calls3) == 2, str(calls3))

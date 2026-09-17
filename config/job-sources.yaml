@@ -114,6 +114,11 @@ rules:
   # real money/quota). --max-live on the CLI overrides this for a single run.
   max_live_roles: 200
 
+  # Roles judged per LLM fit call. Smaller batches give each role more of the
+  # model's attention; the batch still needs a few roles in it, because the
+  # scoring calibration works by comparison across the batch.
+  fit_batch_size: 6
+
   # Title heuristics for the LIVE SCAN only (agents/job_intel.py): a brand-new
   # live find whose title matches one of these (case-insensitive, whole-phrase)
   # is closed immediately - Status "04 Closed", recommendation "skip" - with NO

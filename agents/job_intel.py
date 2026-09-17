@@ -93,7 +93,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from llm import LLM, LLMError            # noqa: E402
+from llm import LLM, output_budget, LLMError            # noqa: E402
 from context import context_block        # noqa: E402
 from job_scanner import JobScanner       # noqa: E402
 
@@ -161,6 +161,25 @@ def load_auto_close_titles(scanner):
 
 
 DEFAULT_MAX_LIVE_ROLES = 200
+
+# Roles per fit call. Measured over 499 real verdicts: median 216 output tokens
+# per role, p90 307, max 480. Six roles is small enough that each gets real
+# attention and the answer never approaches the output ceiling, while still
+# showing the model a spread of roles - the prompt's calibration depends on
+# that ("a batch where many roles score high is a failed batch"), so judging
+# one role in isolation would lose the comparison that keeps scores honest.
+DEFAULT_FIT_BATCH_SIZE = 6
+
+
+def load_fit_batch_size(scanner):
+    """Roles per fit call. Editable in config/job-sources.yaml under
+    rules.fit_batch_size."""
+    config = scanner.load_sources() or {}
+    value = (config.get("rules") or {}).get("fit_batch_size")
+    try:
+        return max(1, int(value)) if value is not None else DEFAULT_FIT_BATCH_SIZE
+    except (TypeError, ValueError):
+        return DEFAULT_FIT_BATCH_SIZE
 
 
 def load_max_live_roles(scanner):
@@ -428,15 +447,15 @@ def make_sector_validator(orgs):
 
 
 class JobIntel:
-    def __init__(self, base_dir, batch_size=16, max_live_roles=None, model=None, refresh=False):
+    def __init__(self, base_dir, batch_size=None, max_live_roles=None, model=None, refresh=False):
         self.refresh = refresh
         self._jd_cache = None
         self._store = None
         self.base_dir = Path(base_dir)
         self.tracker_path = self.base_dir / "artifacts/jobs/org-roles-tracker.xlsx"
         self.sector_cache_path = self.base_dir / "data/org-sectors.json"
-        self.batch_size = batch_size
         self.scanner = JobScanner(self.base_dir)
+        self.batch_size = load_fit_batch_size(self.scanner) if batch_size is None else batch_size
         # None means "use this workspace's config" (rules.max_live_roles in
         # job-sources.yaml, default 200); an explicit value - CLI --max-live,
         # or add_role.py's 0 - always wins over the config.
@@ -737,9 +756,14 @@ class JobIntel:
         raw = f"v{PROMPT_VERSION}|{cls._prompt_signature()}\n{cls._fingerprint_block(role)}"
         return hashlib.sha1(raw.encode("utf-8")).hexdigest()[:16]
 
-    def _fit_prompt(self, batch):
-        roles_text = "\n\n".join(self._role_block(role) for role in batch)
+    def _fit_prefix(self):
+        """The stable half of the fit prompt: candidate context, calibration
+        bands, honesty rules and the required output shape. Byte-identical for
+        every batch in a run, which is what lets the Anthropic backend cache it
+        and makes small batches affordable.
 
+        The output schema sits here, BEFORE the roles, so everything variable is
+        strictly at the end - a cache prefix has to be a prefix."""
         return f"""{self.ctx}
 
 === TASK: HONEST FIT ANALYSIS ===
@@ -777,9 +801,6 @@ HONESTY RULES:
   - Do not pad top_gaps with filler. Concrete gaps only, from the JD and the resume.
   - Under-claiming beats over-claiming. An empty-handed honest verdict is a success.
 
-ROLES:
-{roles_text}
-
 Return ONLY a JSON array, one object per role, echoing the id exactly:
 [
   {{
@@ -792,7 +813,18 @@ Return ONLY a JSON array, one object per role, echoing the id exactly:
     "pitch_angle": "<one sentence to lead with, or null if bad fit>",
     "recommendation": "apply" | "research" | "skip"
   }}
-]"""
+]
+
+ROLES follow. Judge every one of them, and echo each id exactly."""
+
+    def _fit_roles(self, batch):
+        """The variable half: just the roles under judgement."""
+        roles_text = "\n\n".join(self._role_block(role) for role in batch)
+        return f"ROLES:\n{roles_text}"
+
+    def _fit_prompt(self, batch):
+        """The whole prompt as one string, for callers and tests that want it."""
+        return f"{self._fit_prefix()}\n\n{self._fit_roles(batch)}"
 
     def load_prior_fits(self):
         """Every fit verdict already on disk, newest file wins.
@@ -850,27 +882,49 @@ Return ONLY a JSON array, one object per role, echoing the id exactly:
         results = {}
         for num, batch in enumerate(batches, 1):
             print(f"  fit batch {num}/{len(batches)} ({len(batch)} roles)...", flush=True)
-            try:
-                data = self.llm.complete_json(self._fit_prompt(batch),
-                                              tag=f"job-fit-{len(batch)}",
-                                              validate=make_fit_validator(batch))
-            except LLMError as exc:
-                print(f"    ! batch {num} failed: {exc}")
-                continue
-            if isinstance(data, dict):
-                data = data.get("roles") or data.get("results") or list(data.values())
-            valid = {role["id"] for role in batch}
-            for item in data or []:
-                if not isinstance(item, dict):
-                    continue
-                rid = item.get("id")
-                if rid not in valid:
-                    continue
-                results[rid] = item
-            missing = valid - set(results)
-            if missing:
-                print(f"    ! {len(missing)} roles unjudged in batch {num}")
+            self._judge_batch(batch, results, label=str(num))
         return results
+
+    def _judge_batch(self, batch, results, label=""):
+        """Judge one batch, halving it on failure rather than losing the roles.
+
+        A batch that fails as a whole - truncated output, or one malformed
+        verdict failing validation for everybody - used to leave every role in
+        it unjudged until the next run. Splitting turns that into a slower run
+        instead of a gap, and isolates the one role that is actually causing it.
+        """
+        try:
+            data = self.llm.complete_json(
+                self._fit_roles(batch),
+                tag=f"job-fit-{len(batch)}",
+                validate=make_fit_validator(batch),
+                cache_prefix=self._fit_prefix(),
+                max_tokens=output_budget(len(batch)),
+            )
+        except LLMError as exc:
+            if len(batch) > 1:
+                half = len(batch) // 2
+                print(f"    ! batch {label} failed ({exc}); splitting into "
+                      f"{half} + {len(batch) - half}")
+                self._judge_batch(batch[:half], results, label=f"{label}a")
+                self._judge_batch(batch[half:], results, label=f"{label}b")
+            else:
+                print(f"    ! role {batch[0].get('id')} could not be judged: {exc}")
+            return
+
+        if isinstance(data, dict):
+            data = data.get("roles") or data.get("results") or list(data.values())
+        valid = {role["id"] for role in batch}
+        for item in data or []:
+            if not isinstance(item, dict):
+                continue
+            rid = item.get("id")
+            if rid not in valid:
+                continue
+            results[rid] = item
+        missing = valid - set(results)
+        if missing:
+            print(f"    ! {len(missing)} roles unjudged in batch {label}")
 
     @staticmethod
     def merge_fit(role, fit):
