@@ -173,6 +173,43 @@ if real:
           len(real._fit_prefix()) >= llm_mod.CACHE_MIN_PREFIX_CHARS, str(len(real._fit_prefix())))
     check("no role text leaks into the cacheable prefix", "r0" not in real._fit_prefix())
 
+# ---- categorisation chunks too --------------------------------------------
+# Same ceiling, different caller: this one sent every uncategorised role in a
+# single call, so at 315 roles it was cut off and the whole run lost its
+# suggestions. It must chunk, and split a chunk that still fails.
+from job_intel import CAT_BATCH_SIZE, CAT_TOKENS_PER_ROLE
+
+check("a full categorisation chunk fits its budget",
+      output_budget(CAT_BATCH_SIZE, per_item=CAT_TOKENS_PER_ROLE) >= CAT_BATCH_SIZE * CAT_TOKENS_PER_ROLE,
+      f"{output_budget(CAT_BATCH_SIZE, per_item=CAT_TOKENS_PER_ROLE)} for {CAT_BATCH_SIZE} roles")
+check("a categorisation chunk stays under the ceiling",
+      output_budget(CAT_BATCH_SIZE, per_item=CAT_TOKENS_PER_ROLE) <= llm_mod.MAX_TOKENS_CEILING)
+
+cat_ws = make_ws({})
+cat_intel = JobIntel(cat_ws, max_live_roles=0)
+archetypes = [{"id": "01", "label": "Measurement Lead", "description": "owns measurement"}]
+todo = [{"id": f"c{i}", "org": "O", "title": "Measurement Lead", "jd": "measurement",
+         "cat_fingerprint": f"fp{i}"} for i in range(CAT_BATCH_SIZE * 2 + 5)]
+
+class _CatLLM:
+    def __init__(self): self.sizes = []
+    def complete_json(self, prompt, tag=None, validate=None, max_tokens=None, **kw):
+        n = int(tag.rsplit("-", 1)[-1])
+        self.sizes.append(n)
+        if n > CAT_BATCH_SIZE:
+            raise LLMError("too many for one call")
+        return [{"id": r, "archetype": "01", "confidence": "high", "reason": "x"}
+                for r in [f"c{i}" for i in range(len(todo))]]
+
+cat_intel.llm = _CatLLM()
+cat_intel.save_cat_cache = lambda cache: None
+made = cat_intel._judge_categories(list(todo), archetypes, {})
+check("categorisation is chunked, never one giant call",
+      max(cat_intel.llm.sizes) <= CAT_BATCH_SIZE, str(cat_intel.llm.sizes))
+check("every role is still covered", made == len(todo), f"{made}/{len(todo)}")
+check("the chunk budget is passed, not the default 4096",
+      output_budget(CAT_BATCH_SIZE, per_item=CAT_TOKENS_PER_ROLE) != DEFAULT_MAX_TOKENS)
+
 if fails:
     print(f"\n{len(fails)} failed: {fails}")
     sys.exit(1)

@@ -170,6 +170,12 @@ DEFAULT_MAX_LIVE_ROLES = 200
 # one role in isolation would lose the comparison that keeps scores honest.
 DEFAULT_FIT_BATCH_SIZE = 6
 
+# Categorisation is a short mechanical label per role, routed to a cheap model,
+# so it batches far wider than fit judgement. Sized so a full chunk's answer
+# stays well inside the output budget: ids are long slugs, so ~50 tokens a row.
+CAT_BATCH_SIZE = 50
+CAT_TOKENS_PER_ROLE = 150
+
 
 def load_fit_batch_size(scanner):
     """Roles per fit call. Editable in config/job-sources.yaml under
@@ -1067,27 +1073,22 @@ Return ONLY a JSON array, one object per role, echoing the id exactly:
         return made_this_run
 
     def _judge_categories(self, todo, archetypes, cache):
-        """The LLM half of categorize_roles - one batched call for every role
-        not already cached under the current fingerprint."""
-        print(f"  categorising {len(todo)} uncategorised role(s) in 1 call...", flush=True)
+        """The LLM half of categorize_roles, in chunks.
+
+        This used to be a single call for every uncategorised role at once. At
+        315 roles that overflowed the model's output budget and was cut off
+        mid-answer, losing every suggestion in the run. Chunking keeps each
+        answer well inside the budget, and a chunk that still fails is split
+        rather than abandoned."""
+        batches = [todo[i:i + CAT_BATCH_SIZE] for i in range(0, len(todo), CAT_BATCH_SIZE)]
+        print(f"  categorising {len(todo)} uncategorised role(s) "
+              f"in {len(batches)} call(s)...", flush=True)
         valid_ids = {a["id"] for a in archetypes}
         by_id = {a["id"]: a["label"] for a in archetypes}
-        try:
-            data = self.llm.complete_json(self._cat_prompt(todo, archetypes),
-                                          tag=f"role-cat-{len(todo)}",
-                                          validate=make_cat_validator(todo, valid_ids))
-        except LLMError as exc:
-            print(f"    ! categorisation failed: {exc}")
-            return 0
-
-        if isinstance(data, dict):
-            data = data.get("roles") or data.get("results") or list(data.values())
 
         verdicts = {}
-        wanted = {r["id"] for r in todo}
-        for item in data or []:
-            if isinstance(item, dict) and item.get("id") in wanted:
-                verdicts[item["id"]] = item
+        for num, chunk in enumerate(batches, 1):
+            self._judge_cat_chunk(chunk, archetypes, valid_ids, verdicts, label=str(num))
 
         for role in todo:
             item = verdicts.get(role["id"]) or {}
@@ -1112,9 +1113,33 @@ Return ONLY a JSON array, one object per role, echoing the id exactly:
         print(f"  categorisation: {made} suggestion(s), {len(todo) - made} left as 'none'")
         return len(todo)
 
-    # ---------------- org sector enrichment ----------------
+    def _judge_cat_chunk(self, chunk, archetypes, valid_ids, verdicts, label=""):
+        """One categorisation call, halving the chunk if it fails."""
+        try:
+            data = self.llm.complete_json(
+                self._cat_prompt(chunk, archetypes),
+                tag=f"role-cat-{len(chunk)}",
+                validate=make_cat_validator(chunk, valid_ids),
+                max_tokens=output_budget(len(chunk), per_item=CAT_TOKENS_PER_ROLE),
+            )
+        except LLMError as exc:
+            if len(chunk) > 1:
+                half = len(chunk) // 2
+                print(f"    ! categorisation batch {label} failed ({exc}); splitting into "
+                      f"{half} + {len(chunk) - half}")
+                self._judge_cat_chunk(chunk[:half], archetypes, valid_ids, verdicts, f"{label}a")
+                self._judge_cat_chunk(chunk[half:], archetypes, valid_ids, verdicts, f"{label}b")
+            else:
+                print(f"    ! could not categorise {chunk[0].get('id')}: {exc}")
+            return
 
-    # ---------------- manual add ----------------
+        if isinstance(data, dict):
+            data = data.get("roles") or data.get("results") or list(data.values())
+        wanted = {r["id"] for r in chunk}
+        for item in data or []:
+            if isinstance(item, dict) and item.get("id") in wanted:
+                verdicts[item["id"]] = item
+
 
     def load_jd_cache(self):
         """Descriptions for manually added roles, keyed by role id.

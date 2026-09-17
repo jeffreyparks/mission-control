@@ -42,7 +42,7 @@ first_label = archetypes[0]["label"]
 
 # Stub the LLM: role 0 (blank Role Cat) gets a confident real suggestion;
 # role 1 (already has Role Cat) must never even be sent to the model.
-def fake_complete_json(prompt, tag="generic", force=False, validate=None):
+def fake_complete_json(prompt, tag="generic", force=False, validate=None, **kwargs):
     check("the already-categorised role is never included in the prompt",
           "Support Rep" not in prompt)
     return [{"id": roles[0]["id"], "archetype": first_id, "confidence": "high",
