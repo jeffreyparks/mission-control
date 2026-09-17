@@ -110,6 +110,10 @@ rules:
   # Maximum age of posting to consider (days)
   max_age_days: 30
 
+  # Cap on freshly-scraped live postings judged in one run (LLM fit calls cost
+  # real money/quota). --max-live on the CLI overrides this for a single run.
+  max_live_roles: 200
+
   # Title heuristics for the LIVE SCAN only (agents/job_intel.py): a brand-new
   # live find whose title matches one of these (case-insensitive, whole-phrase)
   # is closed immediately - Status "04 Closed", recommendation "skip" - with NO

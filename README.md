@@ -245,6 +245,12 @@ in code after each update.
 
 Columns added by the system: Fit Score, Fit Rationale, Recommendation, Sector, Days To Outcome.
 
+**Live scan size.** Each daily run judges at most `rules.max_live_roles` freshly-scraped postings
+(default 200) - the knob that caps how many LLM fit calls one run can spend. Set it in
+`workspace/<name>/config/job-sources.yaml`, or override a single run with `--max-live N` on
+`mc run` / `run_daily.py`. `add_role.py` defaults this to `0` (add one role, do not rescan every
+board) regardless of the config; pass `--max-live N` there to opt into a scan too.
+
 ### Layout
 
 Code and app config live in the repo. **All user data lives in `workspace/<name>/`** -

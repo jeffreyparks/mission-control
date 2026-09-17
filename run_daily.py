@@ -50,7 +50,7 @@ def ws():
 RADAR_INTERVAL_DAYS = 7
 
 # Set from CLI flags in main(); read by run_jobs().
-OPTS = {"intel": True, "refresh": False}
+OPTS = {"intel": True, "refresh": False, "max_live": None}   # None = this workspace's config
 
 
 def log(msg):
@@ -132,7 +132,7 @@ def run_jobs():
         return f"legacy scan: {Path(out).name}" if out else "legacy scan: no output"
 
     from job_intel import JobIntel
-    out = JobIntel(ws(), refresh=OPTS["refresh"]).run()
+    out = JobIntel(ws(), refresh=OPTS["refresh"], max_live_roles=OPTS["max_live"]).run()
     return f"job intel: {Path(out).name}" if out else "job intel: no output"
 
 
@@ -184,6 +184,9 @@ def main():
                        help="fall back to the legacy keyword JobScanner")
     ap.add_argument("--refresh-intel", action="store_true",
                     help="re-judge every role instead of reusing unchanged verdicts")
+    ap.add_argument("--max-live", type=int, default=None,
+                     help="cap on live postings judged this run "
+                          "(default: rules.max_live_roles in job-sources.yaml, else 200)")
     workspace.add_argument(ap)
     args = ap.parse_args()
 
@@ -192,6 +195,7 @@ def main():
     workspace.load_env(WS)          # identity for THIS workspace, overriding the repo .env
     OPTS["intel"] = args.intel
     OPTS["refresh"] = args.refresh_intel
+    OPTS["max_live"] = args.max_live
 
     log(f"Mission Control run started  (workspace: {WS.name})")
     log(f"   jobs: {'intel' + (' (refresh)' if args.refresh_intel else '')}" if args.intel

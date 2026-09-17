@@ -160,6 +160,22 @@ def load_auto_close_titles(scanner):
     return [str(t).strip() for t in titles if str(t).strip()]
 
 
+DEFAULT_MAX_LIVE_ROLES = 200
+
+
+def load_max_live_roles(scanner):
+    """Cap on freshly-scraped postings judged in one run. Editable in
+    config/job-sources.yaml under rules.max_live_roles - same config, same
+    per-workspace override, as auto_close_titles above. None/absent falls back
+    to DEFAULT_MAX_LIVE_ROLES; a CLI --max-live still wins over both."""
+    config = scanner.load_sources() or {}
+    value = (config.get("rules") or {}).get("max_live_roles")
+    try:
+        return int(value) if value is not None else DEFAULT_MAX_LIVE_ROLES
+    except (TypeError, ValueError):
+        return DEFAULT_MAX_LIVE_ROLES
+
+
 def matched_auto_close_title(title, patterns):
     """The first pattern that matches (case-insensitive, whole-phrase), or
     None. Word-boundaried so "Machine Learning Engineer" matches "Senior
@@ -412,7 +428,7 @@ def make_sector_validator(orgs):
 
 
 class JobIntel:
-    def __init__(self, base_dir, batch_size=16, max_live_roles=200, model=None, refresh=False):
+    def __init__(self, base_dir, batch_size=16, max_live_roles=None, model=None, refresh=False):
         self.refresh = refresh
         self._jd_cache = None
         self._store = None
@@ -420,9 +436,12 @@ class JobIntel:
         self.tracker_path = self.base_dir / "artifacts/jobs/org-roles-tracker.xlsx"
         self.sector_cache_path = self.base_dir / "data/org-sectors.json"
         self.batch_size = batch_size
-        self.max_live_roles = max_live_roles
-        self.llm = LLM(self.base_dir, model=model)
         self.scanner = JobScanner(self.base_dir)
+        # None means "use this workspace's config" (rules.max_live_roles in
+        # job-sources.yaml, default 200); an explicit value - CLI --max-live,
+        # or add_role.py's 0 - always wins over the config.
+        self.max_live_roles = load_max_live_roles(self.scanner) if max_live_roles is None else max_live_roles
+        self.llm = LLM(self.base_dir, model=model)
         self.ctx = context_block(self.base_dir)
 
     # ---------------- role universe ----------------
@@ -1537,7 +1556,8 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description="Honest LLM fit analysis for tracked and live roles.")
     ap.add_argument("--refresh", action="store_true",
                     help="re-judge every role, ignoring stored verdicts (costs full price)")
-    ap.add_argument("--max-live", type=int, default=200, help="cap on live postings judged")
+    ap.add_argument("--max-live", type=int, default=None,
+                     help="cap on live postings judged (default: rules.max_live_roles in job-sources.yaml, else 200)")
     ap.add_argument("--add", metavar="URL",
                     help="add one posting from a public URL, then judge it")
     ap.add_argument("--org", help="override the org name when using --add")
