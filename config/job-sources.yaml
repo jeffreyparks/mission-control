@@ -1,5 +1,12 @@
-# Job Sources for Mission Control
-# Companies and job boards to scan for relevant roles
+# Job Sources for Mission Control - STARTER TEMPLATE
+#
+# This is the project default, used by a workspace that has no config of its
+# own. Your real, personal list lives in workspace/<name>/config/job-sources.yaml
+# (gitignored) so it travels with that person's data and never ships upstream.
+# `uv run setup.py --user NAME` seeds a workspace from this file.
+#
+# Everything below is an EXAMPLE. Replace the companies and keywords with your
+# own targets - the structure and the rules are what matter.
 
 # ============================================================
 # TARGET COMPANIES
@@ -7,46 +14,28 @@
 # Companies from your existing tracker, prioritized
 
 companies:
-  # Priority 2: named companies from your tracker (priority 1 is reserved for
-  # board-wide aggregators below, which often surface the same roles first)
-  - name: OpenAI
-    careers_url: https://openai.com/careers/search
-    api_url: https://api.ashbyhq.com/posting-api/job-board/openai
-    priority: 2
-    
+  # priority 1 is reserved for the board-wide aggregators below, which often
+  # surface the same roles first. Use 2 for real targets, 3 for long shots.
+  #
+  # api_url is what makes a company cheap to scan. Two common boards:
+  #   Greenhouse  https://boards-api.greenhouse.io/v1/boards/<slug>/jobs
+  #   Ashby       https://api.ashbyhq.com/posting-api/job-board/<slug>
+  # Set it to null for a custom careers system - the role is then tracked by
+  # hand rather than scanned.
+
   - name: Anthropic
     careers_url: https://www.anthropic.com/careers
     api_url: https://boards-api.greenhouse.io/v1/boards/anthropic/jobs
     priority: 2
-    
-  - name: Netflix
-    careers_url: https://jobs.netflix.com/
-    api_url: https://jobs.netflix.com/api/search
-    priority: 3
-    
-  - name: Pinterest
-    careers_url: https://www.pinterestcareers.com/jobs/
-    api_url: https://boards-api.greenhouse.io/v1/boards/pinterest/jobs
-    priority: 3
-    
-  - name: Reddit
-    careers_url: https://www.redditinc.com/careers
-    api_url: https://boards-api.greenhouse.io/v1/boards/reddit/jobs
-    priority: 3
-    
-  - name: Meta
-    careers_url: https://www.metacareers.com/jobs/
-    api_url: null  # Uses custom system
-    priority: 3
-    
-  - name: Google
-    careers_url: https://careers.google.com/jobs/results/
-    api_url: null  # Uses custom system
-    priority: 3
-    
-  - name: Amazon
-    careers_url: https://www.amazon.jobs/
-    api_url: null  # Uses custom system
+
+  - name: OpenAI
+    careers_url: https://openai.com/careers/search
+    api_url: https://api.ashbyhq.com/posting-api/job-board/openai
+    priority: 2
+
+  - name: Example Corp
+    careers_url: https://example.com/careers
+    api_url: null  # custom system - no automatic scan
     priority: 3
 
 # ============================================================
@@ -61,12 +50,9 @@ aggregators:
     provider: builtin
     host: builtin.com          # or a market host, e.g. www.builtinnyc.com
     # scope: remote            # uncomment to restrict to /jobs/remote
-    queries:
-      - "marketing science"
-      - "measurement"
-      - "attribution"
-      - "experimentation"
-      - "data science marketing"
+    queries:            # EXAMPLE - use the phrases you would actually search
+      - "data science"
+      - "analytics"
     categories: []
     max_pages: 2
     priority: 1  # aggregators surface the same roles many company boards post individually
@@ -79,12 +65,9 @@ aggregators:
 
 linkedin:
   enabled: true
-  search_keywords:
-    - "marketing science"
-    - "measurement"
-    - "attribution"
-    - "experimentation"
-    - "data science marketing"
+  search_keywords:      # EXAMPLE - your own search phrases
+    - "data science"
+    - "analytics"
   location: "United States"
   
 # ============================================================
@@ -114,13 +97,9 @@ rules:
   min_match_score: 50
   
   # Keywords that boost relevance
-  must_have_keywords:
-    - measurement
-    - attribution
-    - experimentation
-    - incrementality
-    - marketing science
+  must_have_keywords:   # EXAMPLE - the terms that define a good role for you
     - data science
+    - analytics
     
   # Skip roles containing these terms
   exclude_keywords:
@@ -140,10 +119,6 @@ rules:
   # boundaries, so "Machine Learning Engineer" also matches "Senior Machine
   # Learning Engineer" but not "Machine Learning Engineering Manager"'s
   # "Engineering".
-  auto_close_titles:
-    - "engineer"
-    - "research scientist"
-    - "account executive"
-    - "strategist"
-    - "manager"
-    - "marketing lead"
+  # EXAMPLE - titles you never want. Empty by default so a new workspace
+  # closes nothing automatically until you decide what to exclude.
+  auto_close_titles: []

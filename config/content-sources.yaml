@@ -1,5 +1,10 @@
-# Content Sources for Mission Control
-# RSS feeds to scan for trending topics aligned with career goals
+# Content Sources for Mission Control - STARTER TEMPLATE
+#
+# This is the project default, used by a workspace that has no config of its
+# own. Your real feed list lives in workspace/<name>/config/content-sources.yaml
+# (gitignored) so it travels with that person's data.
+#
+# The feeds below are broadly useful examples - keep, cut, or replace them.
 #
 # Format:
 #   - name: Display name

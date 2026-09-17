@@ -57,9 +57,10 @@ def yes(msg, default=False):
 # ---------- scaffold ----------
 
 def scaffold():
-    """Create me/ from templates/me/ if it does not exist yet. Never overwrites
-    a file the user already has."""
-    ME.mkdir(exist_ok=True)
+    """Create this workspace's me/, config/ and .env from the repo templates if
+    they do not exist yet. Never overwrites a file the user already has."""
+    workspace.ensure(WS)
+    ME.mkdir(parents=True, exist_ok=True)
     (ME / "linkedin").mkdir(exist_ok=True)
     created = []
     for src in TEMPLATES.rglob("*"):
@@ -71,9 +72,26 @@ def scaffold():
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(src, dest)
             created.append(str(rel))
+
+    # Seed the workspace's own config from the project starter templates, so a
+    # person's targets live beside their data and the whole workspace stays
+    # portable. Falls back to the repo copies only if this never runs.
+    for name in ("job-sources.yaml", "content-sources.yaml"):
+        dest = WS / "config" / name
+        if not dest.exists():
+            shutil.copy2(BASE / "config" / name, dest)
+            created.append(f"config/{name}")
+
+    # Identity belongs to the workspace; API keys stay machine-wide.
+    ws_env = workspace.env_path(WS)
+    if not ws_env.exists():
+        template = BASE / "templates/workspace.env.example"
+        if template.exists():
+            shutil.copy2(template, ws_env)
+            created.append(".env (workspace identity)")
     if not ENV_PATH.exists() and ENV_EXAMPLE.exists():
         shutil.copy2(ENV_EXAMPLE, ENV_PATH)
-        created.append(".env")
+        created.append(".env (repo, API keys)")
     return created
 
 

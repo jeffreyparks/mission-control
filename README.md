@@ -254,10 +254,10 @@ render/
   build.py            renders all three pages for one workspace
   theme.css           shared design system
   index / radar / tracker .html.j2
-config/                     project defaults, tracked in git
-  content-sources.yaml    RSS feeds
-  job-sources.yaml        target companies + rules
-  model-routing.toml      tag -> tier map, versioned with the pipeline
+config/                     STARTER TEMPLATES, tracked in git
+  content-sources.yaml    example RSS feeds       -> seeded into each workspace
+  job-sources.yaml        example companies+rules -> seeded into each workspace
+  model-routing.toml      tag -> tier map (app config, stays repo-level)
 templates/me/               placeholder scaffold for a workspace's me/, tracked in git
 .env                        secrets (API keys, BlueSky password) - gitignored, see .env.example
 .mc/                        mc dashboard runtime state (pidfile, log) - gitignored
@@ -279,7 +279,9 @@ workspace/                  ALL user data - gitignored in full, never upstream
       jobs/                     org-roles-tracker.xlsx + intel-*.json + backups
       content/                  radar-*.json + .md
       profiles/
-    config/                     optional per-workspace overrides of config/ above
+    config/                     THIS person's targets and feeds
+      job-sources.yaml            companies, aggregators, scanning rules
+      content-sources.yaml        RSS feeds
     .env                        THIS person's identity: GITHUB_USERNAME,
                                 BLUESKY_HANDLE/APP_PASSWORD/PDS_URL
   ariel/                      someone else's data, identical shape
@@ -298,6 +300,16 @@ never scan your GitHub or post-history instead of theirs. A workspace with no
 
 `uv run setup.py --user NAME` writes each answer to the correct file. Start a
 new one from `templates/workspace.env.example`. Both files are gitignored.
+
+### Config is per person too
+
+`job-sources.yaml` (your target companies, keywords, auto-close rules) and
+`content-sources.yaml` (your feeds) live in `workspace/<name>/config/`.
+`setup.py` seeds them from the repo templates on first run, so each workspace
+is self-contained and a whole person's setup can be copied or handed over as
+one directory. A workspace with no config of its own falls back to the repo
+template, so nothing breaks before setup runs. `model-routing.toml` stays
+repo-level - it is app config, not user data.
 
 ### Working with more than one dataset
 
