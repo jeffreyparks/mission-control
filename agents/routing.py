@@ -86,6 +86,19 @@ def load_policy():
     return {"enabled": bool(tiers), "tier_order": order, "tiers": tiers}
 
 
+def load_prices():
+    """USD per million tokens, per model, from the [prices] table.
+
+    The Anthropic API returns token counts but no cost, so a run that uses it
+    would otherwise report $0.000 no matter how much it spent. These are list
+    prices, kept in config next to the routing they describe, and they are
+    edited - not guessed - when a rate changes. A model with no entry is
+    reported as unpriced rather than silently costed at zero."""
+    data = _read_toml(REPO_TAGMAP)
+    prices = data.get("prices")
+    return prices if isinstance(prices, dict) else {}
+
+
 def load_tagmap():
     data = _read_toml(REPO_TAGMAP)
     tags = data.get("tags")

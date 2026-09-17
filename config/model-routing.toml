@@ -35,3 +35,17 @@ enabled = true
 # other call - an unrouted tag has no model name, which the Anthropic API
 # cannot accept.
 "job-fit" = "T3"
+
+# USD per million tokens, used to cost calls made through the Anthropic API
+# (LLM_BACKEND=api). The API returns token counts but no price, so without this
+# a run reports $0.000 however much it spent. The claude CLI and OpenRouter both
+# report their own real cost and ignore this table.
+#
+# cache_write is the premium for storing a cached prefix, cache_read the
+# discount for reusing it - that discount is what makes small batches cheap.
+# List prices as of this commit; edit when the rate card changes.
+[prices]
+"claude-sonnet-5"  = { input = 3.0,  output = 15.0, cache_write = 3.75,  cache_read = 0.30 }
+"claude-sonnet-4-6" = { input = 3.0, output = 15.0, cache_write = 3.75,  cache_read = 0.30 }
+"claude-opus-5"    = { input = 15.0, output = 75.0, cache_write = 18.75, cache_read = 1.50 }
+"claude-haiku-4-5-20251001" = { input = 1.0, output = 5.0, cache_write = 1.25, cache_read = 0.10 }

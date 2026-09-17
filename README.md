@@ -162,6 +162,11 @@ MC_MODEL_T3=claude-sonnet-5
 MC_MODEL_T4=claude-opus-5
 ```
 
+Costs are reported per run. The claude CLI and OpenRouter each report their own real spend; the
+Anthropic API returns token counts but no price, so those calls are costed from the `[prices]`
+table in `config/model-routing.toml` (list prices, edited when the rate card changes). A model
+with no entry is reported as unpriced rather than silently counted as free.
+
 One model per tier is the simple case; a comma separated list gives more than one attempt inside
 a tier. Model names are transport agnostic: an `openrouter/` prefix goes to OpenRouter, anything
 else is a Claude model reached by CLI or API according to `LLM_BACKEND`. So `LLM_BACKEND` chooses
