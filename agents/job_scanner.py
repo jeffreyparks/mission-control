@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from job_fetch import _html_to_text
 from builtin_source import fetch_builtin_jobs as _fetch_builtin_jobs
 from jobspy_source import fetch_jobspy_jobs as _fetch_jobspy_jobs
-from profile_keywords import load_keywords
+from profile_keywords import load_keywords, matches_exclude
 from pathlib import Path
 import re
 
@@ -160,7 +160,7 @@ class JobScanner:
             label=label,
         )
 
-    def calculate_match_score(self, job_text, keywords, excludes, rules):
+    def calculate_match_score(self, job_text, keywords, excludes, rules, job_title=""):
         """Score a role against the profile's Target Keywords.
 
         Target keywords BOOST a score; they are not a gate. The only hard
@@ -169,10 +169,11 @@ class JobScanner:
         """
         job_lower = job_text.lower()
 
-        # Exclusions are absolute - one match and the role is gone.
-        for exclude in excludes or []:
-            if exclude.lower() in job_lower:
-                return 0, []
+        # Exclusions are absolute - one match on the TITLE and the role is gone.
+        # Matching the whole description instead would close any role that
+        # merely mentions "mentoring interns" in a bullet.
+        if matches_exclude(job_title or job_text, excludes):
+            return 0, []
 
         matches = [kw for kw in keywords if kw in job_lower]
         if not matches:
@@ -238,7 +239,8 @@ class JobScanner:
                     job['description'],
                     keywords,
                     excludes,
-                    rules
+                    rules,
+                    job.get('title', '')
                 )
                 
                 if score >= rules.get('min_match_score', 30):
@@ -266,7 +268,8 @@ class JobScanner:
             jobs = fetch(name, agg)
             relevant_jobs = []
             for job in jobs:
-                score, matches = self.calculate_match_score(job['description'], keywords, excludes, rules)
+                score, matches = self.calculate_match_score(job['description'], keywords, excludes, rules,
+                                                            job.get('title', ''))
                 if score >= rules.get('min_match_score', 30):
                     job['match_score'] = score
                     job['keywords_matched'] = ', '.join(matches[:5])

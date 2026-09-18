@@ -33,7 +33,7 @@ config is resolved loudly here (hours_old wins) rather than debugged later.
 import time
 from datetime import datetime
 
-from profile_keywords import build_board_query
+from profile_keywords import build_board_query, matches_exclude
 
 # Shipped default. Indeed is unlimited; LinkedIn is safe at this volume and is
 # what replaced the old click-through-URL section of job-sources.yaml.
@@ -253,6 +253,7 @@ def fetch_jobspy_jobs(target_keywords, exclude_keywords=(), agg_config=None, lab
 
     delay = max(0, int(agg_config.get("delay_seconds", DEFAULT_DELAY_SECONDS)))
     seen, out, warned = set(), [], set()
+    dropped = 0
 
     for site in sites:
         site_delay = max(delay, RISKY_MIN_DELAY) if site in RISKY_SITES else delay
@@ -272,9 +273,17 @@ def fetch_jobspy_jobs(target_keywords, exclude_keywords=(), agg_config=None, lab
             rows = frame.to_dict("records") if frame is not None and len(frame) else []
             for row in rows:
                 job = _to_job(row, label)
-                if job and job["url"] not in seen:
-                    seen.add(job["url"])
-                    out.append(job)
+                if not job or job["url"] in seen:
+                    continue
+                seen.add(job["url"])
+                # The boards get the same terms as `-term`, but they honour
+                # them loosely (and LinkedIn barely at all), so the exclude
+                # list is enforced again here on what actually came back.
+                hit = matches_exclude(f"{job['title']} {job['location']}", exclude_keywords)
+                if hit:
+                    dropped += 1
+                    continue
+                out.append(job)
 
             # Pause between queries, not just between sites: consecutive
             # searches from one IP are what trips the limiters.
@@ -283,4 +292,6 @@ def fetch_jobspy_jobs(target_keywords, exclude_keywords=(), agg_config=None, lab
 
         print(f"    {site}: {len(out) - kept_before} roles from {len(queries)} queries")
 
+    if dropped:
+        print(f"    dropped {dropped} roles on your Exclude Keywords")
     return out

@@ -38,9 +38,11 @@
 - <!-- e.g. marketing mix modeling -->
 
 ## Exclude Keywords
-*(Hard stop. Any match anywhere in a posting drops the role, and each term is
-  also sent to the job boards as `-term`, so the noise is filtered before it is
-  ever downloaded.)*
+*(Hard stop. A match in a role's TITLE drops it, and each term is also sent to
+  the job boards as `-term` so the noise is filtered before download. Matching
+  is case-insensitive and catches plurals ("intern" kills "Interns"), but only
+  whole words - "internal" and "international" are safe. Title-only on purpose:
+  a description that merely mentions mentoring interns is not an intern role.)*
 
 - <!-- e.g. junior -->
 - <!-- e.g. intern -->

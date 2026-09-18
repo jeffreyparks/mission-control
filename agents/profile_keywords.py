@@ -19,6 +19,7 @@ Previously the gate list lived under "## Keywords to Track" and a second,
 weaker list lived in job-sources.yaml as rules.must_have_keywords. The two
 overlapped, so they were collapsed into "## Target Keywords".
 """
+import re
 from pathlib import Path
 
 TARGET_HEADING = "## Target Keywords"
@@ -91,3 +92,36 @@ def build_board_query(term, excludes=(), max_excludes=8):
             continue
         parts.append(f'-"{word}"' if " " in word else f"-{word}")
     return " ".join(parts)
+
+
+def _exclude_pattern(term):
+    """Whole-phrase matcher for one exclude term.
+
+    Case-insensitive, because a posting titled "Data Science Intern" must be
+    caught by the exclude term `intern`.
+
+    Whole-phrase, because plain substring matching is quietly wrong here:
+    `intern` inside "internal", "international" or "alternative" would close
+    roles the user never meant to exclude. A trailing plural is still caught
+    ("interns"), and spaces match hyphens, so `entry level` also matches
+    "entry-level".
+    """
+    words = [re.escape(w) for w in re.split(r"[\s-]+", str(term).strip()) if w]
+    if not words:
+        return None
+    return re.compile(r"(?<!\w)" + r"[\s\-]+".join(words) + r"s?(?!\w)", re.IGNORECASE)
+
+
+def matches_exclude(text, excludes):
+    """The first exclude term present in `text`, or None.
+
+    Returning the term rather than a bool lets callers say WHICH word killed a
+    role, which is the difference between a trustworthy filter and a black box.
+    """
+    if not text:
+        return None
+    for term in excludes or []:
+        pattern = _exclude_pattern(term)
+        if pattern and pattern.search(text):
+            return str(term)
+    return None

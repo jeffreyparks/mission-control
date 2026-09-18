@@ -96,6 +96,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from llm import LLM, output_budget, LLMError            # noqa: E402
 from context import context_block        # noqa: E402
 from job_scanner import JobScanner       # noqa: E402
+from profile_keywords import load_keywords, matches_exclude   # noqa: E402
 from store import COLUMN_MAP             # noqa: E402 - the column contract only, not the Store
 
 
@@ -576,6 +577,26 @@ class JobIntel:
             for job in jobs:
                 job["priority"] = agg.get("priority")
             raw += jobs
+
+        # Exclude Keywords apply to EVERY live source, not just the boards that
+        # accept a `-term` in their query. Company boards (Greenhouse/Lever/
+        # Ashby) have no query syntax at all, so without this an excluded role
+        # from a target company would sail straight into an LLM fit call.
+        # Title-only on purpose: a description that merely mentions "interns"
+        # is not an intern role.
+        excludes = load_keywords(self.scanner.base_dir)["exclude"]
+        if excludes:
+            kept, dropped = [], {}
+            for job in raw:
+                hit = matches_exclude(job.get("title", ""), excludes)
+                if hit:
+                    dropped[hit] = dropped.get(hit, 0) + 1
+                else:
+                    kept.append(job)
+            if dropped:
+                detail = ", ".join(f"{term} x{n}" for term, n in sorted(dropped.items()))
+                print(f"  excluded {len(raw) - len(kept)} postings by keyword ({detail})")
+            raw = kept
 
         print(f"  fetched {len(raw)} live postings")
         return raw

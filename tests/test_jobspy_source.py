@@ -172,6 +172,29 @@ check("an ordinary failure skips that query and continues", run_with(fake_boom) 
 check("no target keywords means no scan at all",
       js.fetch_jobspy_jobs([], [], {"sites": ["indeed"]}, "test") == [])
 
+# ---------------- exclude matching: case, plurals, word boundaries ----------------
+check("an exclude term is case-insensitive", pk.matches_exclude("Data Science Intern", ["intern"]) == "intern")
+check("a capitalised term in the config still matches", pk.matches_exclude("summer intern", ["Intern"]) == "Intern")
+check("a plural is caught", pk.matches_exclude("Summer Interns Program", ["intern"]) == "intern")
+check("'internal' is NOT an intern role", pk.matches_exclude("Internal Analytics Lead", ["intern"]) is None)
+check("'international' is NOT an intern role", pk.matches_exclude("International Product Manager", ["intern"]) is None)
+check("spaces match hyphens", pk.matches_exclude("Entry-Level Analyst", ["entry level"]) == "entry level")
+check("hyphens match spaces", pk.matches_exclude("entry level analyst", ["entry-level"]) == "entry-level")
+check("the matching term is reported back", pk.matches_exclude("Junior Intern", ["senior", "intern"]) == "intern")
+check("no excludes means nothing matches", pk.matches_exclude("Intern", []) is None)
+check("empty text is safe", pk.matches_exclude("", ["intern"]) is None)
+check("a term at the very start matches", pk.matches_exclude("Intern, Data", ["intern"]) == "intern")
+
+def fake_intern(**kwargs):
+    # run_with() passes ["junior"] as the exclude list.
+    return _Frame([dict(row, title="Junior Data Scientist", job_url="https://indeed.com/viewjob?jk=i")])
+check("an excluded title never leaves the source",
+      run_with(fake_intern, {"sites": ["indeed"]}) == [])
+
+def fake_internal(**kwargs):
+    return _Frame([dict(row, title="Juniper Networks Analytics Lead", job_url="https://indeed.com/viewjob?jk=n")])
+check("a lookalike title survives", len(run_with(fake_internal, {"sites": ["indeed"]})) == 1)
+
 # ---------------- dependency overrides stay in sync ----------------
 # python-jobspy's metadata pins NUMPY==1.26.3 and pandas<3 although it only
 # calls pd.DataFrame, pd.concat and np.round. Two places carry the override:
