@@ -13,9 +13,15 @@ background; `mc dashboard stop` shuts it down).
 ## Getting started
 
 ```bash
-uv tool install --editable .    # one-time: puts the `mc` command on your PATH
+uv tool install --editable . --overrides tool-overrides.txt    # one-time: puts `mc` on your PATH
 mc setup                        # set up your `me/` folder and do a first run
 ```
+
+`--overrides tool-overrides.txt` is needed because `python-jobspy` pins an old numpy and caps
+pandas below 3, while using only three functions that are stable in both. `uv sync` and `uv run`
+pick the same overrides up from `pyproject.toml` automatically; `uv tool install` does not read
+that table, so it is passed explicitly. Skip it and `mc` installs without JobSpy, which shows up
+at scan time as `jobspy: python-jobspy is not installed`.
 
 `mc setup` walks you through it - drop in your resume, write a couple lines about what you're
 after, and you're basically done. Everything you enter lives in `me/`: your resume, your goals,

@@ -172,6 +172,23 @@ check("an ordinary failure skips that query and continues", run_with(fake_boom) 
 check("no target keywords means no scan at all",
       js.fetch_jobspy_jobs([], [], {"sites": ["indeed"]}, "test") == [])
 
+# ---------------- dependency overrides stay in sync ----------------
+# python-jobspy's metadata pins NUMPY==1.26.3 and pandas<3 although it only
+# calls pd.DataFrame, pd.concat and np.round. Two places carry the override:
+# pyproject's [tool.uv] (for uv sync / uv run) and tool-overrides.txt (for
+# `uv tool install`, which does not read that table). They must agree, or `mc`
+# silently runs without jobspy installed.
+import tomllib
+
+pyproject = tomllib.loads((REPO / "pyproject.toml").read_text())
+inline = set(pyproject.get("tool", {}).get("uv", {}).get("override-dependencies", []))
+from_file = {line.strip() for line in (REPO / "tool-overrides.txt").read_text().splitlines()
+             if line.strip() and not line.startswith("#")}
+check("pyproject declares the jobspy overrides", inline, str(inline))
+check("tool-overrides.txt matches pyproject", inline == from_file, f"{sorted(inline)} vs {sorted(from_file)}")
+check("python-jobspy is an actual dependency",
+      any(d.startswith("python-jobspy") for d in pyproject["project"]["dependencies"]))
+
 print()
 print("FAILURES (final):", fails if fails else "none")
 sys.exit(1 if fails else 0)

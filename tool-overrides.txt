@@ -1,0 +1,14 @@
+# Dependency overrides for `uv tool install`.
+#
+# python-jobspy pins NUMPY==1.26.3 and pandas<3, but across its whole source it
+# only calls pd.DataFrame, pd.concat and np.round - all stable on pandas 3 and
+# numpy 2. Verified against python-jobspy 1.1.82.
+#
+# `uv sync` / `uv run` read the same overrides from [tool.uv] in pyproject.toml.
+# `uv tool install` does NOT read that table, so it needs this file:
+#
+#   uv tool install --editable . --overrides tool-overrides.txt
+#
+# tests/test_jobspy_source.py fails if this file and pyproject.toml disagree.
+pandas>=3.0.5
+numpy>=2.1
