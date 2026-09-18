@@ -167,7 +167,7 @@ class BlueSkyScanner:
         keywords = []
         in_keywords = False
         for line in content.split("\n"):
-            if "## Keywords to Track" in line:
+            if "## Target Keywords" in line:
                 in_keywords = True
                 continue
             if in_keywords:

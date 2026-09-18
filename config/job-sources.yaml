@@ -46,6 +46,26 @@ companies:
 # so they get their own section rather than living under `companies:`.
 
 aggregators:
+  - name: JobSpy
+    provider: jobspy
+    enabled: true
+    # Indeed has no rate limiting and is the most reliable of the set.
+    # LinkedIn works without proxies at this volume, and replaces the old
+    # click-through "LinkedIn search links" section. Others you may add:
+    # glassdoor, zip_recruiter - both block aggressively without proxies.
+    sites: [indeed, linkedin]
+    location: "United States"
+    country_indeed: USA     # required by Indeed & Glassdoor
+    hours_old: 72           # Indeed/LinkedIn accept ONLY ONE of hours_old,
+                            # (job_type & is_remote), or easy_apply
+    results_wanted: 25      # per site, per query - keep low without proxies
+    delay_seconds: 20       # pause between queries; what keeps you unblocked
+    max_queries: 8          # cap the fan-out over your Target Keywords
+    # search_query: '"head of analytics" OR "director, analytics" -contract'
+    #   ^ optional escape hatch: sent verbatim instead of the keyword-derived
+    #     queries, for anyone who wants the boards' full search syntax.
+    priority: 1  # aggregators surface the same roles many company boards post individually
+
   - name: Built In
     provider: builtin
     host: builtin.com          # or a market host, e.g. www.builtinnyc.com
@@ -58,23 +78,10 @@ aggregators:
     priority: 1  # aggregators surface the same roles many company boards post individually
 
 # ============================================================
-# LINKEDIN SEARCH
-# ============================================================
-# The scanner will generate LinkedIn search URLs for your keywords
-# You can click these to see aggregated results
-
-linkedin:
-  enabled: true
-  search_keywords:      # EXAMPLE - your own search phrases
-    - "data science"
-    - "analytics"
-  location: "United States"
-  
-# ============================================================
 # JOB BOARDS (Optional)
 # ============================================================
-# Uncomment to enable tech job boards
-# Note: Indeed is intentionally excluded (low signal/noise)
+# Uncomment to enable tech job boards.
+# Indeed and LinkedIn are handled by the JobSpy aggregator above.
 
 # boards:
 #   - name: Y Combinator
@@ -96,17 +103,10 @@ rules:
   # Minimum keyword match score (0-100) to save role
   min_match_score: 50
   
-  # Keywords that boost relevance
-  must_have_keywords:   # EXAMPLE - the terms that define a good role for you
-    - data science
-    - analytics
-    
-  # Skip roles containing these terms
-  exclude_keywords:
-    - junior
-    - intern
-    - entry level
-    
+  # Keywords live in me/profile.md now, under "## Target Keywords" (score
+  # boosters, also used to build the Indeed/LinkedIn queries) and
+  # "## Exclude Keywords" (hard stop). One list, one place.
+
   # Maximum age of posting to consider (days)
   max_age_days: 30
 

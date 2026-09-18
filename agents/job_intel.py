@@ -537,7 +537,8 @@ class JobIntel:
 
     def fetch_live_roles(self):
         """Reuse JobScanner's working Greenhouse/Lever/Ashby fetchers, plus any
-        configured board-wide aggregators (Built In). No keyword scoring."""
+        configured board-wide aggregators (Built In, JobSpy). No keyword scoring -
+        the live scan judges fit with the LLM instead."""
         if self.max_live_roles <= 0:
             print("  skipping live board scan")
             return []
@@ -563,10 +564,15 @@ class JobIntel:
         # Board-wide aggregators: no single company, so a separate config
         # section (queries/categories, not a per-company api_url).
         for agg in config.get("aggregators", []):
-            if agg.get("provider") != "builtin":
+            provider = agg.get("provider")
+            if provider == "builtin":
+                name = agg.get("name", "Built In")
+                jobs = self.scanner.fetch_builtin_jobs(name, agg)
+            elif provider == "jobspy" and agg.get("enabled") is not False:
+                name = agg.get("name", "JobSpy")
+                jobs = self.scanner.fetch_jobspy_jobs(name, agg)
+            else:
                 continue
-            name = agg.get("name", "Built In")
-            jobs = self.scanner.fetch_builtin_jobs(name, agg)
             for job in jobs:
                 job["priority"] = agg.get("priority")
             raw += jobs

@@ -55,6 +55,32 @@ shortcut on top.) Forgot the commands? `mc help` lists them.
 | **Content Radar** | weekly | Editorial brief: what is worth writing about, and the angle to take |
 | **Profiles** | daily | GitHub, LinkedIn, BlueSky scans |
 
+### Where roles come from
+
+Company boards (Greenhouse, Lever, Ashby) are scanned per company from `job-sources.yaml`.
+Two board-wide aggregators cover everything else, configured under `aggregators:`:
+
+- **Built In** - one platform, many employers, searched by query or category.
+- **JobSpy** - Indeed and LinkedIn by default, via [python-jobspy](https://github.com/speedyapply/JobSpy).
+  Indeed is unrestricted; LinkedIn works without proxies as long as the volume stays low, which
+  is why `results_wanted` is small and `delay_seconds` sits between queries. A board that starts
+  returning 429s is dropped for the rest of that run and whatever it already found is kept.
+  Glassdoor and ZipRecruiter can be added to `sites:` at your own risk.
+
+### Keywords live in one place
+
+`me/profile.md`, and nowhere else:
+
+- **`## Target Keywords`** - what you want. Each match raises a role's score, and each term
+  becomes a search on Indeed and LinkedIn (multi-word terms are quoted for an exact match).
+  Missing them all does not disqualify a role; it just scores low. `rules.min_match_score` in
+  `job-sources.yaml` is the only threshold - set it to `0` to send everything to the LLM.
+- **`## Exclude Keywords`** - what you never want. Any match drops the role, and each term is
+  sent to the boards as `-term` so the noise is filtered before it is downloaded.
+
+Want the boards' full query syntax instead? Set `search_query` on the JobSpy aggregator and it
+is sent verbatim.
+
 ## Using it day to day
 
 ```bash
@@ -128,8 +154,9 @@ Want this running on its own every morning?
 
 Deterministic where lexical matching is genuinely correct, LLM where judgment is required.
 
-- **Keyword coverage is used for LinkedIn only.** LinkedIn search and ATS parsing are literally
-  lexical, so the metric is meaningful there. It is not used anywhere else.
+- **Keyword coverage is used for board search and LinkedIn only.** Board queries and ATS
+  parsing are literally lexical, so the metric is meaningful there. It decides what gets
+  *fetched*, never whether a role is a good fit.
 - **Everything else uses LLM inference** against ground truth: `me/profile.md` plus your
   parsed resume.
 

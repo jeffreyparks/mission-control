@@ -8,8 +8,9 @@ import pandas as pd
 from datetime import datetime, timedelta
 from job_fetch import _html_to_text
 from builtin_source import fetch_builtin_jobs as _fetch_builtin_jobs
+from jobspy_source import fetch_jobspy_jobs as _fetch_jobspy_jobs
+from profile_keywords import load_keywords
 from pathlib import Path
-from urllib.parse import quote_plus
 import re
 
 
@@ -37,28 +38,14 @@ class JobScanner:
             return yaml.safe_load(f)
     
     def load_career_goals(self):
-        """Parse career goals from config"""
-        goals_path = self.base_dir / "me/profile.md"
-        if not goals_path.exists():
-            return {"keywords": []}
-        
-        content = goals_path.read_text()
-        
-        keywords = []
-        in_keywords = False
-        for line in content.split("\n"):
-            if "## Keywords to Track" in line:
-                in_keywords = True
-                continue
-            if in_keywords:
-                if line.startswith("##"):
-                    break
-                if line.strip().startswith("-"):
-                    keyword = line.strip().lstrip("-").strip().lower()
-                    if keyword and not keyword.startswith("<!--"):
-                        keywords.append(keyword)
-        
-        return {"keywords": keywords}
+        """Keyword lists from me/profile.md - the single place keywords live.
+
+        `keywords` (## Target Keywords) raise a role's score and generate the
+        JobSpy board queries; `exclude` (## Exclude Keywords) kill a role
+        outright. See agents/profile_keywords.py.
+        """
+        lists = load_keywords(self.base_dir)
+        return {"keywords": lists["target"], "exclude": lists["exclude"]}
     
     def load_existing_tracker(self):
         """Existing roles, from the database - the only record."""
@@ -159,32 +146,40 @@ class JobScanner:
             label=label,
         )
 
-    def calculate_match_score(self, job_text, keywords, rules):
-        """Calculate how well a job matches career goals"""
+    def fetch_jobspy_jobs(self, label, agg_config):
+        """Multi-board scan (Indeed, LinkedIn, ...) via python-jobspy.
+
+        Queries are derived from me/profile.md, not from job-sources.yaml, so
+        keywords stay in one place. See agents/jobspy_source.py.
+        """
+        lists = load_keywords(self.base_dir)
+        return _fetch_jobspy_jobs(
+            target_keywords=lists["target"],
+            exclude_keywords=lists["exclude"],
+            agg_config=agg_config,
+            label=label,
+        )
+
+    def calculate_match_score(self, job_text, keywords, excludes, rules):
+        """Score a role against the profile's Target Keywords.
+
+        Target keywords BOOST a score; they are not a gate. The only hard
+        filters are the exclude list and rules.min_match_score, so lowering
+        min_match_score to 0 lets everything through to the LLM fit read.
+        """
         job_lower = job_text.lower()
-        
-        # Check exclusions first
-        exclude_keywords = rules.get('exclude_keywords', [])
-        for exclude in exclude_keywords:
+
+        # Exclusions are absolute - one match and the role is gone.
+        for exclude in excludes or []:
             if exclude.lower() in job_lower:
                 return 0, []
-        
-        # Count keyword matches
+
         matches = [kw for kw in keywords if kw in job_lower]
-        
         if not matches:
             return 0, []
-        
-        # Base score from keyword count
-        score = min(40 + (len(matches) * 10), 100)
-        
-        # Boost for must-have keywords
-        must_have = rules.get('must_have_keywords', [])
-        must_have_matches = [kw for kw in must_have if kw in job_lower]
-        if must_have_matches:
-            score = min(score + (len(must_have_matches) * 5), 100)
-        
-        return score, matches
+
+        # First match carries the role; each further match adds confidence.
+        return min(40 + (len(matches) * 10), 100), matches
     
     def is_duplicate(self, job, existing_df):
         """Check if job already exists in tracker"""
@@ -203,31 +198,11 @@ class JobScanner:
         
         return len(matches) > 0
     
-    def generate_linkedin_urls(self, config):
-        """Generate LinkedIn search URLs for keywords"""
-        if not config.get('linkedin', {}).get('enabled'):
-            return []
-        
-        linkedin_config = config['linkedin']
-        keywords = linkedin_config.get('search_keywords', [])
-        location = linkedin_config.get('location', '')
-        
-        urls = []
-        for keyword in keywords:
-            encoded_keyword = quote_plus(keyword)
-            encoded_location = quote_plus(location)
-            url = f"https://www.linkedin.com/jobs/search/?keywords={encoded_keyword}&location={encoded_location}"
-            urls.append({
-                'keyword': keyword,
-                'url': url
-            })
-        
-        return urls
-    
     def scan_companies(self, config, goals, rules):
         """Scan all configured companies"""
         companies = config.get('companies', [])
         keywords = goals.get('keywords', [])
+        excludes = goals.get('exclude', [])
         
         all_jobs = []
         
@@ -260,8 +235,9 @@ class JobScanner:
             relevant_jobs = []
             for job in jobs:
                 score, matches = self.calculate_match_score(
-                    job['description'], 
-                    keywords, 
+                    job['description'],
+                    keywords,
+                    excludes,
                     rules
                 )
                 
@@ -275,14 +251,22 @@ class JobScanner:
             print(f"    Found {len(relevant_jobs)} relevant roles")
 
         for agg in config.get('aggregators', []):
-            if agg.get('provider') != 'builtin':
+            provider = agg.get('provider')
+            if provider == 'builtin':
+                name = agg.get('name', 'Built In')
+                fetch = self.fetch_builtin_jobs
+            elif provider == 'jobspy':
+                if agg.get('enabled') is False:
+                    continue
+                name = agg.get('name', 'JobSpy')
+                fetch = self.fetch_jobspy_jobs
+            else:
                 continue
-            name = agg.get('name', 'Built In')
             print(f"  Fetching: {name}...")
-            jobs = self.fetch_builtin_jobs(name, agg)
+            jobs = fetch(name, agg)
             relevant_jobs = []
             for job in jobs:
-                score, matches = self.calculate_match_score(job['description'], keywords, rules)
+                score, matches = self.calculate_match_score(job['description'], keywords, excludes, rules)
                 if score >= rules.get('min_match_score', 30):
                     job['match_score'] = score
                     job['keywords_matched'] = ', '.join(matches[:5])
@@ -340,7 +324,7 @@ class JobScanner:
 
         return len(new_rows)
     
-    def generate_report(self, new_jobs, added_count, linkedin_urls):
+    def generate_report(self, new_jobs, added_count):
         """Generate daily scan report"""
         today = datetime.now().strftime("%Y-%m-%d")
         
@@ -379,21 +363,13 @@ Scanned company career pages and found {len(new_jobs)} roles matching your caree
         else:
             report += "*No new roles found matching your criteria.*\n\n"
         
-        # LinkedIn search links
-        if linkedin_urls:
-            report += "## LinkedIn Search Links\n\n"
-            report += "Click these to search LinkedIn for relevant roles:\n\n"
-            for item in linkedin_urls:
-                report += f"- [{item['keyword']}]({item['url']})\n"
-        
         report += f"""
 ## Next Steps
 
 1. Review new roles in the dashboard: `mc dashboard`
 2. Fill in 'Role Cat' for new roles (01-06 from your career goals)
 3. Update 'Priority' if needed
-4. Click LinkedIn links above to see aggregated results
-5. Update 'Status' as you research/apply
+4. Update 'Status' as you research/apply
 
 """
         
@@ -419,11 +395,8 @@ Scanned company career pages and found {len(new_jobs)} roles matching your caree
             # Update tracker
             added_count = self.update_tracker(new_jobs, existing_df)
             
-            # Generate LinkedIn URLs
-            linkedin_urls = self.generate_linkedin_urls(config)
-            
             # Generate report
-            report = self.generate_report(new_jobs, added_count, linkedin_urls)
+            report = self.generate_report(new_jobs, added_count)
             
             # Save report
             today = datetime.now().strftime("%Y-%m-%d")
