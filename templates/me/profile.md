@@ -29,6 +29,11 @@
   missing them all does not disqualify a role, it just scores low. The only
   threshold is rules.min_match_score in config/job-sources.yaml.)*
 
+<!-- ORDER MATTERS for job search: only the first `max_queries` terms (8 by
+    default, set on the JobSpy aggregator) become Indeed/LinkedIn searches.
+    The profile scanners read the whole list regardless of order, so the
+    strongest job-title terms lead and the narrow method names follow. -->
+
 - <!-- e.g. causal inference -->
 - <!-- e.g. marketing mix modeling -->
 
@@ -39,3 +44,18 @@
 
 - <!-- e.g. junior -->
 - <!-- e.g. intern -->
+
+## Career Positioning
+*(How you want to be perceived professionally. Free text - no scanner parses
+  this; it goes to the model as part of your ground truth, so it shapes the
+  fit reads and the content angles.)*
+
+- <!-- e.g. Measurement leader who ships production systems -->
+- <!-- e.g. Bridge between causal inference theory and commercial impact -->
+
+## Notes
+*(Anything else the model should weigh - emphases, gaps you are closing,
+  constraints. Also free text.)*
+
+- <!-- e.g. Focus on shipping production systems, not just research -->
+- <!-- e.g. Clean rooms experience is a gap to address -->
