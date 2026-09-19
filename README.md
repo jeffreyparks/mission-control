@@ -119,7 +119,7 @@ uv run add_role.py https://job-boards.greenhouse.io/acme/jobs/123
 ```
 
 It fetches the posting (Greenhouse, Lever, Ashby, LinkedIn, or generic), runs one fit check, and
-appends a row - Status `01 Open`, Source `manual-add` - then rebuilds the HTML. It won't add the
+appends a row - Status `01 Open`, Source `Manual` - then rebuilds the HTML. It won't add the
 same role twice (checked by URL and by org+title), and it won't write anything at all unless the
 fetch actually succeeds.
 

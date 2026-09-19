@@ -26,7 +26,8 @@ OUTPUT: artifacts/jobs/intel-YYYY-MM-DD.json
   "roles": [
     {
       "id":            str,                   # stable slug: org--title
-      "source":        "tracker" | "live",    # tracker row, or freshly fetched posting
+      "source":        str,                   # origin: "Anthropic (Greenhouse)",
+                                              # "JobSpy (Indeed)", "BuiltIn", "Manual"
       "org":           str,
       "title":         str,
       "sector":        str | null,            # e.g. "Tech - Advertising"
@@ -98,6 +99,7 @@ from context import context_block        # noqa: E402
 from job_scanner import JobScanner       # noqa: E402
 from profile_keywords import load_keywords, matches_exclude   # noqa: E402
 from store import COLUMN_MAP             # noqa: E402 - the column contract only, not the Store
+import source_tags                       # noqa: E402
 
 
 # Titles worth spending judgment on. Deliberately generous: the LLM does the
@@ -491,7 +493,10 @@ class JobIntel:
                 # share an org and title; the dashboard writes against this.
                 "store_id": _clean(row.get("_id")) or _slug(org, title),
                 "row_index": int(idx),
-                "source": "tracker",
+                # Where the row came from ("Anthropic (Greenhouse)"). Older
+                # rows predate the field, so fall back to reading the URL.
+                "source": (_clean(row.get("Source"))
+                           or source_tags.label_for(_clean(row.get("Role Link")), org)),
                 "org": org,
                 "title": title,
                 "url": _clean(row.get("Role Link")),
@@ -579,7 +584,16 @@ class JobIntel:
                 print(f"  excluded {len(raw) - len(kept)} postings by keyword ({detail})")
             raw = kept
 
-        print(f"  fetched {len(raw)} live postings")
+        # One line per board instead of each scanner printing its own tally:
+        # the tracker's `source` field is the same string, so the run log and
+        # the spreadsheet agree on where a role came from.
+        by_source = {}
+        for job in raw:
+            tag = job.get("source") or source_tags.label_for(job.get("url"), job.get("company"))
+            by_source[tag] = by_source.get(tag, 0) + 1
+        for tag, count in sorted(by_source.items(), key=lambda kv: (-kv[1], kv[0])):
+            print(f"    {tag}: {count}")
+        print(f"  fetched {len(raw)} live postings from {len(by_source)} source(s)")
         return raw
 
     def prefilter_live(self, raw, tracker_ids, tracker_urls=None):
@@ -646,7 +660,9 @@ class JobIntel:
             roles.append({
                 "id": rid,
                 "row_index": None,
-                "source": "live",
+                # Set by the scanner that fetched it; the URL is the fallback.
+                "source": (job.get("source")
+                           or source_tags.label_for(job.get("url"), job.get("company"))),
                 "org": job.get("company"),
                 "title": job.get("title", "").strip(),
                 "url": _clean(job.get("url")),
@@ -1186,7 +1202,9 @@ Return ONLY a JSON array, one object per role, echoing the id exactly:
             "Org": org,
             "Title": title,
             "Role Link": cache[rid]["url"],
-            "Source": f"manual ({posting.get('source')})",
+            # Hand-added rows are "Manual" whatever fetcher read the URL;
+            # the extractor used is already noted in the jd cache.
+            "Source": source_tags.MANUAL,
             "Status": "01 Open",
             "Date Opened": today,
             "Last Updated": today,
@@ -1360,7 +1378,8 @@ Return ONLY a JSON object mapping each company name exactly as given to its sect
                 "location": _clean(role.get("location")),
                 "comp_range": _clean(role.get("comp_range")),
                 "jd": role.get("jd") or None,
-                "source": role.get("source") or "live",
+                "source": (role.get("source")
+                           or source_tags.label_for(role.get("url"), role.get("org"))),
                 "added": today,
             })
             row = {column: pd.NA for column in df.columns}
@@ -1370,7 +1389,8 @@ Return ONLY a JSON object mapping each company name exactly as given to its sect
                 # A fresh live find is always a new find. Excluded titles never
                 # reach this point - fetch_live_roles drops them outright.
                 "Status": NEW_FIND_STATUS,
-                "Source": role.get("source") or "live",
+                "Source": (role.get("source")
+                           or source_tags.label_for(role.get("url"), role.get("org"))),
                 "Role Link": _clean(role.get("url")),
                 "Date Opened": today,
                 "Last Updated": today,

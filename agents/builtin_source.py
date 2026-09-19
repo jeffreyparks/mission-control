@@ -63,6 +63,9 @@ HOSTS = {
 # Drift-guard thresholds: loose on purpose. They exist to catch a LAYOUT
 # CHANGE (near-total enrichment loss), not to grade a page whose jobs
 # genuinely lack a field.
+# What the tracker's `source` field records for every Built In posting.
+SOURCE_LABEL = "BuiltIn"
+
 GUARD_MIN_ROWS = 5
 GUARD_MIN_LOCATION = 0.5
 
@@ -355,6 +358,7 @@ def fetch_builtin_jobs(queries=None, categories=None, host=None, scope=None,
                     "description": f"{j.get('title', '')} {j.get('description', '')}".strip(),
                     "posted": j["posted_at"].isoformat() if j.get("posted_at") else "",
                     "comp_range": _format_salary(salary) if salary else "",
+                    "source": SOURCE_LABEL,
                 })
             if not jobs or not added:
                 break  # format changed / past the last page, or a fully-overlapping tail

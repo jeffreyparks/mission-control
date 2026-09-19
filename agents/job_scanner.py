@@ -67,6 +67,7 @@ class JobScanner:
             for job in data.get('jobs', []):
                 jobs.append({
                     'company': company_name,
+                    'source': f"{company_name} (Greenhouse)",
                     'title': job.get('title', ''),
                     'url': job.get('absolute_url', ''),
                     'location': job.get('location', {}).get('name', ''),
@@ -90,6 +91,7 @@ class JobScanner:
             for job in data:
                 jobs.append({
                     'company': company_name,
+                    'source': f"{company_name} (Lever)",
                     'title': job.get('text', ''),
                     'url': job.get('hostedUrl', ''),
                     'location': job.get('categories', {}).get('location', ''),
@@ -123,6 +125,7 @@ class JobScanner:
                 )
                 jobs.append({
                     'company': company_name,
+                    'source': f"{company_name} (Ashby)",
                     'title': job.get('title', ''),
                     'url': job.get('jobUrl', ''),
                     'location': location or '',

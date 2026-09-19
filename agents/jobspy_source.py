@@ -43,6 +43,26 @@ DEFAULT_SITES = ["indeed", "linkedin"]
 # pasted from a browser, which cannot be derived from a keyword list.
 SUPPORTED_SITES = {"indeed", "linkedin", "glassdoor", "zip_recruiter", "bayt", "bdjobs", "naukri"}
 
+# Display names for the tracker's `source` field, so a row reads
+# "JobSpy (LinkedIn)" rather than "JobSpy (linkedin)".
+SITE_LABELS = {
+    "indeed": "Indeed",
+    "linkedin": "LinkedIn",
+    "glassdoor": "Glassdoor",
+    "zip_recruiter": "ZipRecruiter",
+    "bayt": "Bayt",
+    "bdjobs": "BDJobs",
+    "naukri": "Naukri",
+}
+
+
+def source_label(site, label="JobSpy"):
+    """`source` value for one JobSpy row: 'JobSpy (Indeed)'."""
+    site = (site or "").strip().lower()
+    if not site:
+        return label
+    return f"{label} ({SITE_LABELS.get(site, site)})"
+
 # Sites that block aggressively without proxies. Enabling one is allowed, but
 # it earns a warning and a longer pause.
 RISKY_SITES = {"linkedin", "glassdoor", "zip_recruiter"}
@@ -130,6 +150,7 @@ def _to_job(row, label):
         "posted": _posted(row.get("date_posted")),
         "comp_range": _comp_range(row),
         "source_site": _clean(row.get("site")) or label,
+        "source": source_label(_clean(row.get("site")), label),
         "direct_url": _clean(row.get("job_url_direct")),
     }
 
@@ -291,8 +312,6 @@ def fetch_jobspy_jobs(target_keywords, exclude_keywords=(), agg_config=None, lab
             # searches from one IP are what trips the limiters.
             if site_delay and index < len(queries) - 1:
                 time.sleep(site_delay)
-
-        print(f"    {site}: {len(out) - kept_before} roles from {len(queries)} queries")
 
     if dropped:
         print(f"    dropped {dropped} roles on your Exclude Keywords")
