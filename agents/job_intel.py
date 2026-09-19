@@ -148,16 +148,6 @@ FIT_FIELDS = [
     "what_theyre_really_hiring_for", "pitch_angle", "recommendation",
 ]
 
-def load_auto_close_titles(scanner):
-    """Title phrases that skip the LLM fit call entirely for a brand-new live
-    find, closing it immediately. Editable in config/job-sources.yaml under
-    rules.auto_close_titles - reuses JobScanner's own YAML loader rather than
-    parsing the file a second time."""
-    config = scanner.load_sources() or {}
-    titles = (config.get("rules") or {}).get("auto_close_titles") or []
-    return [str(t).strip() for t in titles if str(t).strip()]
-
-
 DEFAULT_MAX_LIVE_ROLES = 200
 
 # Roles per fit call. Measured over 499 real verdicts: median 216 output tokens
@@ -189,7 +179,7 @@ def load_fit_batch_size(scanner):
 def load_max_live_roles(scanner):
     """Cap on freshly-scraped postings judged in one run. Editable in
     config/job-sources.yaml under rules.max_live_roles - same config, same
-    per-workspace override, as auto_close_titles above. None/absent falls back
+    per-workspace override, as rules.fit_batch_size above. None/absent falls back
     to DEFAULT_MAX_LIVE_ROLES; a CLI --max-live still wins over both."""
     config = scanner.load_sources() or {}
     value = (config.get("rules") or {}).get("max_live_roles")
@@ -199,15 +189,6 @@ def load_max_live_roles(scanner):
         return DEFAULT_MAX_LIVE_ROLES
 
 
-def matched_auto_close_title(title, patterns):
-    """The first pattern that matches (case-insensitive, whole-phrase), or
-    None. Word-boundaried so "Machine Learning Engineer" matches "Senior
-    Machine Learning Engineer" but not the "Engineer" inside "Engineering"."""
-    text = title or ""
-    for pattern in patterns:
-        if re.search(rf"\b{re.escape(pattern)}\b", text, re.I):
-            return pattern
-    return None
 NEW_COLUMNS = ["Fit Score", "Fit Rationale", "Recommendation", "Sector", "Days To Outcome",
                SUGGESTED_CAT_COLUMN]
 
@@ -600,37 +581,6 @@ class JobIntel:
 
         print(f"  fetched {len(raw)} live postings")
         return raw
-
-    def apply_auto_close(self, role, matched_pattern):
-        """Deterministic 'verdict' for a title-heuristic match - no LLM call
-        spent on something already decided. fit_fingerprint is still set, so
-        this is cached exactly like any other verdict: a repeat sighting is a
-        normal reuse, not a special case."""
-        role["fit_fingerprint"] = self.fingerprint(role)
-        role["fit_score"] = 0
-        role["seniority_read"] = None
-        role["why"] = (f'Auto-closed by title heuristic (matched "{matched_pattern}"). '
-                        f"Edit rules.auto_close_titles in config/job-sources.yaml to change this.")
-        role["top_gaps"] = []
-        role["what_theyre_really_hiring_for"] = None
-        role["pitch_angle"] = None
-        role["recommendation"] = "skip"
-        role["status"] = "04 Closed"
-
-    def partition_auto_closed(self, live_roles):
-        """Split fresh live finds into (auto_closed, kept). A title heuristic
-        match is closed immediately with no LLM call; an existing tracker row
-        is never passed to this - only ever fresh live finds are."""
-        patterns = load_auto_close_titles(self.scanner)
-        auto_closed, kept = [], []
-        for role in live_roles:
-            matched = matched_auto_close_title(role.get("title"), patterns)
-            if matched:
-                self.apply_auto_close(role, matched)
-                auto_closed.append(role)
-            else:
-                kept.append(role)
-        return auto_closed, kept
 
     def prefilter_live(self, raw, tracker_ids, tracker_urls=None):
         """Cheap, honest prefilter. Only shrinks the batch bill; no scoring claims.
@@ -1417,10 +1367,9 @@ Return ONLY a JSON object mapping each company name exactly as given to its sect
             row.update({
                 "Org": role.get("org"),
                 "Title": role.get("title"),
-                # A title-heuristic match already decided "04 Closed" (see
-                # apply_auto_close); anything else gets the normal new-find
-                # status regardless of whatever prefilter_live defaulted it to.
-                "Status": "04 Closed" if role.get("status") == "04 Closed" else NEW_FIND_STATUS,
+                # A fresh live find is always a new find. Excluded titles never
+                # reach this point - fetch_live_roles drops them outright.
+                "Status": NEW_FIND_STATUS,
                 "Source": role.get("source") or "live",
                 "Role Link": _clean(role.get("url")),
                 "Date Opened": today,
@@ -1530,11 +1479,8 @@ Return ONLY a JSON object mapping each company name exactly as given to its sect
 
         tracked_urls = {r["url"] for r in tracked if r.get("url")}
         live = self.prefilter_live(self.fetch_live_roles(), {r["id"] for r in tracked}, tracked_urls)
-        auto_closed, live_kept = self.partition_auto_closed(live)
-        if auto_closed:
-            print(f"  auto-closed {len(auto_closed)} live role(s) by title heuristic, no LLM call")
 
-        judged_pool = tracked + live_kept
+        judged_pool = tracked + live
         fresh, reused = self.split_by_freshness(judged_pool, seed=seed_fits)
         if reused:
             print(f"  reusing {reused} unchanged verdict(s); judging {len(fresh)} new or edited")
@@ -1565,7 +1511,7 @@ Return ONLY a JSON object mapping each company name exactly as given to its sect
         else:
             print("  nothing new to judge")
 
-        roles = judged_pool + auto_closed
+        roles = judged_pool
 
         for role in roles:
             for field in CAT_FIELDS:

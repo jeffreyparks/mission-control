@@ -70,10 +70,9 @@ aggregators:
     provider: builtin
     host: builtin.com          # or a market host, e.g. www.builtinnyc.com
     # scope: remote            # uncomment to restrict to /jobs/remote
-    queries:            # EXAMPLE - use the phrases you would actually search
-      - "data science"
-      - "analytics"
-    categories: []
+    # Searches come from me/profile.md "## Target Keywords" - no query list here.
+    max_queries: 8            # cap the fan-out over your Target Keywords
+    categories: []            # optional Built In taxonomy slugs, not keywords
     max_pages: 2
     priority: 1  # aggregators surface the same roles many company boards post individually
 
@@ -103,9 +102,13 @@ rules:
   # Minimum keyword match score (0-100) to save role
   min_match_score: 50
   
-  # Keywords live in me/profile.md now, under "## Target Keywords" (score
-  # boosters, also used to build the Indeed/LinkedIn queries) and
-  # "## Exclude Keywords" (hard stop). One list, one place.
+  # ALL keywords live in me/profile.md - there is no keyword list in this file.
+  #   ## Target Keywords   raise a role's score on a match anywhere in the
+  #                        TITLE or the DESCRIPTION, and become the search
+  #                        queries for JobSpy (Indeed/LinkedIn) and Built In.
+  #   ## Exclude Keywords  hard stop. A match in the TITLE ONLY (never the
+  #                        description) drops the posting immediately - it
+  #                        never reaches the tracker and never costs an LLM call.
 
   # Maximum age of posting to consider (days)
   max_age_days: 30
@@ -119,15 +122,3 @@ rules:
   # scoring calibration works by comparison across the batch.
   fit_batch_size: 6
 
-  # Title heuristics for the LIVE SCAN only (agents/job_intel.py): a brand-new
-  # live find whose title matches one of these (case-insensitive, whole-phrase)
-  # is closed immediately - Status "04 Closed", recommendation "skip" - with NO
-  # LLM fit call spent on it. Existing tracker rows are never touched by this,
-  # regardless of title, so a role you added or edited yourself is safe.
-  # Add or remove phrases freely; each is a substring match with word
-  # boundaries, so "Machine Learning Engineer" also matches "Senior Machine
-  # Learning Engineer" but not "Machine Learning Engineering Manager"'s
-  # "Engineering".
-  # EXAMPLE - titles you never want. Empty by default so a new workspace
-  # closes nothing automatically until you decide what to exclude.
-  auto_close_titles: []

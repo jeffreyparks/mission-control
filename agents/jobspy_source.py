@@ -279,7 +279,9 @@ def fetch_jobspy_jobs(target_keywords, exclude_keywords=(), agg_config=None, lab
                 # The boards get the same terms as `-term`, but they honour
                 # them loosely (and LinkedIn barely at all), so the exclude
                 # list is enforced again here on what actually came back.
-                hit = matches_exclude(f"{job['title']} {job['location']}", exclude_keywords)
+                # TITLE ONLY - the location is not part of the judgement, or a
+                # city that happens to contain an excluded word drops good roles.
+                hit = matches_exclude(job["title"], exclude_keywords)
                 if hit:
                     dropped += 1
                     continue

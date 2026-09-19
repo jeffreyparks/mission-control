@@ -23,23 +23,26 @@
      paragraph the model leans on most for a "does this role fit" judgment. -->
 
 ## Target Keywords
-*(The one keyword list. It scores roles, it scores how well your public
-  activity - GitHub/LinkedIn/BlueSky - aligns with these goals, and it
-  generates the Indeed/LinkedIn searches. A match RAISES a role's score;
-  missing them all does not disqualify a role, it just scores low. The only
-  threshold is rules.min_match_score in config/job-sources.yaml.)*
+*(It scores roles, it scores how well your public activity -
+  GitHub/LinkedIn/BlueSky - aligns with these goals, and it generates the
+  Indeed/LinkedIn/Built In searches. A match anywhere in a role's TITLE or
+  DESCRIPTION RAISES its score; missing them all does not disqualify a role, it
+  just scores low. The only threshold is rules.min_match_score in
+  config/job-sources.yaml.)*
 
 <!-- ORDER MATTERS for job search: only the first `max_queries` terms (8 by
-    default, set on the JobSpy aggregator) become Indeed/LinkedIn searches.
-    The profile scanners read the whole list regardless of order, so the
-    strongest job-title terms lead and the narrow method names follow. -->
+    default, set per aggregator) become board searches. The profile scanners
+    read the whole list regardless of order, so the strongest job-title terms
+    lead and the narrow method names follow. -->
 
 - <!-- e.g. causal inference -->
 - <!-- e.g. marketing mix modeling -->
 
 ## Exclude Keywords
-*(Hard stop. A match in a role's TITLE drops it, and each term is also sent to
-  the job boards as `-term` so the noise is filtered before download. Matching
+*(Hard stop. A match in a role's TITLE ONLY - never the description - drops the
+  posting immediately: it never enters the tracker and never costs an LLM call.
+  Each term is also sent to the job boards that support it as `-term` so the
+  noise is filtered before download. Matching
   is case-insensitive and catches plurals ("intern" kills "Interns"), but only
   whole words - "internal" and "international" are safe. Title-only on purpose:
   a description that merely mentions mentoring interns is not an intern role.)*

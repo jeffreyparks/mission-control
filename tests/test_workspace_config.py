@@ -29,12 +29,16 @@ check("template keeps the full schema",
       {"companies", "aggregators", "rules"} <= set(tpl),
       str(sorted(tpl)))
 check("template rules keep the keys the scanner reads",
-      {"min_match_score", "auto_close_titles"} <= set(tpl["rules"]),
+      {"min_match_score", "max_age_days"} <= set(tpl["rules"]),
       str(sorted(tpl["rules"])))
-# Keywords moved to me/profile.md; the old YAML lists must not creep back in.
+# ALL keywords live in me/profile.md; no YAML keyword list may creep back in.
 check("keyword lists no longer live in the config",
-      not ({"must_have_keywords", "exclude_keywords"} & set(tpl["rules"])) and "linkedin" not in tpl,
+      not ({"must_have_keywords", "exclude_keywords", "auto_close_titles"} & set(tpl["rules"]))
+      and "linkedin" not in tpl,
       str(sorted(tpl["rules"])))
+check("no aggregator carries its own query/keyword list",
+      all("queries" not in (agg or {}) for agg in (tpl.get("aggregators") or [])),
+      str([sorted(a) for a in (tpl.get("aggregators") or [])]))
 
 # A workspace with its own config must win over the repo template.
 ws = Path(tempfile.mkdtemp())
@@ -43,8 +47,7 @@ ws = Path(tempfile.mkdtemp())
     yaml.safe_dump({"companies": [{"name": "Only Mine", "careers_url": "https://x", "api_url": None,
                                     "priority": 2}],
                     "aggregators": [],
-                    "rules": {"min_match_score": 50, "max_age_days": 30,
-                              "auto_close_titles": []}}))
+                    "rules": {"min_match_score": 50, "max_age_days": 30}}))
 picked = JobScanner(ws).sources_path
 check("workspace config wins over the repo template", picked == ws / "config/job-sources.yaml", str(picked))
 

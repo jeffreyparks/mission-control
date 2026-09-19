@@ -6,18 +6,24 @@ headings:
 
   ## Target Keywords    what you want. Each match RAISES a role's score, and
                         each term also generates a board query for the JobSpy
-                        aggregator. A role that matches none of them is not
-                        disqualified - it simply scores low and is dropped by
-                        rules.min_match_score, which is the only threshold.
+                        and Built In aggregators. Matches count anywhere in the
+                        TITLE or the DESCRIPTION. A role that matches none of
+                        them is not disqualified - it simply scores low and is
+                        dropped by rules.min_match_score, the only threshold.
 
-  ## Exclude Keywords   what you never want. Any match anywhere in a posting
-                        kills the role outright, and each term is also passed
-                        to the board as a `-term` so the noise is filtered
-                        before it is ever downloaded.
+  ## Exclude Keywords   what you never want. A match in the TITLE ONLY - never
+                        the description - kills the posting immediately, before
+                        it enters the tracker and before any LLM call is spent
+                        on it. Each term is also passed to the boards that
+                        support it as a `-term`, so the noise is filtered before
+                        it is ever downloaded. Title-only is deliberate: a
+                        description that merely mentions "mentoring interns" is
+                        not an intern role.
 
-Previously the gate list lived under "## Keywords to Track" and a second,
-weaker list lived in job-sources.yaml as rules.must_have_keywords. The two
-overlapped, so they were collapsed into "## Target Keywords".
+These are the ONLY keyword lists in the project. Earlier versions also kept
+rules.must_have_keywords, rules.auto_close_titles and a per-aggregator
+`queries:` list in job-sources.yaml; all three overlapped these two lists and
+were removed.
 """
 import re
 from pathlib import Path

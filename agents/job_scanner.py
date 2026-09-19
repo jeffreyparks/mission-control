@@ -136,9 +136,18 @@ class JobScanner:
             return []
 
     def fetch_builtin_jobs(self, label, agg_config):
-        """Board-wide Built In aggregator scan. See agents/builtin_source.py."""
+        """Board-wide Built In aggregator scan.
+
+        Queries are derived from me/profile.md's Target Keywords, not from
+        job-sources.yaml, so keywords stay in ONE place. Built In has no
+        negative-term syntax, so Exclude Keywords cannot be pushed into the
+        query; they are enforced on the title by the live-scan filter instead.
+        See agents/builtin_source.py.
+        """
+        lists = load_keywords(self.base_dir)
+        max_queries = int(agg_config.get("max_queries") or 8)
         return _fetch_builtin_jobs(
-            queries=agg_config.get("queries"),
+            queries=lists["target"][:max_queries],
             categories=agg_config.get("categories"),
             host=agg_config.get("host"),
             scope=agg_config.get("scope"),
@@ -163,16 +172,22 @@ class JobScanner:
     def calculate_match_score(self, job_text, keywords, excludes, rules, job_title=""):
         """Score a role against the profile's Target Keywords.
 
-        Target keywords BOOST a score; they are not a gate. The only hard
-        filters are the exclude list and rules.min_match_score, so lowering
-        min_match_score to 0 lets everything through to the LLM fit read.
+        Target keywords BOOST a score; they are not a gate, and they match
+        anywhere in the TITLE or the DESCRIPTION - a role titled for the work
+        you want should score for it even when the description is vague.
+
+        The only hard filters are the exclude list and rules.min_match_score,
+        so lowering min_match_score to 0 lets everything through to the LLM
+        fit read.
         """
-        job_lower = job_text.lower()
+        job_lower = f"{job_title or ''} {job_text or ''}".lower()
 
         # Exclusions are absolute - one match on the TITLE and the role is gone.
-        # Matching the whole description instead would close any role that
-        # merely mentions "mentoring interns" in a bullet.
-        if matches_exclude(job_title or job_text, excludes):
+        # TITLE ONLY, with no fallback to the description: matching the whole
+        # description would close any role that merely mentions "mentoring
+        # interns" in a bullet, and an untitled posting must not be judged on
+        # its description either.
+        if matches_exclude(job_title, excludes):
             return 0, []
 
         matches = [kw for kw in keywords if kw in job_lower]

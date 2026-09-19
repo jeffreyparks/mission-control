@@ -77,12 +77,15 @@ Two board-wide aggregators cover everything else, configured under `aggregators:
 
 `me/profile.md`, and nowhere else:
 
-- **`## Target Keywords`** - what you want. Each match raises a role's score, and each term
-  becomes a search on Indeed and LinkedIn (multi-word terms are quoted for an exact match).
+- **`## Target Keywords`** - what you want. Each match anywhere in the job **title or
+  description** raises a role's score, and each term becomes a search on Indeed, LinkedIn and
+  Built In (multi-word terms are quoted for an exact match).
   Missing them all does not disqualify a role; it just scores low. `rules.min_match_score` in
   `job-sources.yaml` is the only threshold - set it to `0` to send everything to the LLM.
-- **`## Exclude Keywords`** - what you never want. Any match drops the role, and each term is
-  sent to the boards as `-term` so the noise is filtered before it is downloaded.
+- **`## Exclude Keywords`** - what you never want. A match in the job **title only** (never the
+  description) drops the posting immediately: it never enters the tracker and never costs an LLM
+  call. Each term is also sent to the boards as `-term` so the noise is filtered before it is
+  downloaded.
 
 Want the boards' full query syntax instead? Set `search_query` on the JobSpy aggregator and it
 is sent verbatim.
