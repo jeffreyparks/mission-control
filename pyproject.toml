@@ -12,7 +12,7 @@ dependencies = [
     "jinja2>=3.1.6",
     "lxml>=6.1.3",
     "openpyxl>=3.1.5",
-    "pandas>=3.0.5",
+    "pandas>=2.1.0,<3.0.0",
     "pypdf>=6.18.0",
     "python-dotenv>=1.2.3",
     "python-jobspy>=1.1.82",
@@ -26,7 +26,7 @@ mc = "mission_control:main"
 [tool.uv]
 # python-jobspy pins NUMPY==1.26.3 and pandas<3, but only calls pd.DataFrame,
 # pd.concat and np.round. Verified against python-jobspy 1.1.82.
-override-dependencies = ["pandas>=3.0.5", "numpy>=2.1"]
+override-dependencies = ["pandas>=2.1.0,<3.0.0", "numpy>=2.1"]
 
 [build-system]
 requires = ["uv_build>=0.12.9,<0.13.0"]
