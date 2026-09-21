@@ -32,15 +32,32 @@ TARGET_HEADING = "## Target Keywords"
 EXCLUDE_HEADING = "## Exclude Keywords"
 
 
+def strip_html_comments(text):
+    """Blank out every `<!-- ... -->` span, including multi-line ones.
+
+    Commenting a block of bullets out is the documented way to park a keyword
+    in profile.md ("promote any of them by moving it up"), so a parked bullet
+    must never reach the keyword lists. Line breaks are preserved so the
+    line-by-line section parser still sees the same structure.
+    """
+    return re.sub(
+        r"<!--.*?(?:-->|$)",
+        lambda m: "\n" * m.group(0).count("\n"),
+        text or "",
+        flags=re.DOTALL,
+    )
+
+
 def parse_section(text, heading):
     """Bullets under `heading`, lowercased, until the next `##` heading.
 
-    Template placeholders (`<!-- e.g. ... -->`) are skipped, so an untouched
-    profile.md yields an empty list rather than example data.
+    Template placeholders and parked keywords inside `<!-- ... -->` comments
+    are skipped, so an untouched profile.md yields an empty list rather than
+    example data.
     """
     out = []
     inside = False
-    for line in (text or "").split("\n"):
+    for line in strip_html_comments(text).split("\n"):
         if line.strip() == heading or line.strip().startswith(heading + " "):
             inside = True
             continue

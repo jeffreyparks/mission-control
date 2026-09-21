@@ -112,6 +112,34 @@ finally:
 check("max_queries caps the Built In fan-out",
       captured.get("queries") == target[:1], str(captured.get("queries")))
 
+# ---------------- parked keywords inside HTML comments stay parked ----------------
+# profile.md documents commenting a block of bullets out as the way to park a
+# keyword. A multi-line `<!-- ... -->` block must contribute NO keywords; the
+# old line-by-line check only skipped the first line, so every parked bullet
+# after it leaked into the board queries.
+commented = Path(tempfile.mkdtemp())
+(commented / "me").mkdir(parents=True)
+(commented / "me/profile.md").write_text("""
+## Target Keywords
+- marketing science
+- incrementality
+
+<!-- - media mix modeling
+- geo experiments
+- self serve -->
+
+## Exclude Keywords
+- intern
+<!-- - manager
+- strategist -->
+""")
+parked = load_keywords(commented)
+check("a multi-line comment adds no target keywords",
+      parked["target"] == ["marketing science", "incrementality"], str(parked["target"]))
+check("a multi-line comment adds no exclude keywords",
+      parked["exclude"] == ["intern"], str(parked["exclude"]))
+shutil.rmtree(commented, ignore_errors=True)
+
 # ---------------- the removed machinery is really gone ----------------
 import job_intel
 for gone in ["load_auto_close_titles", "matched_auto_close_title"]:
