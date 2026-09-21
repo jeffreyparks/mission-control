@@ -135,6 +135,15 @@ Outcomes, Notes, and Salary are all editable right there - change one and it's s
 database immediately. `Recommendation` is the model's call, not yours to
 overwrite, so it's shown as a plain badge instead.
 
+**Editing many rows at once.** Each row gets a checkbox, and a bar above the table applies one
+value to everything you tick. The end-of-triage move: filter `Rec = skip`, hit **Select all
+shown**, set **Status -> Closed**, **Apply**. Only the dropdown fields (Status, Priority,
+Outcome, Category) can be set in bulk - Notes and Salary are per-role text, where a mass
+overwrite is almost always a mistake. Hiding a row with a filter also unticks it, so a batch
+never touches something you cannot see, and each row is written and logged individually: one bad
+row fails alone and the bar tells you how many changed, how many were already set, and how many
+failed.
+
 Running it again while it's already up just tells you it's already running, not a second copy.
 Prefer to watch it run in this terminal instead (Ctrl-C to stop)? `mc dashboard --foreground`.
 Background output goes to `.mc/dashboard.log`.

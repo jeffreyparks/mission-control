@@ -198,6 +198,54 @@ try:
 
     role_cat_clear = requests.post(f"{API}/api/role/{rid}", json={"field": "role_cat", "value": ""}, timeout=5).json()
     check("role_cat accepts blank (clear)", role_cat_clear.get("changed") is True, str(role_cat_clear))
+
+    # ---- batch edits: one field, one value, many rows -----------------------
+    rid2 = store.to_df().iloc[1]["_id"]
+
+    bulk = requests.post(f"{API}/api/roles/bulk",
+                         json={"ids": [rid, rid2], "field": "status", "value": "04 Closed"}, timeout=5).json()
+    check("bulk write succeeds", bulk.get("ok") and bulk.get("changed") >= 1, str(bulk))
+    check("bulk reports one result per row", len(bulk.get("results", [])) == 2, str(bulk.get("results")))
+
+    after = Store(work).to_df()
+    check("bulk lands on every row", set(after["Status"]) == {"04 Closed"}, str(list(after["Status"])))
+
+    bulk_again = requests.post(f"{API}/api/roles/bulk",
+                               json={"ids": [rid, rid2], "field": "status", "value": "04 Closed"}, timeout=5).json()
+    check("repeating a bulk write changes nothing",
+          bulk_again.get("changed") == 0 and bulk_again.get("unchanged") == 2, str(bulk_again))
+
+    dupes = requests.post(f"{API}/api/roles/bulk",
+                          json={"ids": [rid, rid, rid], "field": "status", "value": "01 Open"}, timeout=5).json()
+    check("duplicate ids are collapsed", dupes.get("requested") == 1, str(dupes))
+
+    partial = requests.post(f"{API}/api/roles/bulk",
+                            json={"ids": [rid2, "no-such-role"], "field": "status", "value": "01 Open"}, timeout=5).json()
+    check("an unknown id fails only its own row",
+          partial.get("ok") is False and partial.get("failed") == 1 and partial.get("changed") == 1, str(partial))
+    check("the good row in a partial batch still wrote",
+          Store(work).to_df().iloc[1]["Status"] == "01 Open", str(Store(work).to_df().iloc[1]["Status"]))
+
+    bulk_field = requests.post(f"{API}/api/roles/bulk",
+                               json={"ids": [rid], "field": "fit_score", "value": 99}, timeout=5)
+    check("bulk refuses an uneditable field", bulk_field.status_code == 400, str(bulk_field.status_code))
+
+    bulk_value = requests.post(f"{API}/api/roles/bulk",
+                               json={"ids": [rid], "field": "status", "value": "whatever"}, timeout=5)
+    check("bulk refuses a value outside the vocabulary", bulk_value.status_code == 400, str(bulk_value.status_code))
+
+    bulk_empty = requests.post(f"{API}/api/roles/bulk",
+                               json={"ids": [], "field": "status", "value": "01 Open"}, timeout=5)
+    check("bulk refuses an empty selection", bulk_empty.status_code == 400, str(bulk_empty.status_code))
+
+    bulk_huge = requests.post(f"{API}/api/roles/bulk",
+                              json={"ids": [rid] * (srv.BULK_MAX_ROWS + 1), "field": "status", "value": "01 Open"},
+                              timeout=10)
+    check("bulk refuses an oversized batch", bulk_huge.status_code == 400, str(bulk_huge.status_code))
+
+    page_bulk = requests.get(f"{API}/job-tracker.html", timeout=5)
+    check("the page ships the batch bar and a select column",
+          'id="bulkbar"' in page_bulk.text and 'class="selcell"' in page_bulk.text)
 finally:
     httpd.shutdown()
     httpd.server_close()

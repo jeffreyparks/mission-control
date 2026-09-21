@@ -50,6 +50,25 @@
     font-style:normal;border:1px dashed var(--line);border-radius:3px;padding:1px 5px;margin-left:6px;
     color:var(--ink-mute);vertical-align:1px}
   .sugg.low{opacity:.5}
+  /* Batch editing. The column and the bar exist in the static HTML but stay
+     hidden until /api/health answers: with the server off there is nothing to
+     write to, so an empty checkbox column would be a lie. */
+  th.selcell,td.selcell{width:30px;padding-right:0;text-align:center}
+  body:not(.live) th.selcell,body:not(.live) td.selcell{display:none}
+  .selcell input{cursor:pointer}
+  .bulkbar{display:none;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0 0;
+    padding:10px 14px;background:var(--bg-card);border:1px solid var(--line);border-radius:8px}
+  body.live .bulkbar{display:flex}
+  .bulkbar .n{font-family:var(--mono);font-size:11px;color:var(--ink-dim);min-width:92px}
+  .bulkbar .sep{color:var(--ink-mute);font-size:11px}
+  .bulkbar .msg{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+  .bulkbar .msg.ok{color:var(--ok)} .bulkbar .msg.err{color:#ff6b6b}
+  .bulkbtn{font-size:11px;font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;
+    border:1px solid var(--line);background:transparent;color:var(--ink-dim);border-radius:14px;
+    padding:5px 12px;cursor:pointer}
+  .bulkbtn:hover{border-color:var(--accent);color:var(--accent)}
+  .bulkbtn.go{color:var(--ink);border-color:var(--ink)}
+  .bulkbtn:disabled{opacity:.4;cursor:default}
   @media(max-width:1000px){.layout{grid-template-columns:1fr}}
 </style></head>
 <body>
@@ -130,8 +149,23 @@
     </div>
     <div class="count"><span id="shown">{{ roles|length }}</span> of {{ roles|length }} roles</div>
 
+    <!-- Batch edit bar. Populated by the writeback script; invisible (and
+         inert) when the server is not running. -->
+    <div class="bulkbar" id="bulkbar">
+      <span class="n"><b id="bulkcount">0</b> selected</span>
+      <button type="button" class="bulkbtn" id="bulkall">Select all shown</button>
+      <button type="button" class="bulkbtn" id="bulknone">Clear</button>
+      <span class="sep">·</span>
+      <span class="sep">Set</span>
+      <select class="fieldsel" id="bulkfield"></select>
+      <select class="fieldsel" id="bulkvalue"></select>
+      <button type="button" class="bulkbtn go" id="bulkgo">Apply</button>
+      <span class="msg" id="bulkmsg"></span>
+    </div>
+
     <table id="rt">
       <thead><tr>
+        <th class="selcell"><input type="checkbox" id="bulkhead" title="Select all shown"></th>
         <th>Org</th><th>Role</th><th>Category</th><th>Fit</th><th>Rec</th>
         <th>Pri</th><th>Status</th><th>Outcome</th><th class="salarycell">Salary</th><th class="notescell">Notes</th>
       </tr></thead>
@@ -141,6 +175,7 @@
             data-status="{{ r.status or '' }}"
             data-id="{{ r.store_id or '' }}"
             data-blob="{{ (r.org ~ ' ' ~ r.title ~ ' ' ~ (r.sector or '') ~ ' ' ~ (r.role_cat or '') ~ ' ' ~ (r.suggested_role_cat or '') ~ ' ' ~ (r.suggestion_reason or '') ~ ' ' ~ (r.why or '') ~ ' ' ~ (r.seniority_read or ''))|lower }}">
+          <td class="selcell"></td>
           <td><div class="org">{{ r.org }}</div><div class="sector">{{ r.sector or '—' }}</div></td>
           <td>
             {% if r.url %}<a href="{{ r.url }}" target="new" rel="noopener">{{ r.title }}</a>{% else %}{{ r.title }}{% endif %}
@@ -235,9 +270,13 @@ function apply(){
     var okQ = !term || tr.dataset.blob.indexOf(term)!==-1;
     var show = okRec && okStatus && okQ;
     tr.style.display = show ? '' : 'none';
+    // A hidden row drops out of the selection: "apply to selected" must only
+    // ever touch rows the user can actually see at the moment they click it.
+    if(!show && window.mcBulk) window.mcBulk.deselect(tr);
     if(show) n++;
   });
   document.getElementById('shown').textContent=n;
+  if(window.mcBulk) window.mcBulk.refresh();
 }
 q.oninput=apply;
 // One handler for both filter rows: the group id decides which variable moves,
@@ -264,6 +303,11 @@ q.oninput=apply;
   var API = window.location.origin;
   if(window.location.protocol === 'file:') return;
 
+  // field -> {role id -> setter}. Filled in as each column is made editable,
+  // read by the batch bar so a bulk write can move the single-row controls to
+  // their new value without re-rendering the page.
+  var controls = {};
+
   fetch(API + '/api/health').then(function(r){
     return r.ok ? r.json() : Promise.reject();
   }).then(function(health){
@@ -285,6 +329,7 @@ q.oninput=apply;
     // accepted), so presence in the object - not truthiness - is the signal.
     if('notes' in ed) enableTextField('notescell', 'notes');
     if('comp_range' in ed) enableTextField('salarycell', 'comp_range');
+    enableBatchEditing(ed);
   }).catch(function(){ /* read-only, as designed */ });
 
   // One generic editor for a single-select field: status, priority,
@@ -313,6 +358,14 @@ q.oninput=apply;
           current = next;
           onSaved(tr, next);
         }, function(){ sel.value = previous; });
+      };
+
+      if(!controls[field]) controls[field] = {};
+      controls[field][id] = function(next){   // a batch write landed on this row
+        current = next;
+        sel.value = next;
+        flash(cell, 'saved');
+        onSaved(tr, next);
       };
 
       cell.innerHTML = '';
@@ -346,6 +399,13 @@ q.oninput=apply;
           current = next;
           hint.style.display = 'none';
         }, function(){ sel.value = previous; });
+      };
+      if(!controls.role_cat) controls.role_cat = {};
+      controls.role_cat[id] = function(next){
+        current = next;
+        sel.value = next;
+        hint.style.display = 'none';
+        flash(cell, 'saved');
       };
       wrap.appendChild(sel);
 
@@ -404,6 +464,133 @@ q.oninput=apply;
       cell.innerHTML = '';
       cell.appendChild(input);
     });
+  }
+
+  // Batch editing: tick some rows, pick a field and a value, write them all in
+  // one request. The motivating case is the end of a triage pass - filter to
+  // Rec = skip, select all shown, set Status = 04 Closed - which is otherwise
+  // dozens of identical dropdown changes.
+  //
+  // Only closed-vocabulary fields are offered. Notes and Salary are free text
+  // and per-role by nature; mass-overwriting them is far more likely to be an
+  // accident than an intention, so the bar does not allow it.
+  function enableBatchEditing(ed){
+    var bar = document.getElementById('bulkbar');
+    if(!bar) return;
+    var fieldSel = document.getElementById('bulkfield'),
+        valueSel = document.getElementById('bulkvalue'),
+        go = document.getElementById('bulkgo'),
+        msg = document.getElementById('bulkmsg'),
+        countEl = document.getElementById('bulkcount'),
+        head = document.getElementById('bulkhead');
+
+    var OFFER = [['status', 'Status'], ['priority', 'Priority'],
+                 ['outcomes', 'Outcome'], ['role_cat', 'Category']];
+    var fields = OFFER.filter(function(f){ return ed[f[0]] && ed[f[0]].length; });
+    if(!fields.length){ bar.style.display = 'none'; return; }
+
+    fields.forEach(function(f){
+      var opt = document.createElement('option');
+      opt.value = f[0]; opt.textContent = f[1];
+      fieldSel.appendChild(opt);
+    });
+
+    function labelFor(field, value){
+      if(!value) return '\u2014 none \u2014';
+      if(field === 'status') return value.replace(/^\d\d\s/, '');
+      if(field === 'priority') return 'P' + value;
+      return value;
+    }
+    function fillValues(){
+      valueSel.innerHTML = '';
+      (ed[fieldSel.value] || []).forEach(function(value){
+        var opt = document.createElement('option');
+        opt.value = value; opt.textContent = labelFor(fieldSel.value, value);
+        valueSel.appendChild(opt);
+      });
+    }
+    fieldSel.onchange = function(){ fillValues(); say(''); };
+    fillValues();
+
+    // One checkbox per writable row. Rows with no store_id cannot be written
+    // at all, so they get no checkbox and can never end up in a batch.
+    var boxes = [];
+    document.querySelectorAll('#rt tbody tr').forEach(function(tr){
+      var id = tr.dataset.id, cell = tr.querySelector('.selcell');
+      if(!id || !cell) return;
+      var box = document.createElement('input');
+      box.type = 'checkbox';
+      box.onchange = refresh;
+      cell.innerHTML = '';
+      cell.appendChild(box);
+      boxes.push({tr: tr, id: id, box: box});
+    });
+
+    function visible(entry){ return entry.tr.style.display !== 'none'; }
+    function selected(){
+      return boxes.filter(function(e){ return e.box.checked && visible(e); });
+    }
+    function say(text, kind){
+      msg.textContent = text;
+      msg.className = 'msg' + (kind ? ' ' + kind : '');
+    }
+    function refresh(){
+      var n = selected().length, shown = boxes.filter(visible).length;
+      countEl.textContent = n;
+      go.disabled = n === 0;
+      head.checked = n > 0 && n === shown;
+      head.indeterminate = n > 0 && n < shown;
+    }
+
+    function setAll(state){
+      boxes.forEach(function(e){ if(visible(e)) e.box.checked = state; });
+      refresh();
+    }
+    head.onchange = function(){ setAll(head.checked); };
+    document.getElementById('bulkall').onclick = function(){ setAll(true); };
+    document.getElementById('bulknone').onclick = function(){
+      boxes.forEach(function(e){ e.box.checked = false; });
+      refresh();
+    };
+
+    go.onclick = function(){
+      var chosen = selected(), field = fieldSel.value, value = valueSel.value;
+      if(!chosen.length) return;
+      go.disabled = true;
+      say('saving\u2026');
+      fetch(API + '/api/roles/bulk', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ids: chosen.map(function(e){ return e.id; }),
+                              field: field, value: value})
+      }).then(function(r){ return r.json(); }).then(function(res){
+        if(res.error){ throw new Error(res.error); }
+        (res.results || []).forEach(function(row){
+          if(row.error) return;
+          var setter = (controls[field] || {})[row.id];
+          if(setter) setter(value);
+        });
+        boxes.forEach(function(e){ e.box.checked = false; });
+        var text = res.changed + ' updated';
+        if(res.unchanged) text += ', ' + res.unchanged + ' already set';
+        if(res.failed) text += ', ' + res.failed + ' failed';
+        say(text, res.failed ? 'err' : 'ok');
+        apply();          // also refreshes the selection state
+      }).catch(function(err){
+        say('failed: ' + err.message, 'err');
+        console.error('bulk writeback failed', field, err);
+      }).then(function(){ refresh(); });
+    };
+
+    // apply() (the filter pass) calls back in here, so hiding a row also drops
+    // it from the selection and the count stays honest.
+    window.mcBulk = {
+      deselect: function(tr){
+        boxes.forEach(function(e){ if(e.tr === tr) e.box.checked = false; });
+      },
+      refresh: refresh
+    };
+    refresh();
   }
 
   function writeField(id, field, value, control, cell, onSuccess, onFailure){

@@ -80,6 +80,11 @@ EDITABLE = {
 
 FREE_TEXT_MAX_LEN = {"notes": 2000, "comp_range": 120}
 
+# Ceiling on a single bulk write. Not a performance limit - a blast-radius one:
+# an accidental "select all" on a tracker that has grown past this should be
+# refused loudly rather than rewritten silently.
+BULK_MAX_ROWS = 500
+
 
 def _overlay_live_values(intel_data, store):
     """Copy of the latest intel json with user-editable fields overlaid from the
@@ -195,6 +200,28 @@ class Handler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _validate(self, field, value):
+        """(coerced_value, error). One gate for both the single-row and the
+        bulk route, so a batch can never write something a single row could
+        not: same vocabulary, same length caps, same type coercion."""
+        if field not in self.editable:
+            return value, f"field not editable: {field}"
+        allowed = self.editable[field]
+        # Validate against the vocabulary as text (a select element only ever
+        # sends strings), then store the type the rest of the pipeline expects.
+        if allowed is not None and str(value or "") not in allowed:
+            return value, f"value not allowed for {field}: {value!r}"
+        if allowed is None:
+            # Free text (notes, comp_range/Salary): no vocabulary, just a length cap.
+            if not isinstance(value, (str, type(None))):
+                return value, f"{field} must be text"
+            limit = FREE_TEXT_MAX_LEN.get(field)
+            if limit and value and len(value) > limit:
+                return value, f"{field} is too long (max {limit} characters)"
+        if field == "priority" and value not in (None, ""):
+            value = float(value)
+        return value, None
+
     def log_message(self, fmt, *args):
         if not self.quiet:
             sys.stderr.write(f"[{datetime.now():%H:%M:%S}] {fmt % args}\n")
@@ -245,34 +272,25 @@ class Handler(SimpleHTTPRequestHandler):
         path = urlparse(self.path).path
         if not self._loopback():
             return self._json({"error": "loopback only"}, 403)
-        if not path.startswith("/api/role/"):
+        if path not in ("/api/roles/bulk",) and not path.startswith("/api/role/"):
             return self._json({"error": "not found"}, 404)
 
-        role_id = path[len("/api/role/"):].strip("/")
         try:
             length = int(self.headers.get("Content-Length") or 0)
             payload = json.loads(self.rfile.read(length) or b"{}")
         except (ValueError, json.JSONDecodeError):
             return self._json({"error": "bad json"}, 400)
 
+        if path == "/api/roles/bulk":
+            return self._bulk(payload)
+
+        role_id = path[len("/api/role/"):].strip("/")
+
         field = payload.get("field")
         value = payload.get("value")
-        if field not in self.editable:
-            return self._json({"error": f"field not editable: {field}"}, 400)
-        allowed = self.editable[field]
-        # Validate against the vocabulary as text (a select element only ever
-        # sends strings), then store the type the rest of the pipeline expects.
-        if allowed is not None and str(value or "") not in allowed:
-            return self._json({"error": f"value not allowed for {field}: {value!r}"}, 400)
-        if allowed is None:
-            # Free text (notes, comp_range/Salary): no vocabulary, just a length cap.
-            if not isinstance(value, (str, type(None))):
-                return self._json({"error": f"{field} must be text"}, 400)
-            limit = FREE_TEXT_MAX_LEN.get(field)
-            if limit and value and len(value) > limit:
-                return self._json({"error": f"{field} is too long (max {limit} characters)"}, 400)
-        if field == "priority" and value not in (None, ""):
-            value = float(value)
+        value, error = self._validate(field, value)
+        if error:
+            return self._json({"error": error}, 400)
 
         try:
             with _write_lock:
@@ -289,6 +307,59 @@ class Handler(SimpleHTTPRequestHandler):
             "changed": result["changed"],
             "old": result["old"],
             "new": result["new"],
+        })
+
+    def _bulk(self, payload):
+        """One field, one value, many rows - the batch behind the dashboard's
+        "apply to selected" bar (moving every recommended skip to Closed in one
+        action, for instance).
+
+        Deliberately not a transaction: each row is an independent
+        store.set_field, logged individually, so a bad id in the middle stops
+        nothing and the change log reads the same as if the rows had been
+        edited one at a time. The response reports every row's outcome, so the
+        page can flash the ones that failed.
+        """
+        ids = payload.get("ids")
+        field = payload.get("field")
+        value = payload.get("value")
+
+        if not isinstance(ids, list) or not ids:
+            return self._json({"error": "ids must be a non-empty list"}, 400)
+        if len(ids) > BULK_MAX_ROWS:
+            return self._json({"error": f"too many rows: {len(ids)} (max {BULK_MAX_ROWS})"}, 400)
+        if not all(isinstance(i, str) and i.strip() for i in ids):
+            return self._json({"error": "ids must be non-empty strings"}, 400)
+
+        value, error = self._validate(field, value)
+        if error:
+            return self._json({"error": error}, 400)
+
+        results, changed, failed = [], 0, 0
+        with _write_lock:
+            for role_id in dict.fromkeys(ids):     # de-duplicated, order kept
+                try:
+                    outcome = self.store.set_field(role_id, field, value or None, actor="dashboard")
+                except KeyError:
+                    results.append({"id": role_id, "error": f"unknown role: {role_id}"})
+                    failed += 1
+                    continue
+                except ValueError as exc:
+                    results.append({"id": role_id, "error": str(exc)})
+                    failed += 1
+                    continue
+                changed += 1 if outcome["changed"] else 0
+                results.append({"id": role_id, "changed": outcome["changed"],
+                                "old": outcome["old"], "new": outcome["new"]})
+
+        return self._json({
+            "ok": failed == 0,
+            "field": field,
+            "requested": len(results),
+            "changed": changed,
+            "unchanged": len(results) - changed - failed,
+            "failed": failed,
+            "results": results,
         })
 
 
