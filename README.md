@@ -148,6 +148,12 @@ Running it again while it's already up just tells you it's already running, not 
 Prefer to watch it run in this terminal instead (Ctrl-C to stop)? `mc dashboard --foreground`.
 Background output goes to `.mc/dashboard.log`.
 
+**Light or dark.** Every page carries a theme switch in the top bar, cycling **Auto -> Light ->
+Dark**. Auto follows your operating system and is the default; an explicit choice is remembered
+in the browser (`localStorage`, key `mc-theme`) and applied before the first paint, so there is
+no flash of the wrong theme on reload. The choice is per browser, not per workspace, and needs
+no server - it works on a saved `file://` page too.
+
 No server running? The page still opens fine, just read-only - nothing breaks. And it only
 listens on your own machine, with a fixed list of fields and values it will accept - no
 free-for-all editing from a stray request.

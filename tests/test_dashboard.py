@@ -246,6 +246,16 @@ try:
     page_bulk = requests.get(f"{API}/job-tracker.html", timeout=5)
     check("the page ships the batch bar and a select column",
           'id="bulkbar"' in page_bulk.text and 'class="selcell"' in page_bulk.text)
+
+    # A cached stylesheet is a silent bug: the page gets a new feature, the
+    # script runs, and nothing changes on screen. Belt (versioned URL) and
+    # braces (revalidate header).
+    check("the stylesheet link is content-versioned",
+          'href="theme.css?v=' in page_bulk.text, page_bulk.text[:0])
+    css_headers = requests.get(f"{API}/theme.css", timeout=5)
+    check("static assets are served must-revalidate",
+          "no-cache" in css_headers.headers.get("Cache-Control", ""),
+          css_headers.headers.get("Cache-Control", "(none)"))
 finally:
     httpd.shutdown()
     httpd.server_close()

@@ -2,7 +2,8 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Content Radar — {{ d.date }}</title>
-<link rel="stylesheet" href="theme.css"></head>
+<link rel="stylesheet" href="theme.css?v={{ asset_v }}">
+{% include '_theme.html.j2' %}</head>
 <body>
 
 {% with page='radar', subtitle='Content Radar' %}{% include '_nav.html.j2' %}{% endwith %}

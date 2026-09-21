@@ -191,6 +191,17 @@ class Handler(SimpleHTTPRequestHandler):
     def _loopback(self):
         return self.client_address[0] in ("127.0.0.1", "::1")
 
+    def end_headers(self):
+        # Static assets (theme.css above all) must be revalidated, never reused
+        # blind: the pages are regenerated constantly, and a stale stylesheet is
+        # invisible - the page looks fine, it is just wearing yesterday's CSS.
+        # Responses that already set the header (the JSON API says no-store)
+        # keep their own value.
+        sent = b"".join(self._headers_buffer or []).lower()
+        if b"cache-control:" not in sent:
+            self.send_header("Cache-Control", "no-cache, must-revalidate")
+        super().end_headers()
+
     def _json(self, payload, code=200):
         body = json.dumps(payload).encode()
         self.send_response(code)

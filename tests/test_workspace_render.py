@@ -52,6 +52,27 @@ if (alt_html / "job-tracker.html").exists():
     body = (alt_html / "job-tracker.html").read_text()
     check("tracker page contains the alt fixture's role", "Head of Measurement" in body)
 
+# Theme switch: every page ships the button, and the saved choice is applied
+# from <head> - after the stylesheet link but before any content - so the page
+# never paints in the wrong theme first.
+# content-radar.html is only rendered when there is radar data, which this
+# fixture does not provide - checked when present, not demanded.
+for name in ("index.html", "content-radar.html", "job-tracker.html"):
+    page = alt_html / name
+    if not page.exists():
+        continue
+    text = page.read_text()
+    check(f"{name} ships the theme switch", 'id="themebtn"' in text)
+    check(f"{name} applies the saved theme before paint",
+          text.index("mc-theme") < text.index("<body"))
+
+css = (alt_html / "theme.css").read_text()
+check("theme.css carries an explicit light palette", '[data-theme="light"]' in css)
+check("theme.css falls back to the system preference",
+      "prefers-color-scheme:light" in css.replace(" ", ""))
+check("no raw hex colours leak past the palette block",
+      "#" not in css.split("*{box-sizing:border-box}", 1)[1])
+
 shutil.rmtree(work, ignore_errors=True)
 
 if fails:

@@ -4,5 +4,54 @@
     <a href="content-radar.html" class="{{ 'on' if page == 'radar' }}">Content Radar</a>
     <a href="job-tracker.html" class="{{ 'on' if page == 'tracker' }}">Job Tracker</a>
   </nav>
-  <span>{{ subtitle | default('') }}</span>
+  <span class="topright">
+    <span>{{ subtitle | default('') }}</span>
+    <button type="button" class="themebtn" id="themebtn" aria-live="polite"></button>
+  </span>
 </div></div>
+
+{# The switch itself. The <head> partial has already applied the saved choice;
+   this only relabels the button and writes the next one. Three states on
+   purpose: light, dark, and "follow my system" - the last is the default, and
+   the only way back to it is the cycle, so a reader is never locked into a
+   fixed theme by one curious click. #}
+<script>
+(function(){
+  var btn = document.getElementById('themebtn');
+  if(!btn) return;
+  var root = document.documentElement;
+  var media = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+  var ORDER = ['system', 'light', 'dark'];
+  var LABEL = {system: 'Auto', light: 'Light', dark: 'Dark'};
+  var ICON  = {system: '\u25D1', light: '\u2600', dark: '\u263E'};
+
+  function stored(){
+    try{
+      var v = localStorage.getItem('mc-theme');
+      return (v === 'light' || v === 'dark') ? v : 'system';
+    }catch(e){ return 'system'; }
+  }
+  function paint(mode){
+    if(mode === 'system'){ root.removeAttribute('data-theme'); }
+    else { root.setAttribute('data-theme', mode); }
+    var effective = mode !== 'system' ? mode : (media && media.matches ? 'light' : 'dark');
+    btn.textContent = ICON[mode] + ' ' + LABEL[mode];
+    btn.title = 'Theme: ' + LABEL[mode].toLowerCase()
+      + (mode === 'system' ? ' (currently ' + effective + ')' : '') + ' \u2014 click to change';
+    btn.setAttribute('aria-label', btn.title);
+  }
+  btn.onclick = function(){
+    var next = ORDER[(ORDER.indexOf(stored()) + 1) % ORDER.length];
+    try{
+      if(next === 'system'){ localStorage.removeItem('mc-theme'); }
+      else { localStorage.setItem('mc-theme', next); }
+    }catch(e){ /* storage off: the choice holds for this page only */ }
+    paint(next);
+  };
+  // In Auto, follow the system the moment it changes - no reload needed.
+  if(media && media.addEventListener){
+    media.addEventListener('change', function(){ if(stored() === 'system') paint('system'); });
+  }
+  paint(stored());
+})();
+</script>

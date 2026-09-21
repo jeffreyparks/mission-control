@@ -1,0 +1,15 @@
+{# Theme boot. Must run in <head>, before anything paints: reading the saved
+   choice after first paint is what produces the white flash on a dark page.
+   No stored choice means no attribute at all, which leaves the decision to
+   the prefers-color-scheme rules in theme.css - so a reader who never touches
+   the switch simply follows their system. #}
+<script>
+(function(){
+  try{
+    var saved = localStorage.getItem('mc-theme');
+    if(saved === 'light' || saved === 'dark'){
+      document.documentElement.setAttribute('data-theme', saved);
+    }
+  }catch(e){ /* private mode, storage disabled: system preference stands */ }
+})();
+</script>

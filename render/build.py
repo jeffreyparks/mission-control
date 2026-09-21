@@ -11,6 +11,7 @@ can run on different cadences without blocking each other.
 
 Run:  uv run python render/build.py
 """
+import hashlib
 import json
 import shutil
 import statistics
@@ -33,13 +34,32 @@ def _default_base():
     return workspace.resolve()
 
 
+def _asset_version():
+    """Short content hash of theme.css, appended to the stylesheet link as
+    ?v=... - a cache buster.
+
+    Without it a browser happily keeps serving the stylesheet it cached
+    yesterday: the page ships a new feature (the theme switch), the script
+    runs, the attribute flips, and nothing changes on screen because the
+    cached CSS has no rule for it. The filename changing on every edit is what
+    makes a stale copy impossible."""
+    try:
+        return hashlib.sha1((RENDER / "theme.css").read_bytes()).hexdigest()[:8]
+    except OSError:
+        return "dev"
+
+
 def _env():
-    return Environment(
+    env = Environment(
         loader=FileSystemLoader(str(RENDER)),
         autoescape=select_autoescape(["html"]),
         trim_blocks=True,
         lstrip_blocks=True,
     )
+    # Recomputed per environment, and dashboard.py builds one per request, so
+    # an edit to theme.css is picked up without restarting anything.
+    env.globals["asset_v"] = _asset_version()
+    return env
 
 
 def _latest(pattern, folder, base=None):

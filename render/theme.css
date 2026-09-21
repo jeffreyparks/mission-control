@@ -1,13 +1,56 @@
 /* Mission Control - shared theme, derived from the approved reference artifacts */
+/* Two palettes, one set of names. Every rule below paints with these variables
+   and never with a raw hex, so switching theme is a single attribute on <html>
+   and nothing downstream has to know which mode it is in.
+
+   Dark is the default. Light arrives two ways: the system preference (for a
+   reader who has never touched the switch, and for the no-JS case), or an
+   explicit data-theme="light" that the nav toggle writes and localStorage
+   remembers. An explicit choice always wins over the system. */
 :root{
+  color-scheme:dark;
   --bg:#0e0e10; --bg-raised:#151517; --bg-card:#18181b; --line:#26262b; --line-soft:#1f1f23;
   --ink:#e9e7e4; --ink-dim:#a3a2a0; --ink-mute:#6f6e6d;
   --accent:#c9a227; --accent-soft:#3a3524;
   --ok:#4ade80; --info:#60a5fa; --warn:#fbbf24; --bad:#f87171; --idle:#71717a;
+  /* tinted backgrounds/borders behind status chips - named, because their
+     dark-mode values are unreadable on a light page */
+  --ok-bg:#12211a; --ok-line:#1f3d2a;
+  --warn-line:#4a3a15;
+  --bad-bg:#2a1414; --bad-line:#4a2020; --bad-strong:#ff6b6b;
+  --info-bg:#1e3050;
   --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
   --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;
   --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
   --wrap:1180px;
+}
+/* The light palette, written twice on purpose: once for the explicit switch,
+   once for "system says light and nobody has chosen". CSS has no way to share
+   one declaration block across a media query boundary, and a copy here is
+   cheaper than a runtime dependency on JavaScript for a first paint. */
+:root[data-theme="light"]{
+  color-scheme:light;
+  --bg:#faf9f7; --bg-raised:#ffffff; --bg-card:#ffffff; --line:#e0dcd5; --line-soft:#eeeae3;
+  --ink:#1b1a18; --ink-dim:#55524d; --ink-mute:#84817b;
+  --accent:#8a6d10; --accent-soft:#f2e9cd;
+  --ok:#157f3c; --info:#1d4ed8; --warn:#a16207; --bad:#b91c1c; --idle:#9b9993;
+  --ok-bg:#eaf6ee; --ok-line:#bcdfc8;
+  --warn-line:#e2cf9c;
+  --bad-bg:#fdeded; --bad-line:#f1bfbf; --bad-strong:#c62828;
+  --info-bg:#e3ecfd;
+}
+@media(prefers-color-scheme:light){
+  :root:not([data-theme]){
+    color-scheme:light;
+    --bg:#faf9f7; --bg-raised:#ffffff; --bg-card:#ffffff; --line:#e0dcd5; --line-soft:#eeeae3;
+    --ink:#1b1a18; --ink-dim:#55524d; --ink-mute:#84817b;
+    --accent:#8a6d10; --accent-soft:#f2e9cd;
+    --ok:#157f3c; --info:#1d4ed8; --warn:#a16207; --bad:#b91c1c; --idle:#9b9993;
+    --ok-bg:#eaf6ee; --ok-line:#bcdfc8;
+    --warn-line:#e2cf9c;
+    --bad-bg:#fdeded; --bad-line:#f1bfbf; --bad-strong:#c62828;
+    --info-bg:#e3ecfd;
+  }
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -104,9 +147,9 @@ tr:hover td{background:var(--bg-raised)}
 .dot.open::before{background:var(--warn)} .dot.applied::before{background:var(--info)}
 .dot.researching::before{background:var(--ok)} .dot.closed::before{background:var(--idle)}
 .pri{font-family:var(--mono);font-size:10px;padding:2px 6px;border-radius:3px;border:1px solid var(--line)}
-.pri.p1{color:var(--ok);border-color:#1f3d2a} .pri.p2{color:var(--info);border-color:#1e3050}
+.pri.p1{color:var(--ok);border-color:var(--ok-line)} .pri.p2{color:var(--info);border-color:var(--info-bg)}
 .pri.p3{color:var(--ink-mute)}
-.bad-chip{font-size:11px;color:var(--bad);border:1px solid #4a2020;background:#2a1414;
+.bad-chip{font-size:11px;color:var(--bad);border:1px solid var(--bad-line);background:var(--bad-bg);
   padding:2px 7px;border-radius:3px}
 .fit{font-family:var(--mono);font-size:12px;font-weight:600}
 .fit.hi{color:var(--ok)} .fit.mid{color:var(--warn)} .fit.lo{color:var(--ink-mute)}
@@ -156,9 +199,9 @@ footer{padding:36px 0 64px;font-size:11px;color:var(--ink-mute);
   border-radius:4px;padding:4px 6px;font-size:11px;font-family:var(--mono);max-width:150px}
 .statussel:hover{border-color:var(--accent)}
 .statussel:disabled{opacity:.5}
-.chip.live{border-color:#1f3d2a;background:#12211a;color:var(--ok)}
+.chip.live{border-color:var(--ok-line);background:var(--ok-bg);color:var(--ok)}
 .flash{font-family:var(--mono);font-size:9px;margin-left:6px;letter-spacing:.1em;text-transform:uppercase}
-.flash.saved{color:var(--ok)} .flash.failed{color:#ff6b6b}
+.flash.saved{color:var(--ok)} .flash.failed{color:var(--bad-strong)}
 
 /* stage 3: priority / recommendation / outcomes / category writeback */
 .fieldsel{background:var(--bg-card);color:var(--ink);border:1px solid var(--line);
@@ -171,7 +214,7 @@ footer{padding:36px 0 64px;font-size:11px;color:var(--ink-mute);
 .accept-btn{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;
   border:1px solid var(--line);background:transparent;color:var(--accent);border-radius:3px;
   padding:1px 6px;margin-left:4px;cursor:pointer}
-.accept-btn:hover{border-color:var(--accent);background:#12211a}
+.accept-btn:hover{border-color:var(--accent);background:var(--ok-bg)}
 
 /* free-text writeback: Notes, Salary */
 .textfield{background:var(--bg-card);color:var(--ink);border:1px solid var(--line);
@@ -180,3 +223,10 @@ footer{padding:36px 0 64px;font-size:11px;color:var(--ink-mute);
 .textfield:hover{border-color:var(--accent)}
 .textfield:disabled{opacity:.5}
 .textfield::placeholder{color:var(--ink-mute)}
+
+/* theme switch, right-hand side of the top bar */
+.topright{display:flex;align-items:center;gap:14px}
+.themebtn{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-mute);
+  background:transparent;border:1px solid var(--line);border-radius:12px;padding:3px 10px;
+  cursor:pointer;line-height:1.5}
+.themebtn:hover{color:var(--accent);border-color:var(--accent)}
