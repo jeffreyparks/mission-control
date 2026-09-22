@@ -87,6 +87,16 @@ Two board-wide aggregators cover everything else, configured under `aggregators:
   call. Each term is also sent to the boards as `-term` so the noise is filtered before it is
   downloaded.
 
+Write both lists **bare**. Quoting a phrase (`"marketing science"`) stores the quote characters
+and the term then matches nothing locally; the board query adds its own quotes.
+
+One more list, read only by the content radar:
+
+- **`## Watch Topics`** - emerging themes to hunt for even with no track record in them. They
+  never score a job, never generate a board search and never exclude anything. Without them the
+  radar can only mirror your resume; with them it can show you where the field is moving.
+  Format: `- topic: why you are watching it`.
+
 Want the boards' full query syntax instead? Set `search_query` on the JobSpy aggregator and it
 is sent verbatim.
 

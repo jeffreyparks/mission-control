@@ -112,6 +112,43 @@ finally:
 check("max_queries caps the Built In fan-out",
       captured.get("queries") == target[:1], str(captured.get("queries")))
 
+# ---------------- a multi-word exclude is a PHRASE, not its words ----------------
+# The stored term is bare ("marketing lead"), because scoring is a literal
+# substring test and the exclude matcher builds a word regex - stored quote
+# characters make both dead. Stripping the quotes does NOT loosen the match:
+# the matcher joins the words with [\s-]+, so the phrase still has to appear
+# whole and in order. "marketing lead" must never fire on "Head of Marketing".
+phrase = Path(tempfile.mkdtemp())
+(phrase / "me").mkdir(parents=True)
+(phrase / "me/profile.md").write_text("""
+## Target Keywords
+- "marketing science"
+
+## Exclude Keywords
+- "marketing lead"
+- "account executive"
+""")
+pl = load_keywords(phrase)
+check("wrapping quotes are stripped from target keywords",
+      pl["target"] == ["marketing science"], str(pl["target"]))
+check("wrapping quotes are stripped from exclude keywords",
+      pl["exclude"] == ["marketing lead", "account executive"], str(pl["exclude"]))
+
+from profile_keywords import matches_exclude, build_board_query
+px = pl["exclude"]
+check("the exact phrase is excluded", matches_exclude("Marketing Lead, Growth", px) == "marketing lead")
+check("a plural of the phrase is excluded", matches_exclude("Marketing Leads", px) == "marketing lead")
+check("a hyphenated phrase is excluded", matches_exclude("Marketing-Lead", px) == "marketing lead")
+check("the FIRST word alone does NOT exclude", matches_exclude("Head of Marketing", px) is None)
+check("the LAST word alone does NOT exclude", matches_exclude("Engineering Lead", px) is None)
+check("the words reordered do NOT exclude", matches_exclude("Executive Account Director", px) is None)
+check("a quoted term would have matched nothing at all",
+      matches_exclude('Marketing Lead, Growth', ['"marketing lead"']) is None)
+check("the board query re-quotes the phrase itself",
+      build_board_query("data science", px) == '"data science" -"marketing lead" -"account executive"',
+      build_board_query("data science", px))
+shutil.rmtree(phrase, ignore_errors=True)
+
 # ---------------- parked keywords inside HTML comments stay parked ----------------
 # profile.md documents commenting a block of bullets out as the way to park a
 # keyword. A multi-line `<!-- ... -->` block must contribute NO keywords; the

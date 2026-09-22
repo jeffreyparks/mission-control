@@ -30,12 +30,14 @@ JSON SCHEMA (artifacts/content/radar-YYYY-MM-DD.json)
   "cadence": "weekly",
   "date": "YYYY-MM-DD",              # run date
   "window_days": 14,                 # article recency window
+  "watch_topics": [str],             # profile.md "## Watch Topics", in order
   "stats": {
     "sources_configured": int,
     "sources_with_entries": int,
     "articles_considered": int,      # in-window entries seen
     "articles_fetched": int,         # full text successfully extracted
     "picks": int,
+    "themes": [str],                 # distinct themes the picks covered
     "repos_reviewed": int,
     "llm": str                       # LLM cost/cache report line
   },
@@ -51,6 +53,7 @@ JSON SCHEMA (artifacts/content/radar-YYYY-MM-DD.json)
         {
           "tier": "primary" | "secondary" | "supporting",
           "theme": str,              # e.g. "Evaluation Rigor"
+          "watch_topic": str,        # matched "## Watch Topics" entry, "" if none
           "headline": str,           # rewritten, not the source title
           "why_it_matters": str,     # 2-4 sentences of analysis
           "angle": str,              # the POV the candidate could own
@@ -102,11 +105,14 @@ from bs4 import BeautifulSoup
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from llm import LLM, LLMError          # noqa: E402
 from context import context_block      # noqa: E402
+from profile_keywords import load_watch_topics   # noqa: E402
 
 MAX_AGE_DAYS = 14
 MAX_ARTICLE_CHARS = 6000
 MAX_ENTRIES_PER_SOURCE = 6
-MAX_ARTICLES_TOTAL = 18
+MAX_ARTICLES_TOTAL = 30
+TARGET_PICKS = 8
+MAX_PICKS_PER_THEME = 3
 FORMATS = ["LinkedIn post", "Tweet", "Short technical post", "LinkedIn comment + reply"]
 TIERS = ["primary", "secondary", "supporting"]
 UA = {"User-Agent": "Mozilla/5.0 (compatible; MissionControl/1.0; +content-radar)"}
@@ -131,7 +137,63 @@ class ContentRadar:
         # caller, so the radar and the profile scanner can never disagree about
         # which person this run is for. Empty -> the GitHub section is skipped.
         self.github_user = (github_user or "").strip()
+        # Emerging themes from me/profile.md "## Watch Topics". Empty is fine:
+        # the radar then judges on the profile alone, exactly as before.
+        self.watch_topics = load_watch_topics(self.base_dir)
         self.llm = LLM(self.base_dir)
+
+    @staticmethod
+    def _as_payload(data, list_key):
+        """Normalize one LLM JSON result into the dict shape this agent reads.
+
+        `LLM._extract_json` is documented to return "the first JSON object OR
+        ARRAY", so a model that answers with a bare `[...]` of picks instead of
+        the requested `{"picks": [...]}` wrapper is a valid parse that this
+        agent used to crash on ('list' object has no attribute 'get') - and
+        because the parse succeeded, the bad shape was cached and the crash
+        repeated on every later run.
+
+        A bare list is taken at face value as the list the prompt asked for,
+        which is what the model meant. Anything else degrades to {}, so the
+        section renders its honest empty state instead of killing the run.
+        """
+        if isinstance(data, dict):
+            return data
+        if isinstance(data, list):
+            return {list_key: [d for d in data if isinstance(d, dict)]}
+        return {}
+
+    @staticmethod
+    def _wants_object(data):
+        """Validator for complete_json: insist on the documented wrapper.
+
+        Passed as `validate=`, so a bare array costs a stricter retry and an
+        escalation up the model ladder BEFORE `_as_payload` has to salvage it.
+        """
+        return isinstance(data, dict)
+
+    def watch_block(self):
+        """The watch-topic instruction injected into the article prompt.
+
+        A resume describes what the candidate HAS done, so a prompt anchored
+        only on the resume keeps selecting the same few themes forever. Watch
+        topics are the counterweight: explicit permission to pick an article
+        about where the field is going, with no track record required."""
+        if not self.watch_topics:
+            return ""
+        lines = [
+            f"- {t['topic']}" + (f" - {t['note']}" if t.get("note") else "")
+            for t in self.watch_topics
+        ]
+        return (
+            "\nACTIVE WATCH TOPICS (from profile.md '## Watch Topics')\n"
+            "These are emerging themes the candidate is deliberately tracking.\n"
+            "He does NOT need existing experience in them to have a view; an\n"
+            "informed practitioner reading in public is a legitimate angle.\n"
+            "Treat a strong article on one of these as pick-worthy on its own\n"
+            "merits, and name the topic in the pick's watch_topic field.\n"
+            + "\n".join(lines) + "\n"
+        )
 
     # ---------------- config ----------------
 
@@ -291,6 +353,7 @@ class ContentRadar:
                 f"full_text:\n{a['text']}\n"
             )
 
+        watch_block = self.watch_block()
         prompt = f"""{context_block(self.base_dir)}
 
 === TASK: WEEKLY CONTENT RADAR (editorial judgment, not keyword matching) ===
@@ -302,9 +365,9 @@ give this specific person a reason to publish something that is actually his.
 
 HARD RULES ON HONESTY
 - Most articles are not worth a post. Say so by leaving them out.
-- 6 picks is the target, not a ceiling to stop at early. Review every
+- {TARGET_PICKS} picks is the target, not a ceiling to stop at early. Review every
   candidate article before deciding you are done - do not settle for 2 or 3
-  strong ones without checking whether the rest of the batch has 3 more that
+  strong ones without checking whether the rest of the batch has more that
   genuinely clear the bar. That said, fewer is still better than padded, and
   ZERO picks is a fully acceptable and correct answer when the week is
   genuinely dead.
@@ -314,15 +377,32 @@ HARD RULES ON HONESTY
   the candidate could defend in a comment thread, drop the pick.
 - Do not pad "why_it_matters" with generic industry commentary.
 
+RULES ON BREADTH (read profile.md's two pillars before you judge)
+- Causal measurement is ONE of this candidate's pillars, not an entry
+  requirement. Applied AI, agentic systems, evaluation, AI product and
+  platform delivery, and AI in advertising/GTM are first-class subjects in
+  their own right. A strong article there needs NO causal or marketing-
+  measurement hook to qualify.
+- Do NOT bend an AI or engineering article into a measurement story just to
+  connect it to the resume. If the honest angle is an applied-AI angle, say
+  the applied-AI angle.
+- No more than {MAX_PICKS_PER_THEME} picks may share a theme. If your picks are
+  collapsing onto one theme, you are pattern-matching the resume instead of
+  reading the week - go back and look at what you skipped.
+- Aim for a spread across at least 3 distinct themes when the batch supports
+  it, and prefer a pick that opens a NEW line of authority over a fourth pick
+  restating an established one.
+{watch_block}
 Return ONLY a JSON object with this exact shape:
 {{
   "filter": "one short paragraph (2-4 sentences), first person plural or neutral, stating the judgment criterion you applied to THIS week's set. Be concrete about what you rejected and why.",
   "picks": [
     {{
       "tier": one of {TIERS},
-      "theme": "short label, e.g. Evaluation Rigor, Measurement Craft, Applied AI in GTM, Build in Public, Curated Commentary",
+      "theme": "short label, e.g. Evaluation Rigor, Measurement Craft, Agentic Systems, Applied AI in GTM, Platform Delivery, Build in Public, Curated Commentary",
+      "watch_topic": "the ACTIVE WATCH TOPIC this pick serves, copied exactly, or \"\" if it serves none",
       "headline": "rewritten, punchy, 4-12 words. NOT the source title.",
-      "why_it_matters": "2-4 sentences of real analysis tied to THIS candidate's positioning (causal measurement, incrementality, geo experiments, self-serve tooling, shipping production systems).",
+      "why_it_matters": "2-4 sentences of real analysis tied to THIS candidate's positioning - EITHER pillar. Name the specific pillar you are drawing on instead of defaulting to causal measurement.",
       "angle": "the single specific point of view the candidate could own here. Most valuable field. Be opinionated and narrow.",
       "formats": subset of {FORMATS},
       "source_name": "exact source_name from the article block",
@@ -343,7 +423,10 @@ No markdown, no commentary outside the JSON.
 {chr(10).join(blocks)}
 """
         try:
-            return self.llm.complete_json(prompt, tag="content-radar-articles")
+            return self._as_payload(
+                self.llm.complete_json(prompt, tag="content-radar-articles",
+                                       validate=self._wants_object),
+                "picks")
         except LLMError as exc:
             print(f"  x LLM article analysis failed: {exc}")
             return None
@@ -399,7 +482,10 @@ Return ONLY JSON:
 No markdown, no commentary outside the JSON.
 """
         try:
-            return self.llm.complete_json(prompt, tag="content-radar-repos")
+            return self._as_payload(
+                self.llm.complete_json(prompt, tag="content-radar-repos",
+                                       validate=self._wants_object),
+                "repos")
         except LLMError as exc:
             print(f"  x LLM repo analysis failed: {exc}")
             return None
@@ -407,9 +493,18 @@ No markdown, no commentary outside the JSON.
     # ---------------- assembly ----------------
 
     @staticmethod
-    def _clean_picks(raw_picks, articles):
+    def _clean_picks(raw_picks, articles, watch_topics=()):
+        """Validate the model's picks and enforce breadth in code.
+
+        The prompt asks for a spread of themes; this is the part that holds
+        when the model ignores it. A theme that has already filled
+        MAX_PICKS_PER_THEME slots is dropped rather than silently allowed to
+        take over the week - the failure mode this radar had was six picks
+        that were all one pillar."""
         valid_urls = {a["url"] for a in articles}
-        picks, primaries = [], 0
+        known_topics = {str(t.get("topic", "")).lower(): t.get("topic", "")
+                        for t in (watch_topics or [])}
+        picks, primaries, per_theme = [], 0, {}
         for p in raw_picks or []:
             if not isinstance(p, dict):
                 continue
@@ -422,9 +517,16 @@ No markdown, no commentary outside the JSON.
                 if primaries > 1:
                     tier = "secondary"
             formats = [f for f in (p.get("formats") or []) if f in FORMATS]
+            theme = (p.get("theme") or "").strip()
+            theme_key = theme.lower()
+            if theme_key and per_theme.get(theme_key, 0) >= MAX_PICKS_PER_THEME:
+                continue
+            per_theme[theme_key] = per_theme.get(theme_key, 0) + 1
             picks.append({
                 "tier": tier,
-                "theme": (p.get("theme") or "").strip(),
+                "theme": theme,
+                "watch_topic": known_topics.get(
+                    (p.get("watch_topic") or "").strip().lower(), ""),
                 "headline": (p.get("headline") or "").strip(),
                 "why_it_matters": (p.get("why_it_matters") or "").strip(),
                 "angle": (p.get("angle") or "").strip(),
@@ -439,9 +541,12 @@ No markdown, no commentary outside the JSON.
 
     def build_payload(self, run_date, articles, article_result, repo_result,
                       repos, stats):
-        article_result = article_result or {}
-        repo_result = repo_result or {}
-        picks = self._clean_picks(article_result.get("picks"), articles)
+        # Defensive: build_payload is also reachable from tests and future
+        # callers, so it normalizes rather than trusting its inputs.
+        article_result = self._as_payload(article_result or {}, "picks")
+        repo_result = self._as_payload(repo_result or {}, "repos")
+        picks = self._clean_picks(article_result.get("picks"), articles,
+                                  self.watch_topics)
 
         rows = []
         for row in article_result.get("network_rows") or []:
@@ -484,7 +589,9 @@ No markdown, no commentary outside the JSON.
             "cadence": "weekly",
             "date": run_date,
             "window_days": MAX_AGE_DAYS,
+            "watch_topics": [t["topic"] for t in self.watch_topics],
             "stats": {**stats, "picks": len(picks), "repos_reviewed": len(repo_rows),
+                      "themes": sorted({p["theme"] for p in picks if p["theme"]}),
                       "llm": self.llm.report()},
             "sections": {
                 "00_filter": {
@@ -544,9 +651,10 @@ No markdown, no commentary outside the JSON.
         if s["01_pillar_picks"]["note"]:
             out += [f"> {s['01_pillar_picks']['note']}", ""]
         for i, p in enumerate(s["01_pillar_picks"]["picks"], 1):
+            watch = f" | **Watching:** {p['watch_topic']}" if p.get("watch_topic") else ""
             out += [
                 f"### {i}. {p['headline']}",
-                f"**Tier:** {p['tier']} | **Theme:** {p['theme']}",
+                f"**Tier:** {p['tier']} | **Theme:** {p['theme']}{watch}",
                 "",
                 f"**Why it matters.** {p['why_it_matters']}",
                 "",
@@ -588,13 +696,13 @@ No markdown, no commentary outside the JSON.
         articles = self.hydrate(entries)
         print(f"  -> {len(articles)} articles with usable body text")
 
-        article_result = self.analyze_articles(articles, run_date)
-        picks_preview = (article_result or {}).get("picks") or []
+        article_result = self.analyze_articles(articles, run_date) or {}
+        picks_preview = article_result.get("picks") or []
 
         repos = self.fetch_repos()
         print(f"  -> {len(repos)} public repos")
         repo_result = self.analyze_repos(
-            repos, picks_preview, (article_result or {}).get("filter", ""), run_date
+            repos, picks_preview, article_result.get("filter", ""), run_date
         ) if repos else None
 
         stats = {

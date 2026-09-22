@@ -30,6 +30,7 @@ from pathlib import Path
 
 TARGET_HEADING = "## Target Keywords"
 EXCLUDE_HEADING = "## Exclude Keywords"
+WATCH_HEADING = "## Watch Topics"
 
 
 def strip_html_comments(text):
@@ -65,10 +66,29 @@ def parse_section(text, heading):
             if line.startswith("##"):
                 break
             if line.strip().startswith("-"):
-                value = line.strip().lstrip("-").strip().lower()
-                if value and not value.startswith("<!--"):
+                value = unquote(line.strip().lstrip("-").strip().lower())
+                if value:
                     out.append(value)
     return out
+
+
+def unquote(value):
+    """Drop a wrapping pair of quotes from one bullet.
+
+    Board search syntax quotes a phrase (`"marketing science"`), so people
+    reasonably write the quotes into profile.md. Stored that way the term is
+    silently dead everywhere else: scoring does a literal substring test, and
+    the exclude matcher builds a word regex, so neither can ever match a
+    posting that contains marketing science without quote characters.
+    Quoting is the board query's job - `build_board_query` adds it back for
+    any multi-word phrase - so the stored term is kept bare.
+    """
+    value = str(value or "").strip()
+    for quote in ('"', "'", "\u201c\u201d", "\u2018\u2019"):
+        pair = quote * 2 if len(quote) == 1 else quote
+        if len(value) > 1 and value[0] == pair[0] and value[-1] == pair[1]:
+            return value[1:-1].strip()
+    return value
 
 
 def load_keywords(base_dir):
@@ -85,6 +105,40 @@ def load_keywords(base_dir):
         "target": parse_section(text, TARGET_HEADING),
         "exclude": parse_section(text, EXCLUDE_HEADING),
     }
+
+
+def load_watch_topics(base_dir):
+    """Read `## Watch Topics` from <base_dir>/me/profile.md.
+
+    Watch topics are NOT keywords. They never score a job, never generate a
+    board query and never exclude anything; that is why they are kept out of
+    `load_keywords` and its {"target", "exclude"} contract. They are the
+    short-lived, emerging themes the content radar should actively look for
+    even when the candidate has no track record in them yet - the difference
+    between a radar that only mirrors the resume and one that shows where the
+    field is moving.
+
+    Each bullet may carry a short gloss after a colon or an em/en dash:
+
+        - agentic evaluation: how agent systems get measured in production
+
+    Returns [{"topic": str, "note": str}], in profile order. An absent heading
+    gives an empty list, so the radar simply falls back to the profile.
+    """
+    path = Path(base_dir) / "me" / "profile.md"
+    if not path.exists():
+        return []
+    out = []
+    for bullet in parse_section(path.read_text(), WATCH_HEADING):
+        topic, note = bullet, ""
+        for sep in (":", " - ", " \u2013 ", " \u2014 "):
+            if sep in bullet:
+                topic, note = bullet.split(sep, 1)
+                break
+        topic = topic.strip(" -\u2013\u2014")
+        if topic:
+            out.append({"topic": topic, "note": note.strip()})
+    return out
 
 
 def build_board_query(term, excludes=(), max_excludes=8):

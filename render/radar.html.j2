@@ -36,7 +36,7 @@
     <div class="grid">
       {% for p in picks %}
       <article class="card">
-        <div class="tag"><b>{{ p.tier }}</b> &nbsp;·&nbsp; {{ p.theme }}</div>
+        <div class="tag"><b>{{ p.tier }}</b> &nbsp;·&nbsp; {{ p.theme }}{% if p.watch_topic %} &nbsp;·&nbsp; watching: {{ p.watch_topic }}{% endif %}</div>
         <h3>{{ p.headline }}</h3>
         <p>{{ p.why_it_matters }}</p>
         <div class="angle">
