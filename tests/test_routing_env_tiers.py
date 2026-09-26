@@ -88,9 +88,12 @@ def _fake_post(url, headers=None, json=None, timeout=None):
 
 real_post = llm_mod.requests.post
 saved_backend = os.environ.get("LLM_BACKEND")
+saved_key = os.environ.get("ANTHROPIC_API_KEY")
 llm_mod.requests.post = _fake_post
 os.environ["LLM_BACKEND"] = "api"
-os.environ.setdefault("ANTHROPIC_API_KEY", "test-key")
+# Always a stand-in: .env may leave the key empty (ANTHROPIC_API_KEY=), which
+# setdefault would keep, and a real key has no business in a faked request.
+os.environ["ANTHROPIC_API_KEY"] = "test-key"
 try:
     client = llm_mod.LLM(REPO)
     client._call_anthropic_api("x", llm_mod.CLI_DEFAULT)
@@ -107,6 +110,10 @@ finally:
         os.environ.pop("LLM_BACKEND", None)
     else:
         os.environ["LLM_BACKEND"] = saved_backend
+    if saved_key is None:
+        os.environ.pop("ANTHROPIC_API_KEY", None)
+    else:
+        os.environ["ANTHROPIC_API_KEY"] = saved_key
 
 if fails:
     print(f"\n{len(fails)} failed: {fails}")

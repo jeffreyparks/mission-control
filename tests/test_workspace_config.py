@@ -63,6 +63,9 @@ import setup as setup_mod
 fresh = Path(tempfile.mkdtemp())
 setup_mod.WS = fresh
 setup_mod.ME = fresh / "me"
+# scaffold() copies .env.example to ENV_PATH when that file is missing. Left
+# alone, ENV_PATH is the real repo .env, so a fresh clone would grow one.
+setup_mod.ENV_PATH = Path(tempfile.mkdtemp()) / ".env"
 created = setup_mod.scaffold()
 for name in CONFIGS:
     check(f"scaffold seeds {name} into the workspace", (fresh / "config" / name).exists())
