@@ -1,5 +1,5 @@
 """Fit batching: output budget, truncation handling, prompt caching, batch splitting."""
-import json, sys, tempfile
+import json, shutil, sys, tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -162,16 +162,20 @@ intel._judge_batch(batch, results2, label="t2")
 check("an unjudgeable batch leaves no partial verdicts", results2 == {}, str(results2))
 
 # ---- the cacheable prefix really is stable ------------------------------
-real = JobIntel(Path(REPO / "workspace/default"), max_live_roles=0) if (REPO / "workspace/default/me/profile.md").exists() else None
-if real:
-    b1 = [dict(batch[0])]; b2 = [dict(batch[1]), dict(batch[2])]
-    check("the fit prefix is identical regardless of batch", real._fit_prefix() == real._fit_prefix())
-    check("the variable part differs by batch", real._fit_roles(b1) != real._fit_roles(b2))
-    check("prefix + roles is the whole prompt",
-          real._fit_prompt(b1) == real._fit_prefix() + "\n\n" + real._fit_roles(b1))
-    check("the prefix is big enough to be worth caching",
-          len(real._fit_prefix()) >= llm_mod.CACHE_MIN_PREFIX_CHARS, str(len(real._fit_prefix())))
-    check("no role text leaks into the cacheable prefix", "r0" not in real._fit_prefix())
+# A throwaway workspace seeded from the template profile, never
+# workspace/default: the prefix embeds me/profile.md and the resume.
+real_ws = make_ws({})
+(real_ws / "me").mkdir()
+shutil.copy2(REPO / "templates/me/profile.md", real_ws / "me/profile.md")
+real = JobIntel(real_ws, max_live_roles=0)
+b1 = [dict(batch[0])]; b2 = [dict(batch[1]), dict(batch[2])]
+check("the fit prefix is identical regardless of batch", real._fit_prefix() == real._fit_prefix())
+check("the variable part differs by batch", real._fit_roles(b1) != real._fit_roles(b2))
+check("prefix + roles is the whole prompt",
+      real._fit_prompt(b1) == real._fit_prefix() + "\n\n" + real._fit_roles(b1))
+check("the prefix is big enough to be worth caching",
+      len(real._fit_prefix()) >= llm_mod.CACHE_MIN_PREFIX_CHARS, str(len(real._fit_prefix())))
+check("no role text leaks into the cacheable prefix", "r0" not in real._fit_prefix())
 
 # ---- categorisation chunks too --------------------------------------------
 # Same ceiling, different caller: this one sent every uncategorised role in a
