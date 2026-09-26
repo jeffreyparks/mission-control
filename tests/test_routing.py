@@ -11,6 +11,20 @@ sys.path.insert(0, str(REPO / "agents"))
 import tempfile
 BASE = Path(tempfile.mkdtemp())
 
+# The tier ladder normally comes from the repo's .env, which llm.py loads on
+# import. Pin it to the .env.example defaults so these checks mean the same
+# thing on every machine, with or without a .env. load_dotenv never overrides
+# a variable that is already set.
+for _k in [k for k in os.environ if k.startswith("MC_MODEL_")]:
+    os.environ.pop(_k)
+os.environ.update({
+    "MC_TIER_ORDER": "T1,T2,T3,T4",
+    "MC_MODEL_T1": "openrouter/qwen/qwen3-30b-a3b-instruct-2507",
+    "MC_MODEL_T2": "openrouter/openai/gpt-oss-120b",
+    "MC_MODEL_T3": "claude-sonnet-5",
+    "MC_MODEL_T4": "claude-opus-5",
+})
+
 import routing
 from llm import LLM, LLMError
 from job_intel import make_fit_validator, make_cat_validator, make_sector_validator
