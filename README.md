@@ -189,6 +189,10 @@ pytest test, shows the failed checks when one fails, and reports a script that e
 `def test_*` functions is collected by pytest normally. `tests/evals/` is not part of the suite:
 those make real, paid LLM calls.
 
+GitHub Actions runs the suite on every pull request and every push to `main`
+(`.github/workflows/tests.yml`), on a clean checkout with no `.env` and no `workspace/`. The
+tests must never depend on either: each builds its own temp workspace, and none makes an LLM call.
+
 ## Automation
 
 Want this running on its own every morning?

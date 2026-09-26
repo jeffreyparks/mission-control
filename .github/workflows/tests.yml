@@ -1,0 +1,27 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v10
+        with:
+          python-version: "3.13"
+          enable-cache: true
+
+      # No .env and no workspace/ here: every test builds its own temp workspace,
+      # and nothing in the suite makes an LLM call. The Ashby and Built In tests
+      # hit those public boards and report a skip if they return nothing.
+      - run: uv sync --locked
+      - run: uv run pytest -v
