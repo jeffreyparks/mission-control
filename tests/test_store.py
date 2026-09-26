@@ -1,7 +1,7 @@
 
 import sys, os, pathlib, tempfile, pandas as pd, datetime, shutil, numpy as np, sqlite3
 # ensure store module is importable
-sys.path.insert(0, r"/Users/jeff/Dev/jeffreyparks/mission-control/agents")
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "agents"))
 from store import Store, COLUMN_MAP
 
 failures = []
