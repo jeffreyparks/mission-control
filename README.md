@@ -174,6 +174,21 @@ current when it started, until you stop it and start it again. If something look
 `/api/health` - `server_commit` tells you which commit it's actually running, so you can compare
 it to `git rev-parse --short HEAD`.
 
+## Tests
+
+```bash
+uv run pytest                          # the whole suite
+uv run pytest tests/test_store.py      # one file
+uv run python tests/test_store.py      # same test, no pytest
+```
+
+Each `tests/test_*.py` is a standalone script that prints `ok`/`FAIL` per check and exits
+non-zero on any failure. `tests/conftest.py` runs each one in its own interpreter as a single
+pytest test, shows the failed checks when one fails, and reports a script that ends with
+`SKIP: ...` (a live network check with no network) as skipped. A file with its own
+`def test_*` functions is collected by pytest normally. `tests/evals/` is not part of the suite:
+those make real, paid LLM calls.
+
 ## Automation
 
 Want this running on its own every morning?
