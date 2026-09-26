@@ -31,3 +31,12 @@ override-dependencies = ["pandas>=2.1.0,<3.0.0", "numpy>=2.1"]
 [build-system]
 requires = ["uv_build>=0.12.9,<0.13.0"]
 build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
+
+[tool.pytest.ini_options]
+# tests/conftest.py runs each script-style test_*.py in its own interpreter.
+testpaths = ["tests"]
