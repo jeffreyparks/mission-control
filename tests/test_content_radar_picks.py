@@ -5,7 +5,9 @@ typed into the prompt, so raising it can never drift out of sync with the
 text the model actually reads.
 """
 import re
+import shutil
 import sys
+import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -44,7 +46,12 @@ check("nothing truncates the model's own picks list to a fixed count before outp
 # was removed by hand.
 import datetime
 
-radar = cr_mod.ContentRadar(REPO / "workspace" / "default")
+# A throwaway workspace, never workspace/default: the radar reads me/ into
+# its prompts and LLM() creates data/llm-cache under whatever base it is given.
+work = Path(tempfile.mkdtemp())
+(work / "me").mkdir()
+shutil.copy2(REPO / "templates/me/profile.md", work / "me/profile.md")
+radar = cr_mod.ContentRadar(work)
 arts = [{"url": "u0", "source": "S", "category": "C", "title": "T",
          "published": datetime.datetime.now(), "text": "body"}]
 one_pick = {"tier": "primary", "theme": "Agentic Systems", "headline": "h",
@@ -87,6 +94,8 @@ check("the full radar page renders every pick, unsliced",
       "picks=_radar_picks(d)" in radar_fn and "[:3]" not in radar_fn)
 check("only the home-page teaser stays capped at 3 (a different, deliberate design choice)",
       "top_picks=_radar_picks(radar)[:3]" in build_src)
+
+shutil.rmtree(work, ignore_errors=True)
 
 print()
 print("FAILURES:", fails if fails else "none")
