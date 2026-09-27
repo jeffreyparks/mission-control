@@ -13,11 +13,10 @@ text sent to the AI model that judges each role.
 |---|---|---|
 | **Job Tracker** | daily | Every role found, with a fit score, a plain-English reason, a recommendation and how long ago it was posted |
 | **Content Radar** | weekly | Articles worth reacting to, with a suggested angle for each, and what's new in your GitHub repos |
-| **Home** | daily | What changed since the last run, and the radar's top picks |
+| **Profile** | when a profile changes, or weekly | How your LinkedIn, GitHub, BlueSky and sites read for the roles you pursue: scores, findings to fix, draft rewrites |
+| **Home** | daily | What changed since the last run, the radar's top picks, and a Profile summary |
 
-Each run also snapshots your LinkedIn export, GitHub, BlueSky and any personal sites listed in
-`config/profile.yaml`, keeping a new copy only when what a profile says has changed (`mc profile --collect-only` does just this step). How well your
-LinkedIn covers your keywords is tracked on the home page.
+See [How it reviews your profile](#how-it-reviews-your-profile).
 
 ## Quick start
 
@@ -60,6 +59,9 @@ Three lists in `profile.md` control what it looks for:
 
 Write keywords plainly, without quotes: `marketing science`, not `"marketing science"`.
 
+An optional `## Persona` section in `profile.md` says how you want to come across; the Profile
+review judges your voice against it. List personal sites in `workspace/default/config/profile.yaml`.
+
 **Where roles come from.** Your target companies' own job boards (Greenhouse, Lever, Ashby), plus
 Built In, Indeed and LinkedIn. Companies, boards and scanning rules are set in
 `workspace/default/config/job-sources.yaml`.
@@ -71,10 +73,12 @@ Built In, Indeed and LinkedIn. Companies, boards and scanning rules are set in
 | `mc run` | The normal daily run |
 | `mc run --force-radar` | Run the weekly Content Radar now (it normally runs once every 7 days) |
 | `mc run --radar-only` | Run the Content Radar now and rebuild the pages, with no job scan |
-| `mc run --only jobs` | Run one stage: `profiles`, `jobs`, `radar`, `history` or `render` |
+| `mc run --only jobs` | Run one stage: `profiles`, `jobs`, `radar`, `preferences`, `history` or `render` |
 | `mc run --refresh-open` | Re-judge every role you haven't closed; closed roles keep their verdicts |
 | `mc run --refresh-intel` | Re-judge every role, closed ones included (the most expensive run there is) |
 | `mc run --max-live 50` | Judge at most 50 newly found roles this run (the default limit is 200) |
+| `mc profile` | Snapshot your profiles, and re-judge them if something changed or a week has passed |
+| `mc profile --force --report` | Re-judge now and write a markdown report (`mc profile --help` for more) |
 | `mc render` | Rebuild the pages from existing data, with no scanning and no AI calls |
 | `mc preferences` | Draft learned preferences from your decisions now (see [Learning from your decisions](#learning-from-your-decisions)) |
 | `mc help` | List all commands |
@@ -181,14 +185,29 @@ Two files control this:
 
 Each run logs which model handled each kind of call and how many tokens it used.
 
+## How it reviews your profile
+
+- **Sources:** your LinkedIn export in `me/linkedin/` (phone numbers and emails stripped), GitHub
+  and BlueSky through their public APIs, and your sites (respecting `robots.txt`). A new snapshot
+  is kept only when what a profile says has changed.
+- **Yardstick:** roles you acted on or that scored 70+ in the last 60 days. What they ask for is
+  counted in code, not by the model.
+- **Evidence:** every finding quotes your actual text; a quote that isn't really there is dropped.
+- **Triage:** accept, dismiss or mark findings fixed on the Profile page. Dismissed stays
+  dismissed; fixes are detected on the next review.
+- **Drafts:** suggested headline, bio and tagline rewrites, checked against your resume. Approved
+  text goes to `me/persona.md`; nothing is ever posted for you. Open coverage gaps also feed the
+  Content Radar.
+- **Cost:** about five top-tier calls per review, and nothing when your profiles haven't changed.
+
 ## Your data
 
 All of it lives in `workspace/<name>/`, which git ignores:
 
 ```
 workspace/default/
-  me/           your resume, profile.md, LinkedIn export and learned.md
-  config/       your target companies, job boards and news feeds
+  me/           your resume, profile.md, LinkedIn export, learned.md and approved profile text
+  config/       your target companies, job boards, news feeds and sites
   data/         mission-control.db (the tracker), backups, history, AI cache
   artifacts/    the generated pages, plus CSV and JSON exports
   .env          your GitHub and BlueSky details
@@ -221,6 +240,8 @@ agents/                the pipeline's parts
   preferences.py         learned preferences from your decisions
   posted.py              posting dates, from every board's format
   content_radar.py       the weekly Content Radar
+  profile_*.py           the Profile review: snapshots, brief, evaluation, drafts
+  {linkedin,github,bluesky,site}_scanner.py   the Profile's collectors
   llm.py, routing.py     AI calls and model tiers
   store.py               the tracker database
   history.py             what changed between runs
