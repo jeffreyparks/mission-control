@@ -23,7 +23,7 @@ PAGE = """<!doctype html><html><head>
 <style>.x{color:red}</style><script>var tracking = 1;</script>
 </head><body>
 <header class="masthead"><h1>Jo Doe</h1><p>I make marketing measurement causal.</p>
-  <div><span>10+ yrs</span><span>$500M+ media</span></div></header>
+  <div><span>12 yrs</span><span>$40M budget</span></div></header>
 <nav><a href="/">Home</a><a href="#about">About</a></nav>
 <section id="about"><h2>About</h2><p>I lead measurement teams.</p>
   <p>See <a href="https://github.com/jodoe">my GitHub</a>.</p></section>
@@ -68,7 +68,7 @@ def test_page_is_split_into_sections_with_chrome_stripped():
     assert page["identity"]["title"] == "Jo Doe | Measurement"
     assert page["identity"]["description"] == "Causal inference and experiment design."
     assert page["identity"]["h1"] == "Jo Doe"
-    assert page["identity"]["hero"] == "I make marketing measurement causal.\n\n10+ yrs $500M+ media"
+    assert page["identity"]["hero"] == "I make marketing measurement causal.\n\n12 yrs $40M budget"
 
     by_title = {s["title"]: s["text"] for s in page["sections"]}
     assert list(by_title) == ["About", "Selected Work"]

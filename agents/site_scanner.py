@@ -4,7 +4,7 @@ Site collector: a personal or portfolio site, as one snapshot.
 Sites are listed in config/profile.yaml (per workspace):
 
     sites:
-      - url: https://jeffreyparks.github.io/
+      - url: https://you.github.io/
         max_pages: 0        # the root only; N = the root plus N more from sitemap.xml
 
 Captured:
@@ -38,7 +38,7 @@ MAX_LINKS = 50
 STRIP_TAGS = ("script", "style", "noscript", "template", "svg", "nav", "footer", "form")
 BLOCK_TAGS = ("p", "div", "li", "tr", "br", "section", "article", "header", "blockquote",
               "h1", "h2", "h3", "h4", "h5", "h6", "dt", "dd", "pre", "figcaption")
-# Inline tags that sites use as separate chips ("10+ yrs" "$500M+ media spend"):
+# Inline tags that sites use as separate chips ("12 yrs" "$40M budget"):
 # a space after each keeps their words apart.
 SPACED_TAGS = ("span", "a", "time", "small")
 
