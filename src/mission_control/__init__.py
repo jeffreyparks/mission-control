@@ -42,6 +42,7 @@ SCRIPTS = {
     "dashboard": "dashboard",
     "render": "render/build",
     "profile": "agents/profile_snapshot",
+    "preferences": "agents/preferences",
 }
 
 HELP_TEXT = """\
@@ -50,13 +51,14 @@ mc setup [--status] [--dry-run]
     --status    what's configured, no prompts, no LLM calls
     --dry-run   preview scan scope before spending anything
 
-mc run [--force-radar] [--radar-only] [--profile-only] [--only STAGE] [--refresh-intel] [--no-intel]
+mc run [--force-radar] [--radar-only] [--profile-only] [--only STAGE] [--refresh-intel | --refresh-open] [--no-intel]
     run the daily pipeline
     --force-radar    run the weekly content radar now
     --radar-only     content radar now + rebuild pages, no job scan
     --profile-only   profile snapshots now + rebuild pages, no job scan
     --only STAGE     one stage: profiles | jobs | radar | history | render
     --refresh-intel  re-judge every role instead of reusing cached verdicts
+    --refresh-open   re-judge only roles not yet closed; closed ones keep their verdicts
     --no-intel       legacy keyword scanner instead of LLM fit
 
 mc render [--user NAME]
@@ -73,6 +75,12 @@ mc profile [--collect-only] [--brief] [--force] [--report] [--drafts] [--approve
     --drafts         redo draft rewrites of headline, bios and taglines
     --approve        adopt me/persona.draft.md as me/persona.md
 
+mc preferences [--evidence] [--approve] [--user NAME]
+    draft learned preferences from your decisions (me/learned.draft.md);
+    the daily run does this weekly. Nothing reaches the fit judge until approved
+    --evidence       print the patterns found, no LLM call
+    --approve        adopt me/learned.draft.md as me/learned.md
+
 mc users
     list the workspaces under workspace/
 
@@ -87,7 +95,7 @@ mc dashboard stop
 mc help
     show this list of commands
 
---user NAME works on setup, run, render, profile and dashboard. It selects
+--user NAME works on setup, run, render, profile, preferences and dashboard. It selects
 workspace/NAME - one person's entire dataset (artifacts, data, me, config).
 Defaults to $MC_WORKSPACE, then "default".
 
@@ -217,6 +225,8 @@ def main():
                     help="rebuild static dashboard pages from existing data")
     sub.add_parser("profile", add_help=False,
                     help="snapshot and evaluate your public profiles")
+    sub.add_parser("preferences", add_help=False,
+                    help="draft or approve learned preferences from your decisions")
     sub.add_parser("users", add_help=False, help="list workspaces")
     sub.add_parser("dashboard", add_help=False,
                     help="editable local dashboard (background by default)")

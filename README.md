@@ -11,7 +11,7 @@ text sent to the AI model that judges each role.
 
 | Page | How often | What's on it |
 |---|---|---|
-| **Job Tracker** | daily | Every role found, with a fit score, a plain-English reason and a recommendation |
+| **Job Tracker** | daily | Every role found, with a fit score, a plain-English reason, a recommendation and how long ago it was posted |
 | **Content Radar** | weekly | Articles worth reacting to, with a suggested angle for each, and what's new in your GitHub repos |
 | **Home** | daily | What changed since the last run, and the radar's top picks |
 
@@ -72,9 +72,11 @@ Built In, Indeed and LinkedIn. Companies, boards and scanning rules are set in
 | `mc run --force-radar` | Run the weekly Content Radar now (it normally runs once every 7 days) |
 | `mc run --radar-only` | Run the Content Radar now and rebuild the pages, with no job scan |
 | `mc run --only jobs` | Run one stage: `profiles`, `jobs`, `radar`, `history` or `render` |
-| `mc run --refresh-intel` | Re-judge every role, not just new or changed ones |
+| `mc run --refresh-open` | Re-judge every role you haven't closed; closed roles keep their verdicts |
+| `mc run --refresh-intel` | Re-judge every role, closed ones included (the most expensive run there is) |
 | `mc run --max-live 50` | Judge at most 50 newly found roles this run (the default limit is 200) |
 | `mc render` | Rebuild the pages from existing data, with no scanning and no AI calls |
+| `mc preferences` | Draft learned preferences from your decisions now (see [Learning from your decisions](#learning-from-your-decisions)) |
 | `mc help` | List all commands |
 
 If one stage fails, the others still finish.
@@ -99,12 +101,20 @@ role twice, and it adds nothing if the page can't be read.
 `mc dashboard` starts a small local server in the background and prints its address.
 `mc dashboard stop` shuts it down.
 
-- **Edit** Status, Priority, Role Cat, Outcomes, Notes and Salary. Changes save immediately.
+- **Edit** Status, Role Cat, Outcomes, Close reason, Notes and Salary. Changes save immediately.
   The Recommendation is the model's judgement, so it's shown but can't be edited.
+- **Close reason** records why *you* passed on a role (not a fit on function, level, skills or
+  industry; comp; location; chose another role at the company; posting closed; other).
+  Outcomes records what the *employer* did. Keep them apart: the close reasons are what the
+  tracker learns from.
+- **Posted** shows how many days ago the board says a role went up, highlighted when it's 3 days
+  old or less, and the **Posted** filter narrows to the last 3, 7 or 14 days. Applying early
+  matters. With no board date, an italic `~Nd` shows days since the tracker first saw the role
+  instead; that's only a lower bound, so the filter ignores it.
 - **Edit many rows at once** by ticking their checkboxes and using the bar above the table. For
   example, to clear out rejects: filter to `Rec = skip`, **Select all shown**, set Status to
-  Closed, **Apply**. Only dropdown fields can be bulk-edited, and rows hidden by a filter are
-  never changed.
+  Closed, pick a close reason, **Apply**. Only dropdown fields can be bulk-edited, and rows
+  hidden by a filter are never changed.
 - **Light or dark:** the switch in the top bar cycles Auto, Light and Dark.
 - Without the server, the pages still open as read-only files.
 - It only accepts connections from your own machine.
@@ -120,9 +130,36 @@ week" normal answers, so expect most roles to be skipped. That's it working, not
 
 - **Category:** if a role has no Role Cat, the model picks one of the role types defined in
   your profile, or leaves it empty if none fits. A category you set yourself is never changed.
+- **Function:** every role is also tagged with the kind of work it is (Data Science & ML,
+  Marketing, Finance & Accounting and so on), shown under its title. That's separate from the
+  employer's sector: a data scientist at a bank is Data Science & ML, at a Finance company.
+- **Posting date:** taken from the board itself (Greenhouse, Lever, Ashby, Built In, Indeed and
+  LinkedIn searches), never guessed.
 - **Only new work costs money:** each role's verdict is stored with a fingerprint of the posting
   and the prompt. A normal day only judges new or edited roles. AI responses are also cached, so
   re-running on unchanged input is free.
+
+### Learning from your decisions
+
+Your profile says what you *want*. Your decisions show what you actually *do*, and the two drift
+apart: maybe you keep passing on roles at banks, or applying to roles the model said to skip.
+Once a week the daily run reads those decisions and drafts `me/learned.md`, a few plain
+sentences for the fit judge, such as "treat roles at banks as a weak fit whatever the function".
+
+- **What counts:** roles you closed with a close reason about the role itself, and roles you
+  researched, applied to or heard back on. Closes with no reason, or a neutral one ("chose
+  another role at the company", "posting closed"), teach it nothing.
+- **Only corrections:** a pattern is kept only when you overrode the model's recommendation at
+  the time, on a real share of those roles. Closing what it already said to skip changes nothing.
+- **Evidence, not vibes:** a pattern needs at least 5 decisions from the last 180 days. The
+  counts are computed from your data; the AI only words the sentences and drops patterns that
+  are side effects of another one.
+- **Nothing changes until you approve it.** The draft is `me/learned.draft.md`, with the
+  evidence behind each line in comments. Edit or delete lines, then run
+  `mc preferences --approve` (the previous version is kept as `me/learned.prev.md`).
+
+Approving guides new and edited roles from then on. To re-score what's still in play straight
+away, run `mc run --refresh-open`.
 
 ### Models
 
@@ -150,7 +187,7 @@ All of it lives in `workspace/<name>/`, which git ignores:
 
 ```
 workspace/default/
-  me/           your resume, profile.md and LinkedIn export
+  me/           your resume, profile.md, LinkedIn export and learned.md
   config/       your target companies, job boards and news feeds
   data/         mission-control.db (the tracker), backups, history, AI cache
   artifacts/    the generated pages, plus CSV and JSON exports
@@ -181,6 +218,8 @@ workspace.py           picks the workspace for --user
 agents/                the pipeline's parts
   job_intel.py           finds, judges and tracks roles
   job_scanner.py         company boards, Built In and JobSpy
+  preferences.py         learned preferences from your decisions
+  posted.py              posting dates, from every board's format
   content_radar.py       the weekly Content Radar
   llm.py, routing.py     AI calls and model tiers
   store.py               the tracker database
@@ -188,6 +227,7 @@ agents/                the pipeline's parts
 render/                page templates and styles
 config/                starter config, copied into each new workspace
 templates/me/          starter profile, copied into each new workspace
+scripts/               one-off backfills for existing trackers
 tests/                 the test suite
 attic/                 retired code, kept for reference
 ```
