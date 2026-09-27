@@ -63,13 +63,15 @@ mc render [--user NAME]
     rebuild the static dashboard pages from that workspace's existing data
     (no scans, no LLM calls)
 
-mc profile [--collect-only] [--brief] [--force] [--report] [--user NAME]
+mc profile [--collect-only] [--brief] [--force] [--report] [--drafts] [--approve] [--user NAME]
     snapshot LinkedIn, GitHub, BlueSky and your sites, then judge them against
     the roles you pursue when something changed or a week has passed
     --collect-only   snapshot only, no LLM calls
     --brief          print what the profile is judged against, then stop
     --force          evaluate now even if nothing changed
     --report         write artifacts/profiles/profile-DATE.md
+    --drafts         redo draft rewrites of headline, bios and taglines
+    --approve        adopt me/persona.draft.md as me/persona.md
 
 mc users
     list the workspaces under workspace/

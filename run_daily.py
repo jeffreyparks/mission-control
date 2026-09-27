@@ -81,7 +81,8 @@ def log_routing():
     except Exception:  # noqa: BLE001
         return
     for tag in ("job-fit", "role-cat", "role-function", "org-sectors", "content-radar", "preferences",
-                "profile-asks", "profile-ask-merge", "profile-claims", "profile-eval-source", "profile-eval-synth"):
+                "profile-asks", "profile-ask-merge", "profile-claims", "profile-eval-source",
+                "profile-eval-synth", "profile-drafts"):
         ladder = routing.ladder_for_tag(tag)
         target = ladder[0].split("/", 1)[-1] if ladder else "claude CLI default"
         log(f"   route: {tag:14s} -> {target}")

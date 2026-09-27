@@ -332,7 +332,7 @@ class Handler(SimpleHTTPRequestHandler):
         if not self._loopback():
             return self._json({"error": "loopback only"}, 403)
         if (path not in ("/api/roles/bulk",) and not path.startswith("/api/role/")
-                and not path.startswith("/api/finding/")):
+                and not path.startswith("/api/finding/") and path != "/api/persona"):
             return self._json({"error": "not found"}, 404)
 
         try:
@@ -345,6 +345,8 @@ class Handler(SimpleHTTPRequestHandler):
             return self._bulk(payload)
         if path.startswith("/api/finding/"):
             return self._finding(path[len("/api/finding/"):].strip("/"), payload)
+        if path == "/api/persona":
+            return self._persona(payload)
 
         role_id = path[len("/api/role/"):].strip("/")
 
@@ -392,6 +394,26 @@ class Handler(SimpleHTTPRequestHandler):
         except KeyError:
             return self._json({"error": f"unknown finding: {finding_id}"}, 404)
         return self._json({"ok": True, "id": finding_id, **result})
+
+    def _persona(self, payload):
+        """Approve the text for one profile field into me/persona.md: {field, text}.
+        Only fields the latest evaluation drafted, within their platform limit."""
+        from profile_drafts import approve_field
+
+        ev = self.store.latest_evaluation()
+        limits = {d["key"]: d["limit"] for d in ((ev or {}).get("drafts") or [])}
+        field, text = payload.get("field"), payload.get("text")
+        if field not in limits:
+            return self._json({"error": f"not a drafted field: {field!r}"}, 400)
+        if not isinstance(text, str) or not text.strip():
+            return self._json({"error": "text must be non-empty"}, 400)
+        if len(text.strip()) > limits[field]:
+            return self._json({"error": f"text is {len(text.strip())} characters; "
+                                        f"the limit is {limits[field]}"}, 400)
+        with _write_lock:
+            old, new = approve_field(self.store.base_dir, field, text)
+            self.store.log_change(f"persona:{field}", old, new, actor="dashboard")
+        return self._json({"ok": True, "field": field, "changed": old != new})
 
     def _bulk(self, payload):
         """One field, one value, many rows - the batch behind the dashboard's

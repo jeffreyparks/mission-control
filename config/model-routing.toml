@@ -54,6 +54,10 @@ enabled = true
 "profile-eval-source" = "T4"
 "profile-eval-synth" = "T4"
 
+# profile-drafts: replacement text for headline, bios, taglines. Written in the
+#   candidate's voice and checked for invented claims in Python. Top tier.
+"profile-drafts" = "T4"
+
 # preferences: the weekly learned-preferences draft (agents/preferences.py).
 #   One call a week, and it shapes what the fit judge reads, so it is judged
 #   at the same tier as job-fit.
