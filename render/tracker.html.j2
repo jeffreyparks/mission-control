@@ -172,7 +172,7 @@
       <thead><tr>
         <th class="selcell"><input type="checkbox" id="bulkhead" title="Select all shown"></th>
         <th>Org</th><th>Role</th><th>Category</th><th>Fit</th><th>Rec</th>
-        <th>Pri</th><th>Status</th><th>Outcome</th><th>Close reason</th><th class="salarycell">Salary</th><th class="notescell">Notes</th>
+        <th>Status</th><th>Outcome</th><th>Close reason</th><th class="salarycell">Salary</th><th class="notescell">Notes</th>
       </tr></thead>
       <tbody>
       {% for r in roles %}
@@ -212,7 +212,6 @@
           </td>
           <td><span class="fit {% if (r.fit_score or 0) >= 70 %}hi{% elif (r.fit_score or 0) >= 45 %}mid{% else %}lo{% endif %}">{{ r.fit_score if r.fit_score is not none else '—' }}</span></td>
           <td class="reccell" data-rec-value="{{ r.recommendation or '' }}">{% if r.recommendation %}<span class="rec {{ r.recommendation }}">{{ r.recommendation }}</span>{% else %}—{% endif %}</td>
-          <td class="pricell" data-pri-value="{{ r.priority|int if r.priority else '' }}">{% if r.priority %}<span class="pri p{{ r.priority|int }}">P{{ r.priority|int }}</span>{% else %}—{% endif %}</td>
           <td class="statuscell">{% if r.store_id %}<span class="dot {{ (r.status or '')|lower|replace('00 ','')|replace('01 ','')|replace('02 ','')|replace('03 ','')|replace('04 ','') }}">{{ r.status or '—' }}</span>{% else %}<span class="dot">—</span>{% endif %}</td>
           <td class="outcell" data-outcome-value="{{ r.outcome_label or '' }}">{% if r.outcome_display %}<span class="bad-chip">{{ r.outcome_display }}</span>{% else %}—{% endif %}</td>
           <td class="reasoncell" data-reason-value="{{ r.close_reason or '' }}">{{ r.close_reason or '—' }}</td>
@@ -325,8 +324,6 @@ q.oninput=apply;
     var ed = health.editable;
     if(ed.status) enableSelect('statuscell', 'status', ed.status, function(tr,v){ tr.dataset.status=v; apply(); },
       function(v){ return v.replace(/^\d\d\s/, ''); }, function(tr,cell){ return tr.dataset.status || ''; });
-    if(ed.priority) enableSelect('pricell', 'priority', ed.priority, function(tr,v){},
-      function(v){ return v ? 'P'+v : '\u2014'; }, function(tr,cell){ return cell.dataset.priValue || ''; });
     if(ed.recommendation) enableSelect('reccell', 'recommendation', ed.recommendation, function(tr,v){ tr.dataset.rec=v; apply(); },
       function(v){ return v || '\u2014'; }, function(tr,cell){ return tr.dataset.rec || ''; });
     if(ed.outcomes) enableSelect('outcell', 'outcomes', ed.outcomes, function(tr,v){},
@@ -341,8 +338,8 @@ q.oninput=apply;
     enableBatchEditing(ed);
   }).catch(function(){ /* read-only, as designed */ });
 
-  // One generic editor for a single-select field: status, priority,
-  // recommendation, outcomes. Category is different enough (freeform
+  // One generic editor for a single-select field: status, recommendation,
+  // outcomes, close reason. Category is different enough (freeform
   // suggestion acceptance) to get its own function below.
   function enableSelect(cellClass, field, options, onSaved, labelFor, currentFor){
     document.querySelectorAll('#rt tbody tr').forEach(function(tr){
@@ -494,7 +491,7 @@ q.oninput=apply;
         countEl = document.getElementById('bulkcount'),
         head = document.getElementById('bulkhead');
 
-    var OFFER = [['status', 'Status'], ['priority', 'Priority'],
+    var OFFER = [['status', 'Status'],
                  ['outcomes', 'Outcome'], ['close_reason', 'Close reason'],
                  ['role_cat', 'Category']];
     var fields = OFFER.filter(function(f){ return ed[f[0]] && ed[f[0]].length; });
@@ -509,7 +506,6 @@ q.oninput=apply;
     function labelFor(field, value){
       if(!value) return '\u2014 none \u2014';
       if(field === 'status') return value.replace(/^\d\d\s/, '');
-      if(field === 'priority') return 'P' + value;
       return value;
     }
     function fillValues(){
