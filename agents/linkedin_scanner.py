@@ -8,8 +8,9 @@ what you download yourself into me/linkedin/ (see me/linkedin/README.md):
   profile.pdf           "Save to PDF" from your profile page: text only
 
 When both are present the NEWER file wins, so a fresh PDF is not shadowed by a
-months-old zip. An export older than STALE_DAYS is flagged in `stats` - the
-snapshot then describes an old profile, and anything judging it should say so.
+months-old zip. An export older than `linkedin_stale_days` (config/profile.yaml,
+default STALE_DAYS) is flagged in `stats` - the snapshot then describes an old
+profile, and anything judging it should say so.
 """
 import csv
 import hashlib
@@ -24,8 +25,9 @@ SOURCE_KEY = "linkedin:export"
 
 
 class LinkedInScanner:
-    def __init__(self, base_dir):
+    def __init__(self, base_dir, stale_days=STALE_DAYS):
         self.base_dir = Path(base_dir)
+        self.stale_days = stale_days
         self.dir = self.base_dir / "me/linkedin"
         self.export_path = self.dir / "linkedin-export.zip"
         self.pdf_path = self.dir / "profile.pdf"
@@ -47,7 +49,7 @@ class LinkedInScanner:
             "export_file": path.name,
             "export_date": exported.strftime("%Y-%m-%d"),
             "age_days": age,
-            "stale": age > STALE_DAYS,
+            "stale": age > self.stale_days,
             "positions": sum(1 for i in items if i["kind"] == "position"),
             "skills": sum(1 for i in items if i["kind"] == "skill"),
             "posts": len(post_dates),
