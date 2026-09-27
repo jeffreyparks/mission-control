@@ -34,6 +34,7 @@ JSON SCHEMA (artifacts/content/radar-YYYY-MM-DD.json)
   "date": "YYYY-MM-DD",              # run date
   "window_days": 14,                 # article recency window
   "watch_topics": [str],             # profile.md "## Watch Topics", in order
+  "profile_gaps": [str],             # coverage gaps from the Profile review, most pressing first
   "stats": {
     "sources_configured": int,
     "sources_with_entries": int,
@@ -56,7 +57,8 @@ JSON SCHEMA (artifacts/content/radar-YYYY-MM-DD.json)
         {
           "tier": "primary" | "secondary" | "supporting",
           "theme": str,              # e.g. "Evaluation Rigor"
-          "watch_topic": str,        # matched "## Watch Topics" entry, "" if none
+          "watch_topic": str,        # matched watch topic or profile gap, "" if none
+          "profile_gap": bool,       # the match is a Profile gap, not a watch topic
           "headline": str,           # rewritten, not the source title
           "why_it_matters": str,     # 2-4 sentences of analysis
           "angle": str,              # the POV the candidate could own
@@ -151,6 +153,10 @@ class ContentRadar:
         # Emerging themes from me/profile.md "## Watch Topics". Empty is fine:
         # the radar then judges on the profile alone, exactly as before.
         self.watch_topics = load_watch_topics(self.base_dir)
+        # Coverage gaps from the Profile review: asks the roles you pursue make
+        # that no public profile of yours shows. Empty without an evaluation.
+        from profile_eval import profile_gap_topics
+        self.profile_gaps = profile_gap_topics(self.base_dir)
         self.llm = LLM(self.base_dir)
 
     @staticmethod
@@ -190,21 +196,34 @@ class ContentRadar:
         only on the resume keeps selecting the same few themes forever. Watch
         topics are the counterweight: explicit permission to pick an article
         about where the field is going, with no track record required."""
-        if not self.watch_topics:
-            return ""
-        lines = [
-            f"- {t['topic']}" + (f" - {t['note']}" if t.get("note") else "")
-            for t in self.watch_topics
-        ]
-        return (
-            "\nACTIVE WATCH TOPICS (from profile.md '## Watch Topics')\n"
-            "These are emerging themes the candidate is deliberately tracking.\n"
-            "He does NOT need existing experience in them to have a view; an\n"
-            "informed practitioner reading in public is a legitimate angle.\n"
-            "Treat a strong article on one of these as pick-worthy on its own\n"
-            "merits, and name the topic in the pick's watch_topic field.\n"
-            + "\n".join(lines) + "\n"
-        )
+        block = ""
+        if self.watch_topics:
+            lines = [
+                f"- {t['topic']}" + (f" - {t['note']}" if t.get("note") else "")
+                for t in self.watch_topics
+            ]
+            block += (
+                "\nACTIVE WATCH TOPICS (from profile.md '## Watch Topics')\n"
+                "These are emerging themes the candidate is deliberately tracking.\n"
+                "He does NOT need existing experience in them to have a view; an\n"
+                "informed practitioner reading in public is a legitimate angle.\n"
+                "Treat a strong article on one of these as pick-worthy on its own\n"
+                "merits, and name the topic in the pick's watch_topic field.\n"
+                + "\n".join(lines) + "\n"
+            )
+        gaps = getattr(self, "profile_gaps", [])   # absent on radars built without __init__
+        if gaps:
+            lines = [f"- {t['topic']} - {t['note']}" for t in gaps]
+            block += (
+                "\nPROFILE GAPS (from the Profile review)\n"
+                "The roles the candidate is pursuing ask for these, and his public\n"
+                "profiles never show them - though his resume may. An article that\n"
+                "lets him show informed, first-hand practice in one of these is\n"
+                "pick-worthy on that ground; the angle should draw on what he has\n"
+                "actually done. Name the gap in the pick's watch_topic field.\n"
+                + "\n".join(lines) + "\n"
+            )
+        return block
 
     # ---------------- config ----------------
 
@@ -425,7 +444,7 @@ Return ONLY a JSON object with this exact shape:
     {{
       "tier": one of {TIERS},
       "theme": "short label, e.g. Evaluation Rigor, Measurement Craft, Agentic Systems, Applied AI in GTM, Platform Delivery, Build in Public, Curated Commentary",
-      "watch_topic": "the ACTIVE WATCH TOPIC this pick serves, copied exactly, or \"\" if it serves none",
+      "watch_topic": "the ACTIVE WATCH TOPIC or PROFILE GAP this pick serves, copied exactly, or \"\" if it serves none",
       "headline": "rewritten, punchy, 4-12 words. NOT the source title.",
       "why_it_matters": "2-4 sentences of real analysis tied to THIS candidate's positioning - EITHER pillar. Name the specific pillar you are drawing on instead of defaulting to causal measurement.",
       "angle": "the single specific point of view the candidate could own here. Most valuable field. Be opinionated and narrow.",
@@ -524,7 +543,7 @@ No markdown, no commentary outside the JSON.
     # ---------------- assembly ----------------
 
     @staticmethod
-    def _clean_picks(raw_picks, articles, watch_topics=()):
+    def _clean_picks(raw_picks, articles, watch_topics=(), profile_gaps=()):
         """Validate the model's picks and enforce breadth in code.
 
         The prompt asks for a spread of themes; this is the part that holds
@@ -534,7 +553,8 @@ No markdown, no commentary outside the JSON.
         that were all one pillar."""
         valid_urls = {a["url"] for a in articles}
         known_topics = {str(t.get("topic", "")).lower(): t.get("topic", "")
-                        for t in (watch_topics or [])}
+                        for t in list(watch_topics or []) + list(profile_gaps or [])}
+        gap_keys = {str(t.get("topic", "")).lower() for t in (profile_gaps or [])}
         picks, primaries, per_theme = [], 0, {}
         for p in raw_picks or []:
             if not isinstance(p, dict):
@@ -558,6 +578,7 @@ No markdown, no commentary outside the JSON.
                 "theme": theme,
                 "watch_topic": known_topics.get(
                     (p.get("watch_topic") or "").strip().lower(), ""),
+                "profile_gap": (p.get("watch_topic") or "").strip().lower() in gap_keys,
                 "headline": (p.get("headline") or "").strip(),
                 "why_it_matters": (p.get("why_it_matters") or "").strip(),
                 "angle": (p.get("angle") or "").strip(),
@@ -577,7 +598,7 @@ No markdown, no commentary outside the JSON.
         article_result = self._as_payload(article_result or {}, "picks")
         repo_result = self._as_payload(repo_result or {}, "repos")
         picks = self._clean_picks(article_result.get("picks"), articles,
-                                  self.watch_topics)
+                                  self.watch_topics, getattr(self, "profile_gaps", []))
 
         rows = []
         for row in article_result.get("network_rows") or []:
@@ -621,6 +642,7 @@ No markdown, no commentary outside the JSON.
             "date": run_date,
             "window_days": MAX_AGE_DAYS,
             "watch_topics": [t["topic"] for t in self.watch_topics],
+            "profile_gaps": [t["topic"] for t in getattr(self, "profile_gaps", [])],
             "stats": {**stats, "picks": len(picks), "repos_reviewed": len(repo_rows),
                       "themes": sorted({p["theme"] for p in picks if p["theme"]}),
                       "llm": self.llm.report()},
@@ -682,7 +704,8 @@ No markdown, no commentary outside the JSON.
         if s["01_pillar_picks"]["note"]:
             out += [f"> {s['01_pillar_picks']['note']}", ""]
         for i, p in enumerate(s["01_pillar_picks"]["picks"], 1):
-            watch = f" | **Watching:** {p['watch_topic']}" if p.get("watch_topic") else ""
+            label = "Profile gap" if p.get("profile_gap") else "Watching"
+            watch = f" | **{label}:** {p['watch_topic']}" if p.get("watch_topic") else ""
             out += [
                 f"### {i}. {p['headline']}",
                 f"**Tier:** {p['tier']} | **Theme:** {p['theme']}{watch}",
