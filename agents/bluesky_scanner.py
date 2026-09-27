@@ -1,337 +1,158 @@
 """
-BlueSky Profile Scanner
-Analyzes BlueSky activity via AT Protocol with custom PDS support
+BlueSky collector: your public BlueSky voice, as one snapshot.
+
+Reads the public AppView (public.api.bsky.app), which needs no login: your bio
+and your last 100 feed entries. The AppView indexes every PDS in the network,
+so a custom-PDS handle reads the same way. If the public read fails and an app
+password is configured (BLUESKY_APP_PASSWORD, and BLUESKY_PDS_URL for a custom
+PDS), the collector logs in and reads through your PDS instead.
+
+Each feed entry is one item:
+  post     your own post                                  weight 1.0
+  reply    your reply to someone                          weight 1.0
+  repost   someone else's post you reposted               weight 0.5
+
+Reposts count toward what your profile says, at half weight: they are your
+choice to amplify, but not your words. Like, repost and reply counts go in
+`signals`, outside the fingerprint.
 """
 import os
-import requests
-from datetime import datetime, timedelta
+from datetime import datetime, timezone
 from pathlib import Path
-from collections import Counter
-import re
+
+import requests
+
+from profile_snapshot import make_snapshot
+
+PUBLIC_API = "https://public.api.bsky.app/xrpc"
+DEFAULT_PDS = "https://bsky.social"
+FEED_LIMIT = 100
+REPOST_WEIGHT = 0.5
+TIMEOUT = 20
+
 
 class BlueSkyScanner:
-    def __init__(self, handle, base_dir):
-        self.handle = handle
+    def __init__(self, handle, base_dir, env=None, session=None):
+        self.handle = handle.lstrip("@")
         self.base_dir = Path(base_dir)
-        self.api_base = "https://bsky.social/xrpc"  # Default
-        self.session = None
-        
-    def load_credentials(self):
-        """Load BlueSky credentials from the environment (.env: BLUESKY_HANDLE,
-        BLUESKY_APP_PASSWORD, BLUESKY_PDS_URL). No credentials means the scan
-        is skipped - BlueSky scanning is optional."""
-        handle = (os.environ.get('BLUESKY_HANDLE') or '').strip()
-        password = (os.environ.get('BLUESKY_APP_PASSWORD') or '').strip()
-        pds_url = (os.environ.get('BLUESKY_PDS_URL') or '').strip()
-        
-        if not handle or not password:
-            return None, None, None
-        
-        # Use custom PDS if provided, otherwise default to bsky.social
-        if pds_url and pds_url != 'https://bsky.social':
-            self.api_base = f"{pds_url}/xrpc"
-            print(f"  Using custom PDS: {pds_url}")
-        
-        return handle, password, pds_url
-    
-    def authenticate(self):
-        """Create authenticated session"""
-        handle, password, pds_url = self.load_credentials()
-        
-        if not handle or not password:
-            print("⚠️  No credentials found - set BLUESKY_HANDLE and BLUESKY_APP_PASSWORD in .env")
-            return False
-        
-        # Create session (use the correct base URL set in load_credentials)
-        url = f"{self.api_base}/com.atproto.server.createSession"
-        data = {
-            "identifier": handle,
-            "password": password
-        }
-        
-        response = requests.post(url, json=data)
-        response.raise_for_status()
-        
-        self.session = response.json()
-        return True
-    
-    def _get(self, endpoint, params=None):
-        """Make authenticated AT Protocol API request"""
-        url = f"{self.api_base}/{endpoint}"
-        headers = {}
-        
-        if self.session:
-            headers["Authorization"] = f"Bearer {self.session['accessJwt']}"
-        
-        response = requests.get(url, params=params, headers=headers)
+        self.env = os.environ if env is None else env
+        self.http = session or requests.Session()
+        self.api_base = PUBLIC_API
+        self.token = None
+
+    # ---------- transport ----------
+
+    def _get(self, endpoint, params):
+        headers = {"Authorization": f"Bearer {self.token}"} if self.token else {}
+        response = self.http.get(f"{self.api_base}/{endpoint}", params=params,
+                                 headers=headers, timeout=TIMEOUT)
         response.raise_for_status()
         return response.json()
-    
-    def fetch_profile(self):
-        """Get profile information"""
-        return self._get("app.bsky.actor.getProfile", {"actor": self.handle})
-    
-    def fetch_posts(self, limit=50):
-        """Get recent posts from author feed"""
-        return self._get("app.bsky.feed.getAuthorFeed", {
-            "actor": self.handle,
-            "limit": limit
-        })
-    
-    def analyze_posts(self, feed_data):
-        """Analyze post content and engagement"""
-        posts = feed_data.get("feed", [])
-        
-        if not posts:
-            return {
-                "total_posts": 0,
-                "posts_last_30_days": 0,
-                "total_likes": 0,
-                "total_reposts": 0,
-                "hashtags": {},
-                "recent_posts": [],
-                "all_text": ""
-            }
-        
-        from datetime import timezone
-        thirty_days_ago = datetime.now(timezone.utc) - timedelta(days=30)
-        seven_days_ago = datetime.now(timezone.utc) - timedelta(days=7)
-        
-        total_likes = 0
-        total_reposts = 0
-        posts_last_30 = 0
-        posts_last_7 = 0
-        hashtags = []
-        recent_posts = []
-        all_text = []
-        
-        for item in posts:
-            post = item.get("post", {})
-            record = post.get("record", {})
-            
-            # Get post text
-            text = record.get("text", "")
-            all_text.append(text)
-            
-            # Parse date
-            created_at = record.get("createdAt", "")
-            if created_at:
-                post_date = datetime.fromisoformat(created_at.replace("Z", "+00:00"))
-                if post_date >= thirty_days_ago:
-                    posts_last_30 += 1
-                if post_date >= seven_days_ago:
-                    posts_last_7 += 1
-            
-            # Engagement metrics
-            like_count = post.get("likeCount", 0)
-            repost_count = post.get("repostCount", 0)
-            reply_count = post.get("replyCount", 0)
-            
-            total_likes += like_count
-            total_reposts += repost_count
-            
-            # Extract hashtags
-            tags = re.findall(r'#(\w+)', text)
-            hashtags.extend(tags)
-            
-            # Store recent posts
-            if len(recent_posts) < 10:
-                recent_posts.append({
-                    "date": created_at[:10] if created_at else "Unknown",
-                    "text": text[:150],
-                    "likes": like_count,
-                    "reposts": repost_count,
-                    "replies": reply_count
-                })
-        
-        return {
-            "total_posts": len(posts),
-            "posts_last_30_days": posts_last_30,
-            "posts_last_7_days": posts_last_7,
-            "total_likes": total_likes,
-            "total_reposts": total_reposts,
-            "avg_likes_per_post": round(total_likes / len(posts), 1) if posts else 0,
-            "hashtags": dict(Counter(hashtags).most_common(10)),
-            "recent_posts": recent_posts,
-            "all_text": " ".join(all_text).lower()
-        }
-    
-    def load_career_goals(self):
-        """Parse career goals from config"""
-        goals_path = self.base_dir / "me/profile.md"
-        if not goals_path.exists():
-            return {"keywords": []}
-        
-        content = goals_path.read_text()
-        
-        keywords = []
-        in_keywords = False
-        for line in content.split("\n"):
-            if "## Target Keywords" in line:
-                in_keywords = True
-                continue
-            if in_keywords:
-                if line.startswith("##"):
-                    break
-                if line.strip().startswith("-"):
-                    keyword = line.strip().lstrip("-").strip().lower()
-                    if keyword and not keyword.startswith("<!--"):
-                        keywords.append(keyword)
-        
-        return {"keywords": keywords}
-    
-    def check_coverage(self, profile, post_analysis):
-        """Check keyword coverage in profile and posts"""
-        goals = self.load_career_goals()
-        keywords = set(goals.get("keywords", []))
-        
-        if not keywords:
-            return {"status": "No keywords defined"}
-        
-        # Combine profile bio and post text
-        profile_text = f"{profile.get('description', '')} {profile.get('displayName', '')}".lower()
-        combined_text = f"{profile_text} {post_analysis['all_text']}"
-        
-        matches = [kw for kw in keywords if kw in combined_text]
-        missing = [kw for kw in keywords if kw not in combined_text]
-        
-        return {
-            "keywords_matched": matches,
-            "keywords_missing": missing,
-            "coverage_pct": round(len(matches) / len(keywords) * 100) if keywords else 0
-        }
-    
-    def generate_report(self, profile, post_analysis, coverage):
-        """Generate markdown report"""
-        today = datetime.now().strftime("%Y-%m-%d")
-        
-        report = f"""# BlueSky Profile Scan: @{self.handle}
-**Date:** {today}
-**Profile:** https://bsky.app/profile/{self.handle}
 
-## Profile Summary
-- **Display Name:** {profile.get('displayName', 'N/A')}
-- **Bio:** {profile.get('description', 'N/A')}
-- **Followers:** {profile.get('followersCount', 0)}
-- **Following:** {profile.get('followsCount', 0)}
-- **Posts:** {profile.get('postsCount', 0)}
+    def _login(self):
+        """Log in with an app password and read through the PDS. False if no
+        password is configured."""
+        password = (self.env.get("BLUESKY_APP_PASSWORD") or "").strip()
+        if not password:
+            return False
+        pds = (self.env.get("BLUESKY_PDS_URL") or "").strip().rstrip("/") or DEFAULT_PDS
+        response = self.http.post(f"{pds}/xrpc/com.atproto.server.createSession", timeout=TIMEOUT,
+                                  json={"identifier": self.handle, "password": password})
+        response.raise_for_status()
+        self.token = response.json()["accessJwt"]
+        self.api_base = f"{pds}/xrpc"
+        return True
 
-## Posting Activity
-- **Recent Posts Analyzed:** {post_analysis['total_posts']}
-- **Posts (Last 7 Days):** {post_analysis['posts_last_7_days']}
-- **Posts (Last 30 Days):** {post_analysis['posts_last_30_days']}
-
-## Engagement Metrics
-- **Total Likes:** {post_analysis['total_likes']}
-- **Total Reposts:** {post_analysis['total_reposts']}
-- **Avg Likes/Post:** {post_analysis['avg_likes_per_post']}
-
-## Top Hashtags
-"""
-        if post_analysis['hashtags']:
-            for tag, count in post_analysis['hashtags'].items():
-                report += f"- #{tag}: {count} times\n"
-        else:
-            report += "*No hashtags found*\n"
-        
-        report += "\n## Recent Posts\n"
-        if post_analysis['recent_posts']:
-            for post in post_analysis['recent_posts'][:5]:
-                date = post['date'][:10] if post['date'] else 'Unknown'
-                text = post['text'][:100] if post['text'] else '[No text]'
-                report += f"\n**{date}** (👍 {post['likes']}, 🔁 {post['reposts']}, 💬 {post['replies']})\n"
-                report += f"> {text}...\n"
-        else:
-            report += "*No recent posts found*\n"
-        
-        report += f"""
-## Career Goals Alignment
-
-### Keyword Coverage: {coverage['coverage_pct']}%
-
-**Matched Keywords:**
-"""
-        if coverage['keywords_matched']:
-            for kw in coverage['keywords_matched'][:20]:
-                report += f"- ✓ {kw}\n"
-            if len(coverage['keywords_matched']) > 20:
-                report += f"*... and {len(coverage['keywords_matched']) - 20} more*\n"
-        else:
-            report += "*None*\n"
-        
-        report += "\n**Missing Keywords:**\n"
-        if coverage['keywords_missing']:
-            for kw in coverage['keywords_missing'][:20]:
-                report += f"- ✗ {kw}\n"
-            if len(coverage['keywords_missing']) > 20:
-                report += f"*... and {len(coverage['keywords_missing']) - 20} more*\n"
-        else:
-            report += "*None - full coverage!*\n"
-        
-        report += f"""
-## Recommendations
-"""
-        if coverage['coverage_pct'] < 50:
-            report += "- 🔴 **Low keyword coverage** - Post more about missing topics\n"
-        elif coverage['coverage_pct'] < 80:
-            report += "- 🟡 **Moderate coverage** - Good foundation, consider posting about missing keywords\n"
-        else:
-            report += "- 🟢 **Strong coverage** - Content aligns well with career goals\n"
-        
-        if post_analysis['posts_last_7_days'] == 0:
-            report += "- 💡 No posts in last 7 days - consider sharing insights this week\n"
-        elif post_analysis['posts_last_7_days'] < 3:
-            report += "- 💡 Low recent activity - consider increasing posting frequency\n"
-        
-        if post_analysis['avg_likes_per_post'] < 5:
-            report += "- 💡 Low engagement - try posting at different times or with different topics\n"
-        
-        return report
-    
-    def run(self):
-        """Execute the scan and generate report"""
-        print(f"Scanning BlueSky profile: @{self.handle}")
-        
+    def _fetch(self):
+        params_profile = {"actor": self.handle}
+        params_feed = {"actor": self.handle, "limit": FEED_LIMIT}
         try:
-            # Authenticate
-            if not self.authenticate():
-                print(f"✗ Authentication failed - check BLUESKY_HANDLE/BLUESKY_APP_PASSWORD in .env")
-                return None
-            
-            # Fetch data
-            profile = self.fetch_profile()
-            feed_data = self.fetch_posts()
-            
-            # Analyze
-            post_analysis = self.analyze_posts(feed_data)
-            goals = self.load_career_goals()
-            coverage = self.check_coverage(profile, post_analysis)
-            
-            # Generate report
-            report = self.generate_report(profile, post_analysis, coverage)
-            
-            # Save report
-            today = datetime.now().strftime("%Y-%m-%d")
-            output_path = self.base_dir / f"artifacts/profiles/bluesky-scan-{today}.md"
-            output_path.write_text(report)
-            
-            print(f"✓ Report saved to {output_path}")
-            return output_path
-            
-        except requests.exceptions.HTTPError as e:
-            print(f"✗ BlueSky API error: {e}")
-            if e.response.status_code == 401:
-                print(f"  Check credentials in .env (BLUESKY_HANDLE / BLUESKY_APP_PASSWORD)")
-            elif e.response.status_code == 404:
-                print(f"  Handle not found: @{self.handle}")
-            return None
-        except Exception as e:
-            print(f"✗ BlueSky scan failed: {e}")
-            import traceback
-            traceback.print_exc()
-            return None
+            return (self._get("app.bsky.actor.getProfile", params_profile),
+                    self._get("app.bsky.feed.getAuthorFeed", params_feed),
+                    "public")
+        except requests.RequestException:
+            if not self._login():
+                raise
+            return (self._get("app.bsky.actor.getProfile", params_profile),
+                    self._get("app.bsky.feed.getAuthorFeed", params_feed),
+                    "app password")
+
+    # ---------- snapshot ----------
+
+    def collect(self):
+        profile, feed, read_via = self._fetch()
+        items = [_feed_item(entry) for entry in feed.get("feed", [])]
+        items = [i for i in items if i]
+
+        own_dates = [i["date"] for i in items if i["kind"] != "repost" and i["date"]]
+        last = max(own_dates) if own_dates else None
+        stats = {
+            "followers": profile.get("followersCount", 0),
+            "posts_total": profile.get("postsCount", 0),
+            "entries_read": len(items),
+            "reposts": sum(1 for i in items if i["kind"] == "repost"),
+            "last_activity": last,
+            "days_since_activity": _days_since(last),
+            "read_via": read_via,
+        }
+        identity = {
+            "display_name": profile.get("displayName"),
+            "bio": profile.get("description"),
+        }
+        return make_snapshot("bluesky", f"bluesky:{self.handle}", identity, items, stats)
+
+
+def _feed_item(entry):
+    post = entry.get("post") or {}
+    record = post.get("record") or {}
+    uri = post.get("uri")
+    if not uri:
+        return None
+    author = (post.get("author") or {}).get("handle", "")
+    reason = entry.get("reason") or {}
+    is_repost = reason.get("$type", "").endswith("reasonRepost")
+
+    if is_repost:
+        kind, weight = "repost", REPOST_WEIGHT
+        date = (reason.get("indexedAt") or "")[:10] or None
+    else:
+        kind = "reply" if record.get("reply") else "post"
+        weight = 1.0
+        date = (record.get("createdAt") or "")[:10] or None
+
+    rkey = uri.rsplit("/", 1)[-1]
+    return {
+        "kind": kind,
+        "id": f"repost:{uri}" if is_repost else uri,
+        "date": date,
+        "title": "",
+        "text": record.get("text") or "",
+        "url": f"https://bsky.app/profile/{author}/post/{rkey}" if author else None,
+        "weight": weight,
+        "meta": {"author": author} if is_repost else {},
+        "signals": {
+            "likes": post.get("likeCount", 0),
+            "reposts": post.get("repostCount", 0),
+            "replies": post.get("replyCount", 0),
+            "quotes": post.get("quoteCount", 0),
+        },
+    }
+
+
+def _days_since(date):
+    if not date:
+        return None
+    try:
+        then = datetime.strptime(date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+    except ValueError:
+        return None
+    return (datetime.now(timezone.utc) - then).days
+
 
 if __name__ == "__main__":
-    import os as _os
-    scanner = BlueSkyScanner(_os.environ.get("BLUESKY_HANDLE", ""), Path(__file__).parent.parent)
-    scanner.run()
+    import json
+    import sys
+    snap = BlueSkyScanner(sys.argv[1] if len(sys.argv) > 1 else os.environ.get("BLUESKY_HANDLE", ""),
+                          Path(__file__).resolve().parent.parent).collect()
+    print(json.dumps({k: v for k, v in snap.items() if k != "items"}, indent=2))
+    print(f"{len(snap['items'])} feed entries")

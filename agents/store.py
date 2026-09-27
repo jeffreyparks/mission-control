@@ -183,6 +183,19 @@ CREATE TABLE IF NOT EXISTS changes (
     ts         TEXT
 );
 
+-- What each public profile said, one row per CHANGE (agents/profile_snapshot.py).
+-- A row is written only when `hash` differs from the latest row for that
+-- source_key. Not to be confused with profile_snapshot in data/history.db,
+-- which holds a daily LinkedIn keyword-coverage number for the home page.
+CREATE TABLE IF NOT EXISTS profile_snapshots (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    source_key   TEXT NOT NULL,
+    source       TEXT NOT NULL,
+    captured_at  TEXT NOT NULL,
+    hash         TEXT NOT NULL,
+    payload      TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS meta (
     key   TEXT PRIMARY KEY,
     value TEXT
@@ -191,6 +204,7 @@ CREATE TABLE IF NOT EXISTS meta (
 CREATE INDEX IF NOT EXISTS idx_changes_role ON changes(role_id);
 CREATE INDEX IF NOT EXISTS idx_roles_status ON roles(status);
 CREATE INDEX IF NOT EXISTS idx_touches_role ON touches(role_id);
+CREATE INDEX IF NOT EXISTS idx_profile_snapshots_key ON profile_snapshots(source_key, id);
 """
 
 
@@ -281,6 +295,53 @@ class Store:
 
     def is_empty(self):
         return self.count() == 0
+
+    # ---------- profile snapshots ----------
+
+    def latest_snapshot(self, source_key):
+        """The most recent stored snapshot for one source, as a dict, or None."""
+        with self.connect() as conn:
+            row = conn.execute(
+                "SELECT id, payload FROM profile_snapshots WHERE source_key=? "
+                "ORDER BY id DESC LIMIT 1", (source_key,)).fetchone()
+        if row is None:
+            return None
+        snap = json.loads(row["payload"])
+        snap["_id"] = row["id"]
+        return snap
+
+    def latest_snapshots(self, source=None):
+        """The newest snapshot for every source_key (optionally one source)."""
+        query = ("SELECT p.id, p.payload FROM profile_snapshots p JOIN "
+                 "(SELECT source_key, MAX(id) id FROM profile_snapshots GROUP BY source_key) m "
+                 "ON p.id = m.id")
+        params = ()
+        if source:
+            query += " WHERE p.source=?"
+            params = (source,)
+        with self.connect() as conn:
+            rows = conn.execute(query + " ORDER BY p.source_key", params).fetchall()
+        return [{**json.loads(r["payload"]), "_id": r["id"]} for r in rows]
+
+    def save_snapshot_if_changed(self, snap):
+        """Store `snap` unless its hash matches the latest for its source_key.
+
+        Returns (changed, snapshot_id): the new row's id, or the unchanged
+        latest row's. Either way the check time is recorded in meta, so "last
+        checked" is known even for a profile that has not changed in months.
+        """
+        latest = self.latest_snapshot(snap["source_key"])
+        self.set_meta(f"profile_checked:{snap['source_key']}", snap["captured_at"])
+        if latest and latest.get("hash") == snap["hash"]:
+            return False, latest["_id"]
+        with self.connect() as conn:
+            cur = conn.execute(
+                "INSERT INTO profile_snapshots(source_key, source, captured_at, hash, payload) "
+                "VALUES (?,?,?,?,?)",
+                (snap["source_key"], snap["source"], snap["captured_at"], snap["hash"],
+                 json.dumps(snap, ensure_ascii=False, default=str)),
+            )
+            return True, cur.lastrowid
 
     # ---------- ids ----------
 

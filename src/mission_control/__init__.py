@@ -3,6 +3,7 @@
     mc setup       scaffold me/, fill in the basics, first run
     mc run         run the daily pipeline
     mc render      rebuild the static dashboard from existing data
+    mc profile     snapshot your public profiles (--collect-only)
     mc dashboard   editable local dashboard (background by default)
     mc users       list workspaces
     mc help        show this list of commands
@@ -40,6 +41,7 @@ SCRIPTS = {
     "run": "run_daily",
     "dashboard": "dashboard",
     "render": "render/build",
+    "profile": "agents/profile_snapshot",
 }
 
 HELP_TEXT = """\
@@ -48,10 +50,11 @@ mc setup [--status] [--dry-run]
     --status    what's configured, no prompts, no LLM calls
     --dry-run   preview scan scope before spending anything
 
-mc run [--force-radar] [--radar-only] [--only STAGE] [--refresh-intel] [--no-intel]
+mc run [--force-radar] [--radar-only] [--profile-only] [--only STAGE] [--refresh-intel] [--no-intel]
     run the daily pipeline
     --force-radar    run the weekly content radar now
     --radar-only     content radar now + rebuild pages, no job scan
+    --profile-only   profile snapshots now + rebuild pages, no job scan
     --only STAGE     one stage: profiles | jobs | radar | history | render
     --refresh-intel  re-judge every role instead of reusing cached verdicts
     --no-intel       legacy keyword scanner instead of LLM fit
@@ -59,6 +62,10 @@ mc run [--force-radar] [--radar-only] [--only STAGE] [--refresh-intel] [--no-int
 mc render [--user NAME]
     rebuild the static dashboard pages from that workspace's existing data
     (no scans, no LLM calls)
+
+mc profile --collect-only [--user NAME]
+    snapshot LinkedIn, GitHub and BlueSky now and print which changed
+    (no LLM calls; a snapshot is stored only when the profile's words changed)
 
 mc users
     list the workspaces under workspace/
@@ -74,7 +81,7 @@ mc dashboard stop
 mc help
     show this list of commands
 
---user NAME works on setup, run, render and dashboard. It selects
+--user NAME works on setup, run, render, profile and dashboard. It selects
 workspace/NAME - one person's entire dataset (artifacts, data, me, config).
 Defaults to $MC_WORKSPACE, then "default".
 
@@ -202,6 +209,8 @@ def main():
                     help="run the daily pipeline")
     sub.add_parser("render", add_help=False,
                     help="rebuild static dashboard pages from existing data")
+    sub.add_parser("profile", add_help=False,
+                    help="snapshot your public profiles (--collect-only)")
     sub.add_parser("users", add_help=False, help="list workspaces")
     sub.add_parser("dashboard", add_help=False,
                     help="editable local dashboard (background by default)")

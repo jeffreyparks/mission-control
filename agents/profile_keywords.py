@@ -141,6 +141,26 @@ def load_watch_topics(base_dir):
     return out
 
 
+def keyword_coverage(text, keywords):
+    """How many target keywords appear in `text` - a plain substring test.
+
+    Returns {"matched": [...], "missing": [...], "pct": int}, pct rounded as
+    the old scanner reports did, so the home page's trend line does not jump
+    when its source changed from those reports to profile snapshots. None
+    when there are no keywords to test.
+    """
+    keywords = list(dict.fromkeys(keywords or []))
+    if not keywords:
+        return None
+    haystack = (text or "").lower()
+    matched = [kw for kw in keywords if kw in haystack]
+    return {
+        "matched": matched,
+        "missing": [kw for kw in keywords if kw not in matched],
+        "pct": round(len(matched) / len(keywords) * 100),
+    }
+
+
 def build_board_query(term, excludes=(), max_excludes=8):
     """Turn one target keyword into an Indeed/LinkedIn search string.
 

@@ -126,7 +126,6 @@ def status():
     openrouter_key = bool(_env_value("OPENROUTER_API_KEY"))
     github_user = _env_value("GITHUB_USERNAME")
     bluesky_handle = _env_value("BLUESKY_HANDLE")
-    bluesky_pw = bool(_env_value("BLUESKY_APP_PASSWORD"))
 
     claude_cli = shutil.which("claude") is not None
 
@@ -146,7 +145,7 @@ def status():
     # Identity is per workspace: switching --user switches whose accounts get
     # scanned, so say out loud which file these came from.
     print(f"\nidentity ({workspace.env_path(WS)})")
-    line("bluesky handle+password", bool(bluesky_handle and bluesky_pw), "skipped if absent")
+    line("bluesky handle", bool(bluesky_handle), "skipped if absent")
     line("github username", bool(github_user), github_user or "skipped if absent")
 
     print(f"\nLLM backend ({ENV_PATH} - shared by every workspace)")
@@ -221,10 +220,8 @@ def wizard():
     print()
     if yes("Configure BlueSky profile scanning? (optional)", default=False):
         handle = prompt("BlueSky handle (e.g. you.bsky.social)")
-        pw = prompt("BlueSky app password (from bsky.app/settings/app-passwords)")
-        if handle and pw:
+        if handle:
             _set_env("BLUESKY_HANDLE", handle)
-            _set_env("BLUESKY_APP_PASSWORD", pw)
 
     if yes("Configure GitHub profile scanning? (optional)", default=False):
         user = prompt("GitHub username")

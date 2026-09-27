@@ -2,7 +2,7 @@
 Mission Control runner.
 
 Cadences:
-  daily   - profile scanners, job intel, HTML build
+  daily   - profile snapshots, job intel, HTML build
   weekly  - content radar (runs when the newest radar is >= 7 days old)
   weekly  - learned-preferences draft, me/learned.draft.md (>= 7 days old);
             it is only a draft - nothing changes until you approve it
@@ -16,6 +16,7 @@ Usage:
   uv run run_daily.py --force-radar   # run the radar regardless of cadence
   uv run run_daily.py --only jobs     # one stage: profiles|jobs|radar|preferences|history|render
   uv run run_daily.py --radar-only    # radar now + rebuild pages, no job scan
+  uv run run_daily.py --profile-only  # profile snapshots now + rebuild pages, no job scan
   uv run run_daily.py --refresh-intel # re-judge every role from scratch (full price)
   uv run run_daily.py --refresh-open  # re-judge only roles not yet closed
   uv run run_daily.py --no-intel      # legacy keyword JobScanner instead of intel
@@ -102,31 +103,8 @@ def radar_is_due():
 # ---------- stages ----------
 
 def run_profiles():
-    from profile_scanner import GitHubScanner
-    from linkedin_scanner import LinkedInScanner
-    from bluesky_scanner import BlueSkyScanner
-
-    github_user = os.environ.get("GITHUB_USERNAME", "").strip()
-    bluesky_handle = os.environ.get("BLUESKY_HANDLE", "").strip()
-
-    runners = [("linkedin", lambda: LinkedInScanner(ws()).run())]
-    if github_user:
-        runners.insert(0, ("github", lambda: GitHubScanner(github_user, ws()).run()))
-    else:
-        log(f"   github scanner skipped (no GITHUB_USERNAME in {workspace.env_path(ws())})")
-    if bluesky_handle:
-        runners.append(("bluesky", lambda: BlueSkyScanner(bluesky_handle, ws()).run()))
-    else:
-        log(f"   bluesky scanner skipped (no BLUESKY_HANDLE in {workspace.env_path(ws())})")
-
-    done = []
-    for label, runner_fn in runners:
-        try:
-            if runner_fn():
-                done.append(label)
-        except Exception as exc:  # noqa: BLE001
-            log(f"   {label} scanner failed: {exc}")
-    return f"profiles: {', '.join(done) or 'none'}"
+    from profile_snapshot import run_profile_stage, summary
+    return summary(run_profile_stage(ws(), log=log))
 
 
 def run_jobs():
@@ -192,6 +170,8 @@ def main():
     ap.add_argument("--only", choices=sorted(STAGES), help="run a single stage")
     ap.add_argument("--radar-only", action="store_true",
                     help="run the content radar now and rebuild the pages - no job scan")
+    ap.add_argument("--profile-only", action="store_true",
+                    help="snapshot the public profiles now and rebuild the pages - no job scan")
     intel = ap.add_mutually_exclusive_group()
     intel.add_argument("--intel", dest="intel", action="store_true", default=True,
                        help="LLM fit analysis for job roles (default)")
@@ -207,8 +187,10 @@ def main():
                           "(default: rules.max_live_roles in job-sources.yaml, else 200)")
     workspace.add_argument(ap)
     args = ap.parse_args()
-    if args.only and args.radar_only:
-        ap.error("--radar-only and --only cannot be combined")
+    exclusive = [flag for flag, on in (("--only", args.only), ("--radar-only", args.radar_only),
+                                       ("--profile-only", args.profile_only)) if on]
+    if len(exclusive) > 1:
+        ap.error(f"{' and '.join(exclusive)} cannot be combined")
 
     global WS
     WS = workspace.resolve(args.user)
@@ -237,7 +219,14 @@ def main():
         log("done")
         return 0 if ok else 1
 
-    stage("profile scanners (daily)", run_profiles)
+    if args.profile_only:
+        # History is skipped for the same reason as --radar-only.
+        ok = stage("profile snapshots (profile only)", run_profiles)
+        stage("static html", run_render)
+        log("done")
+        return 0 if ok else 1
+
+    stage("profile snapshots (daily)", run_profiles)
     stage("job intel (daily)", run_jobs)
 
     due, why = radar_is_due()

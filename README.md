@@ -15,8 +15,9 @@ text sent to the AI model that judges each role.
 | **Content Radar** | weekly | Articles worth reacting to, with a suggested angle for each, and what's new in your GitHub repos |
 | **Home** | daily | What changed since the last run, and the radar's top picks |
 
-Each run also scans your LinkedIn export, GitHub and BlueSky, saving a report for each in
-`artifacts/profiles/`. How well your LinkedIn covers your keywords is tracked on the home page.
+Each run also snapshots your LinkedIn export, GitHub and BlueSky, keeping a new copy only when
+what a profile says has changed (`mc profile --collect-only` does just this step). How well your
+LinkedIn covers your keywords is tracked on the home page.
 
 ## Quick start
 
