@@ -11,9 +11,12 @@ Pipeline
 1. Read RSS sources from ``config/content-sources.yaml`` (config contract kept:
    a top-level ``sources:`` list of ``{name, url, category}``).
 2. Keep only entries published in the last ``MAX_AGE_DAYS`` (14) days.
-3. Fetch each candidate article and extract the FULL body text with
-   requests + BeautifulSoup (nav/script/style/footer stripped), capped at
-   ``MAX_ARTICLE_CHARS`` (6000) characters. RSS ``<summary>`` is a fallback only.
+3. Get each candidate article's FULL body text, capped at ``MAX_ARTICLE_CHARS``
+   (6000) characters. A feed that carries the whole article (e.g. Medium's
+   ``content:encoded``, at least ``FEED_FULL_TEXT_CHARS``) is used as is, with
+   no page fetch - those sites block scripted fetches anyway. Otherwise the
+   page is fetched with requests + BeautifulSoup (nav/script/style/footer
+   stripped), and the feed text is the fallback.
 4. One batched LLM call judges every article together and writes sections
    00 / 01 / 02. A second batched LLM call judges the GitHub repos and writes
    sections 03 / 04.
@@ -109,6 +112,7 @@ from profile_keywords import load_watch_topics   # noqa: E402
 
 MAX_AGE_DAYS = 14
 MAX_ARTICLE_CHARS = 6000
+FEED_FULL_TEXT_CHARS = 2000   # feed text this long is the article, not a teaser
 MAX_ENTRIES_PER_SOURCE = 6
 MAX_ARTICLES_TOTAL = 30
 TARGET_PICKS = 8
@@ -219,6 +223,17 @@ class ContentRadar:
                     continue
         return None
 
+    @staticmethod
+    def _feed_text(entry):
+        """Plain text of the entry's body as the feed carries it: full content
+        (``content:encoded``) when present, else the summary."""
+        html = max((c.get("value") or "" for c in entry.get("content") or []),
+                   key=len, default="")
+        if len(html) < len(entry.get("summary") or ""):
+            html = entry.get("summary") or ""
+        text = BeautifulSoup(html, "html.parser").get_text(" ", strip=True)
+        return text[:MAX_ARTICLE_CHARS]
+
     def collect_entries(self, sources):
         """Return in-window feed entries, newest first, spread across sources."""
         cutoff = datetime.now(timezone.utc) - timedelta(days=MAX_AGE_DAYS)
@@ -248,9 +263,7 @@ class ContentRadar:
                     "title": (entry.get("title") or "Untitled").strip(),
                     "url": entry.get("link") or "",
                     "published": published,
-                    "summary": BeautifulSoup(
-                        entry.get("summary", "") or "", "html.parser"
-                    ).get_text(" ", strip=True)[:800],
+                    "summary": self._feed_text(entry),
                 })
                 if len(picked) >= MAX_ENTRIES_PER_SOURCE:
                     break
@@ -300,6 +313,11 @@ class ContentRadar:
         """Attach full article text; drop entries with no usable body."""
         out = []
         for entry in entries:
+            if len(entry["summary"]) >= FEED_FULL_TEXT_CHARS:
+                print(f"  . using feed text: {entry['title'][:70]}")
+                entry["text"] = entry["summary"]
+                out.append(entry)
+                continue
             print(f"  . fetching: {entry['title'][:70]}")
             text = self.extract_text(entry["url"])
             if len(text) < 400:
