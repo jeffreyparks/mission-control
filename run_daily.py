@@ -17,6 +17,7 @@ Usage:
   uv run run_daily.py --only jobs     # one stage: profiles|jobs|radar|preferences|history|render
   uv run run_daily.py --radar-only    # radar now + rebuild pages, no job scan
   uv run run_daily.py --refresh-intel # re-judge every role from scratch (full price)
+  uv run run_daily.py --refresh-open  # re-judge only roles not yet closed
   uv run run_daily.py --no-intel      # legacy keyword JobScanner instead of intel
 """
 import argparse
@@ -53,7 +54,7 @@ def ws():
 RADAR_INTERVAL_DAYS = 7
 
 # Set from CLI flags in main(); read by run_jobs().
-OPTS = {"intel": True, "refresh": False, "max_live": None}   # None = this workspace's config
+OPTS = {"intel": True, "refresh": False, "refresh_open": False, "max_live": None}   # None = this workspace's config
 
 
 def log(msg):
@@ -135,7 +136,8 @@ def run_jobs():
         return f"legacy scan: {Path(out).name}" if out else "legacy scan: no output"
 
     from job_intel import JobIntel
-    out = JobIntel(ws(), refresh=OPTS["refresh"], max_live_roles=OPTS["max_live"]).run()
+    out = JobIntel(ws(), refresh=OPTS["refresh"], refresh_open=OPTS["refresh_open"],
+                   max_live_roles=OPTS["max_live"]).run()
     return f"job intel: {Path(out).name}" if out else "job intel: no output"
 
 
@@ -195,8 +197,11 @@ def main():
                        help="LLM fit analysis for job roles (default)")
     intel.add_argument("--no-intel", dest="intel", action="store_false",
                        help="fall back to the legacy keyword JobScanner")
-    ap.add_argument("--refresh-intel", action="store_true",
-                    help="re-judge every role instead of reusing unchanged verdicts")
+    refresh = ap.add_mutually_exclusive_group()
+    refresh.add_argument("--refresh-intel", action="store_true",
+                         help="re-judge every role instead of reusing unchanged verdicts")
+    refresh.add_argument("--refresh-open", action="store_true",
+                         help="re-judge every role not yet closed; closed roles keep their verdicts")
     ap.add_argument("--max-live", type=int, default=None,
                      help="cap on live postings judged this run "
                           "(default: rules.max_live_roles in job-sources.yaml, else 200)")
@@ -210,10 +215,12 @@ def main():
     workspace.load_env(WS)          # identity for THIS workspace, overriding the repo .env
     OPTS["intel"] = args.intel
     OPTS["refresh"] = args.refresh_intel
+    OPTS["refresh_open"] = args.refresh_open
     OPTS["max_live"] = args.max_live
 
     log(f"Mission Control run started  (workspace: {WS.name})")
-    log(f"   jobs: {'intel' + (' (refresh)' if args.refresh_intel else '')}" if args.intel
+    mode = " (refresh)" if args.refresh_intel else " (refresh open roles)" if args.refresh_open else ""
+    log(f"   jobs: intel{mode}" if args.intel
         else "   jobs: legacy keyword scan")
     log_routing()
 

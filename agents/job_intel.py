@@ -136,6 +136,7 @@ PROMPT_VERSION = 1
 # the tracker hand-curated.
 AUTO_ADD_LIVE = True
 NEW_FIND_STATUS = "00 New find"
+CLOSED_STATUS = "04 Closed"
 
 # The live-scan judging queue is dominated by whichever source has the most
 # volume, and that is usually the priority-1 aggregators (Built In). This
@@ -468,8 +469,13 @@ def make_sector_validator(orgs):
 
 
 class JobIntel:
-    def __init__(self, base_dir, batch_size=None, max_live_roles=None, model=None, refresh=False):
+    def __init__(self, base_dir, batch_size=None, max_live_roles=None, model=None, refresh=False,
+                 refresh_open=False):
         self.refresh = refresh
+        # Re-judge every role still in play, reuse stored verdicts for closed
+        # ones: a closed role's score no longer drives anything, so paying to
+        # re-judge it is waste. Category and function caches stay in use.
+        self.refresh_open = refresh_open
         self._jd_cache = None
         self._store = None
         self.base_dir = Path(base_dir)
@@ -934,6 +940,8 @@ ROLES follow. Judge every one of them, and echo each id exactly."""
             fp = self.fingerprint(role)
             role["fit_fingerprint"] = fp
             hit = by_fp.get(fp)
+            if self.refresh_open and role.get("status") != CLOSED_STATUS:
+                hit = None
             if hit and hit.get("fit_score") is not None:
                 for field in FIT_FIELDS:
                     role[field] = hit.get(field)
@@ -1800,8 +1808,11 @@ Return ONLY a JSON object mapping each company name exactly as given to its sect
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Honest LLM fit analysis for tracked and live roles.")
-    ap.add_argument("--refresh", action="store_true",
-                    help="re-judge every role, ignoring stored verdicts (costs full price)")
+    mode = ap.add_mutually_exclusive_group()
+    mode.add_argument("--refresh", action="store_true",
+                      help="re-judge every role, ignoring stored verdicts (costs full price)")
+    mode.add_argument("--refresh-open", action="store_true",
+                      help="re-judge every role not yet closed; closed roles keep their verdicts")
     ap.add_argument("--max-live", type=int, default=None,
                      help="cap on live postings judged (default: rules.max_live_roles in job-sources.yaml, else 200)")
     ap.add_argument("--add", metavar="URL",
@@ -1814,7 +1825,7 @@ def main(argv=None):
 
     intel = JobIntel(Path(__file__).parent.parent,
                      max_live_roles=0 if (args.add and args.no_scan) else args.max_live,
-                     refresh=args.refresh)
+                     refresh=args.refresh, refresh_open=args.refresh_open)
 
     if args.add:
         rid, message = intel.add_role(args.add, org=args.org, title=args.title)
