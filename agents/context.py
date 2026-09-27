@@ -4,6 +4,7 @@ Both live in me/, the single local input folder (see me/README.md). Nothing
 here is committed to git; templates/me/ ships the placeholder shape a fresh
 checkout starts from.
 """
+import hashlib
 from pathlib import Path
 
 
@@ -11,17 +12,23 @@ def _resume_text(base_dir):
     me_dir = Path(base_dir) / "me"
     cached = me_dir / "resume.txt"
     pdf = me_dir / "resume.pdf"
-
-    # A hand-provided resume.txt always wins - it may be edited by hand after
-    # the first PDF parse, and re-parsing would silently discard those edits.
-    if cached.exists() and not pdf.exists():
-        return cached.read_text()
+    stamp = me_dir / ".resume.pdf.sha256"
 
     if pdf.exists():
+        # resume.txt is the parse of the PDF whose hash is in the stamp. Reuse
+        # it until the PDF's contents change: re-parsing every call is wasted
+        # work (and noisy for PDFs pypdf has to repair), and would discard hand
+        # edits to resume.txt. Contents, not mtime - copy2 and Finder keep an
+        # old PDF's date, which could make a placeholder resume.txt look newer.
+        digest = hashlib.sha256(pdf.read_bytes()).hexdigest()
+        if cached.exists() and stamp.exists() and stamp.read_text().strip() == digest:
+            return cached.read_text()
+
         from pypdf import PdfReader
         text = "".join(page.extract_text() or "" for page in PdfReader(pdf).pages)
         text = "\n".join(line.rstrip() for line in text.splitlines() if line.strip())
         cached.write_text(text)
+        stamp.write_text(digest + "\n")
         return text
 
     if cached.exists():
