@@ -42,6 +42,7 @@ OUTPUT: artifacts/jobs/intel-YYYY-MM-DD.json
       "outcome_label": str | null,            # "Rejected" / "Interview" / ...
       "days_to_outcome": int | null,          # elapsed days, for "Rejected (2d)" UI
       "outcome_display": str | null,          # prerendered "Rejected (2d)"
+      "close_reason":  str | null,            # user column: why YOU passed (store.CLOSE_REASONS)
       "notes":         str | null,
 
       "fit_score":     int | null,            # 0-100, calibrated; most roles are low
@@ -510,6 +511,7 @@ class JobIntel:
                 "outcome_label": label,
                 "days_to_outcome": days,
                 "outcome_display": display,
+                "close_reason": _clean(row.get("Close Reason")),
                 "notes": _clean(row.get("Notes")),
                 "comp_range": _clean(row.get("Range")),
                 "jd": "",
@@ -676,6 +678,7 @@ class JobIntel:
                 "outcome_label": None,
                 "days_to_outcome": None,
                 "outcome_display": None,
+                "close_reason": None,
                 "notes": None,
                 "comp_range": _clean(job.get("comp_range")),
                 "jd": _strip_html(job.get("description")),

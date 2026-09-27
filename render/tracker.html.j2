@@ -161,6 +161,9 @@
       <span class="sep">Set</span>
       <select class="fieldsel" id="bulkfield"></select>
       <select class="fieldsel" id="bulkvalue"></select>
+      <!-- Shown only when the batch closes rows: the reason goes on in the
+           same click, so a bulk close is never an unexplained one. -->
+      <select class="fieldsel" id="bulkreason" style="display:none"></select>
       <button type="button" class="bulkbtn go" id="bulkgo">Apply</button>
       <span class="msg" id="bulkmsg"></span>
     </div>
@@ -169,7 +172,7 @@
       <thead><tr>
         <th class="selcell"><input type="checkbox" id="bulkhead" title="Select all shown"></th>
         <th>Org</th><th>Role</th><th>Category</th><th>Fit</th><th>Rec</th>
-        <th>Pri</th><th>Status</th><th>Outcome</th><th class="salarycell">Salary</th><th class="notescell">Notes</th>
+        <th>Pri</th><th>Status</th><th>Outcome</th><th>Close reason</th><th class="salarycell">Salary</th><th class="notescell">Notes</th>
       </tr></thead>
       <tbody>
       {% for r in roles %}
@@ -211,6 +214,7 @@
           <td class="pricell" data-pri-value="{{ r.priority|int if r.priority else '' }}">{% if r.priority %}<span class="pri p{{ r.priority|int }}">P{{ r.priority|int }}</span>{% else %}—{% endif %}</td>
           <td class="statuscell">{% if r.store_id %}<span class="dot {{ (r.status or '')|lower|replace('00 ','')|replace('01 ','')|replace('02 ','')|replace('03 ','')|replace('04 ','') }}">{{ r.status or '—' }}</span>{% else %}<span class="dot">—</span>{% endif %}</td>
           <td class="outcell" data-outcome-value="{{ r.outcome_label or '' }}">{% if r.outcome_display %}<span class="bad-chip">{{ r.outcome_display }}</span>{% else %}—{% endif %}</td>
+          <td class="reasoncell" data-reason-value="{{ r.close_reason or '' }}">{{ r.close_reason or '—' }}</td>
           <td class="salarycell" data-text-value="{{ r.comp_range or '' }}">{{ r.comp_range or '—' }}</td>
           <td class="notescell" data-text-value="{{ r.notes or '' }}">{{ r.notes or '—' }}</td>
         </tr>
@@ -326,6 +330,8 @@ q.oninput=apply;
       function(v){ return v || '\u2014'; }, function(tr,cell){ return tr.dataset.rec || ''; });
     if(ed.outcomes) enableSelect('outcell', 'outcomes', ed.outcomes, function(tr,v){},
       function(v){ return v || '\u2014'; }, function(tr,cell){ return cell.dataset.outcomeValue || ''; });
+    if(ed.close_reason) enableSelect('reasoncell', 'close_reason', ed.close_reason, function(tr,v){},
+      function(v){ return v || '\u2014'; }, function(tr,cell){ return cell.dataset.reasonValue || ''; });
     if(ed.role_cat) enableCategoryEditing(ed.role_cat);
     // Free-text fields report their vocabulary as null (any text is
     // accepted), so presence in the object - not truthiness - is the signal.
@@ -481,13 +487,15 @@ q.oninput=apply;
     if(!bar) return;
     var fieldSel = document.getElementById('bulkfield'),
         valueSel = document.getElementById('bulkvalue'),
+        reasonSel = document.getElementById('bulkreason'),
         go = document.getElementById('bulkgo'),
         msg = document.getElementById('bulkmsg'),
         countEl = document.getElementById('bulkcount'),
         head = document.getElementById('bulkhead');
 
     var OFFER = [['status', 'Status'], ['priority', 'Priority'],
-                 ['outcomes', 'Outcome'], ['role_cat', 'Category']];
+                 ['outcomes', 'Outcome'], ['close_reason', 'Close reason'],
+                 ['role_cat', 'Category']];
     var fields = OFFER.filter(function(f){ return ed[f[0]] && ed[f[0]].length; });
     if(!fields.length){ bar.style.display = 'none'; return; }
 
@@ -511,8 +519,21 @@ q.oninput=apply;
         valueSel.appendChild(opt);
       });
     }
-    fieldSel.onchange = function(){ fillValues(); say(''); };
+    // Closing in bulk offers the close reason alongside. Blank means "no
+    // reason given", which is also what a plain status-only close records.
+    (ed.close_reason || []).forEach(function(value){
+      var opt = document.createElement('option');
+      opt.value = value; opt.textContent = value || 'reason\u2026';
+      reasonSel.appendChild(opt);
+    });
+    function closing(){
+      return !!(ed.close_reason && fieldSel.value === 'status' && valueSel.value === '04 Closed');
+    }
+    function showReason(){ reasonSel.style.display = closing() ? '' : 'none'; }
+    fieldSel.onchange = function(){ fillValues(); showReason(); say(''); };
+    valueSel.onchange = showReason;
     fillValues();
+    showReason();
 
     // One checkbox per writable row. Rows with no store_id cannot be written
     // at all, so they get no checkbox and can never end up in a batch.
@@ -555,16 +576,12 @@ q.oninput=apply;
       refresh();
     };
 
-    go.onclick = function(){
-      var chosen = selected(), field = fieldSel.value, value = valueSel.value;
-      if(!chosen.length) return;
-      go.disabled = true;
-      say('saving\u2026');
-      fetch(API + '/api/roles/bulk', {
+    // One bulk write; moves the single-row controls of every row it landed on.
+    function postBulk(ids, field, value){
+      return fetch(API + '/api/roles/bulk', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ids: chosen.map(function(e){ return e.id; }),
-                              field: field, value: value})
+        body: JSON.stringify({ids: ids, field: field, value: value})
       }).then(function(r){ return r.json(); }).then(function(res){
         if(res.error){ throw new Error(res.error); }
         (res.results || []).forEach(function(row){
@@ -572,11 +589,33 @@ q.oninput=apply;
           var setter = (controls[field] || {})[row.id];
           if(setter) setter(value);
         });
-        boxes.forEach(function(e){ e.box.checked = false; });
+        return res;
+      });
+    }
+
+    go.onclick = function(){
+      var chosen = selected(), field = fieldSel.value, value = valueSel.value;
+      var reason = closing() ? reasonSel.value : '';
+      if(!chosen.length) return;
+      go.disabled = true;
+      say('saving\u2026');
+      postBulk(chosen.map(function(e){ return e.id; }), field, value).then(function(res){
         var text = res.changed + ' updated';
         if(res.unchanged) text += ', ' + res.unchanged + ' already set';
         if(res.failed) text += ', ' + res.failed + ' failed';
-        say(text, res.failed ? 'err' : 'ok');
+        if(!reason) return {res: res, text: text};
+        // The reason follows only the rows the close actually reached.
+        var closed = (res.results || []).filter(function(row){ return !row.error; })
+                                        .map(function(row){ return row.id; });
+        if(!closed.length) return {res: res, text: text};
+        return postBulk(closed, 'close_reason', reason).then(function(r2){
+          text += '; reason set on ' + (r2.changed + r2.unchanged);
+          if(r2.failed) text += ' (' + r2.failed + ' failed)';
+          return {res: {failed: res.failed + r2.failed}, text: text};
+        });
+      }).then(function(done){
+        boxes.forEach(function(e){ e.box.checked = false; });
+        say(done.text, done.res.failed ? 'err' : 'ok');
         apply();          // also refreshes the selection state
       }).catch(function(err){
         say('failed: ' + err.message, 'err');

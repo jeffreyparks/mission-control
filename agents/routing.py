@@ -40,6 +40,7 @@ FALLBACK_TAGS = {
     "job-fit": "T3",
     "role-cat": "T1",
     "org-sectors": "T1",
+    "close-reason": "T1",
     "content-radar": "T2",
 }
 

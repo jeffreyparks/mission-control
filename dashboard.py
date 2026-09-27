@@ -51,7 +51,7 @@ def _server_commit():
 SERVER_COMMIT = _server_commit()
 SERVER_STARTED_AT = datetime.now().isoformat(timespec="seconds")
 
-from store import Store  # noqa: E402
+from store import CLOSE_REASONS, Store  # noqa: E402
 from job_intel import JobIntel, load_archetypes, OUTCOME_LABELS, _clean, _date, parse_outcome  # noqa: E402
 
 sys.path.insert(0, str(BASE))
@@ -67,6 +67,8 @@ import workspace  # noqa: E402
 EDITABLE = {
     "status": ["00 New find", "01 Open", "02 Researching", "03 Applied", "04 Closed"],
     "priority": ["1", "2", "3", ""],
+    # Why you passed on a role, as opposed to Outcomes (what the employer did).
+    "close_reason": [""] + CLOSE_REASONS,
     # recommendation is deliberately NOT editable: it is the model's fit
     # judgement, not a status you set - shown as a plain badge, same as Fit
     # Score. Status/Priority/Notes/Salary are yours to set; Recommendation
@@ -110,6 +112,7 @@ def _overlay_live_values(intel_data, store):
             role["notes"] = _clean(row.get("Notes"))
             role["comp_range"] = _clean(row.get("Range"))
             role["outcome"] = _clean(row.get("Outcomes"))
+            role["close_reason"] = _clean(row.get("Close Reason"))
             label, days, display = parse_outcome(
                 role["outcome"], row.get("Date Applied"), row.get("Last Updated"))
             role["outcome_label"], role["days_to_outcome"], role["outcome_display"] = label, days, display

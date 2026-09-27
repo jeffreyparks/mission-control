@@ -54,12 +54,32 @@ COLUMN_MAP = {
     "Sector": "sector",
     "Days To Outcome": "days_to_outcome",
     "Role Cat (suggested)": "role_cat_suggested",
+    "Close Reason": "close_reason",
 }
 DB_TO_HEADER = {v: k for k, v in COLUMN_MAP.items()}
 
 # Columns a human owns. The pipeline never overwrites these.
 MANUAL_FIELDS = ("role_cat", "priority", "status", "outcomes", "notes",
-                 "date_applied", "comp_range", "other_links")
+                 "date_applied", "comp_range", "other_links", "close_reason")
+
+# Why YOU passed on a role - the user's side of a close, kept apart from
+# Outcomes, which records what the employer did. The split matters to anything
+# that learns from decisions: "chose another role at the org" or "posting
+# closed" says nothing about what you want, while "not a fit - function" does.
+CLOSE_REASONS = [
+    "Not a fit - function",
+    "Not a fit - level",
+    "Not a fit - skills gap",
+    "Not a fit - industry",
+    "Comp",
+    "Location",
+    "Chose another role at org",
+    "Posting closed",
+    "Other",
+]
+
+# The subset that expresses a preference about the role itself.
+PREFERENCE_CLOSE_REASONS = frozenset(CLOSE_REASONS[:6])
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS roles (
@@ -87,6 +107,7 @@ CREATE TABLE IF NOT EXISTS roles (
     sector              TEXT,
     days_to_outcome     REAL,
     role_cat_suggested  TEXT,
+    close_reason        TEXT,
     created_at          TEXT,
     updated_at          TEXT
 );
@@ -166,6 +187,18 @@ class Store:
     def _init(self):
         with self.connect() as conn:
             conn.executescript(SCHEMA)
+            self._add_missing_columns(conn)
+
+    @staticmethod
+    def _add_missing_columns(conn):
+        """CREATE TABLE IF NOT EXISTS leaves an older database's table as it
+        was, so a column added to COLUMN_MAP since would be missing from it.
+        Add any such column, empty. Additive only - nothing is dropped or
+        rewritten, and the change is idempotent."""
+        have = {row["name"] for row in conn.execute("PRAGMA table_info(roles)")}
+        for field in COLUMN_MAP.values():
+            if field not in have:
+                conn.execute(f"ALTER TABLE roles ADD COLUMN {field} TEXT")
 
     def get_meta(self, key, default=None):
         with self.connect() as conn:
