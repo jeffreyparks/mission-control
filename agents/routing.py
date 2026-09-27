@@ -41,6 +41,7 @@ FALLBACK_TAGS = {
     "role-cat": "T1",
     "org-sectors": "T1",
     "close-reason": "T1",
+    "role-function": "T1",
     "content-radar": "T2",
 }
 

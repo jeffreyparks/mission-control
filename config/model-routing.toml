@@ -27,6 +27,10 @@ enabled = true
 #   2.8s. Disagreements are wording, not meaning.
 "org-sectors" = "T1"
 
+# role-function: what kind of work a role is (job_intel.ROLE_FUNCTIONS), for every
+#   role, independent of the employer's sector. Fixed vocabulary, title-driven.
+"role-function" = "T1"
+
 # close-reason: one-off backfill filing old closing notes under a Close Reason
 #   (scripts/backfill_close_reason.py). Short notes, fixed vocabulary.
 "close-reason" = "T1"

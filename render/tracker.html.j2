@@ -179,11 +179,12 @@
         <tr data-rec="{{ r.recommendation or '' }}"
             data-status="{{ r.status or '' }}"
             data-id="{{ r.store_id or '' }}"
-            data-blob="{{ (r.org ~ ' ' ~ r.title ~ ' ' ~ (r.sector or '') ~ ' ' ~ (r.role_cat or '') ~ ' ' ~ (r.suggested_role_cat or '') ~ ' ' ~ (r.suggestion_reason or '') ~ ' ' ~ (r.why or '') ~ ' ' ~ (r.seniority_read or ''))|lower }}">
+            data-blob="{{ (r.org ~ ' ' ~ r.title ~ ' ' ~ (r.sector or '') ~ ' ' ~ (r.role_function or '') ~ ' ' ~ (r.role_cat or '') ~ ' ' ~ (r.suggested_role_cat or '') ~ ' ' ~ (r.suggestion_reason or '') ~ ' ' ~ (r.why or '') ~ ' ' ~ (r.seniority_read or ''))|lower }}">
           <td class="selcell"></td>
           <td><div class="org">{{ r.org }}</div><div class="sector">{{ r.sector or '—' }}</div></td>
           <td>
             {% if r.url %}<a href="{{ r.url }}" target="new" rel="noopener">{{ r.title }}</a>{% else %}{{ r.title }}{% endif %}
+            {% if r.role_function %}<div class="sector">{{ r.role_function }}</div>{% endif %}
             {% if r.why %}
             <details class="why"><summary>Fit read</summary>
               <div class="body">

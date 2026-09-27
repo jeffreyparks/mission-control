@@ -31,6 +31,7 @@ OUTPUT: artifacts/jobs/intel-YYYY-MM-DD.json
       "org":           str,
       "title":         str,
       "sector":        str | null,            # e.g. "Tech - Advertising"
+      "role_function": str | null,            # one of ROLE_FUNCTIONS, whatever the sector
       "url":           str | null,
       "location":      str | null,
       "role_cat":      str | null,            # user column, tracker rows only
@@ -167,6 +168,21 @@ DEFAULT_FIT_BATCH_SIZE = 6
 CAT_BATCH_SIZE = 50
 CAT_TOKENS_PER_ROLE = 150
 
+# What kind of work a role is, whoever the employer. Distinct from Sector,
+# which is the employer's industry: a data scientist at a bank is "Data
+# Science & ML" at a "Finance - Banking" org. Distinct from Role Cat too, which
+# is the candidate's own archetypes and is "none" for most postings. Every role
+# gets a function, so decisions can be read against it later.
+ROLE_FUNCTIONS = [
+    "Data & Analytics", "Data Science & ML", "Engineering", "Product", "Design",
+    "Marketing", "Sales & BD", "Customer Success", "Finance & Accounting",
+    "Operations", "People & HR", "Legal & Compliance", "Research", "Other",
+]
+
+# Bump when the function prompt or ROLE_FUNCTIONS changes.
+FUNCTION_PROMPT_VERSION = 1
+FUNCTION_TOKENS_PER_ROLE = 60
+
 
 def load_fit_batch_size(scanner):
     """Roles per fit call. Editable in config/job-sources.yaml under
@@ -192,8 +208,8 @@ def load_max_live_roles(scanner):
         return DEFAULT_MAX_LIVE_ROLES
 
 
-NEW_COLUMNS = ["Fit Score", "Fit Rationale", "Recommendation", "Sector", "Days To Outcome",
-               SUGGESTED_CAT_COLUMN]
+NEW_COLUMNS = ["Fit Score", "Fit Rationale", "Recommendation", "Sector", "Function",
+               "Days To Outcome", SUGGESTED_CAT_COLUMN]
 
 # Written by merge_categories, carried forward verbatim when a role is unchanged.
 CAT_FIELDS = ["suggested_role_cat", "suggestion_confidence", "suggestion_reason"]
@@ -418,6 +434,21 @@ def make_cat_validator(batch, valid_ids):
     return validate
 
 
+def make_function_validator(batch):
+    wanted = {role["id"] for role in batch}
+    allowed = set(ROLE_FUNCTIONS)
+
+    def validate(data):
+        rows = _as_list(data)
+        if not rows:
+            return False
+        seen = {row.get("id") for row in rows
+                if isinstance(row, dict) and row.get("function") in allowed}
+        return len(wanted & seen) >= max(1, int(len(wanted) * 0.8))
+
+    return validate
+
+
 def make_sector_validator(orgs):
     wanted = set(orgs)
 
@@ -512,6 +543,7 @@ class JobIntel:
                 "days_to_outcome": days,
                 "outcome_display": display,
                 "close_reason": _clean(row.get("Close Reason")),
+                "role_function": _clean(row.get("Function")),
                 "notes": _clean(row.get("Notes")),
                 "comp_range": _clean(row.get("Range")),
                 "jd": "",
@@ -679,6 +711,7 @@ class JobIntel:
                 "days_to_outcome": None,
                 "outcome_display": None,
                 "close_reason": None,
+                "role_function": None,
                 "notes": None,
                 "comp_range": _clean(job.get("comp_range")),
                 "jd": _strip_html(job.get("description")),
@@ -1137,6 +1170,116 @@ Return ONLY a JSON array, one object per role, echoing the id exactly:
                 verdicts[item["id"]] = item
 
 
+    # ---------------- role function ----------------
+
+    def _function_cache_path(self):
+        return self.base_dir / "data/role-functions.json"
+
+    def load_function_cache(self):
+        """{role_id: {"fingerprint": str, "role_function": str|None}}"""
+        try:
+            return json.loads(self._function_cache_path().read_text())
+        except (OSError, json.JSONDecodeError):
+            return {}
+
+    def save_function_cache(self, cache):
+        path = self._function_cache_path()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(cache, indent=2, sort_keys=True))
+
+    @classmethod
+    def function_fingerprint(cls, role):
+        """Hash of everything a function tag depends on: the vocabulary and
+        the same org/title/JD text the categoriser reads."""
+        raw = f"v{FUNCTION_PROMPT_VERSION}|{'|'.join(ROLE_FUNCTIONS)}\n{cls._cat_block(role)}"
+        return hashlib.sha1(raw.encode("utf-8")).hexdigest()[:16]
+
+    def _function_prompt(self, batch):
+        listed = "\n".join(f"  - {name}" for name in ROLE_FUNCTIONS)
+        roles_text = "\n\n".join(self._cat_block(role) for role in batch)
+        return f"""Tag each job posting with its FUNCTION: the kind of work the person in
+the role does day to day.
+
+THE FUNCTIONS (use the exact text):
+{listed}
+
+RULES:
+  - Judge the work, not the employer. A data scientist at a bank is "Data Science
+    & ML", not "Finance & Accounting"; an accountant at a tech company is
+    "Finance & Accounting", not "Engineering".
+  - "Data & Analytics" is analysis, BI, reporting and analytics engineering;
+    "Data Science & ML" is modelling, experimentation, measurement science and ML.
+  - A people manager is tagged with the function of the team they lead.
+  - "Other" only when none of the functions is a reasonable read.
+
+ROLES:
+{roles_text}
+
+Return ONLY a JSON array, one object per role, echoing the id exactly:
+[{{"id": "<id from brackets>", "function": "<one of the functions>"}}]"""
+
+    def tag_functions(self, roles):
+        """Set role["role_function"] on every role, from cache where the
+        fingerprint still matches. Returns the number sent to the model."""
+        cache = self.load_function_cache()
+        todo = []
+        for role in roles:
+            fp = self.function_fingerprint(role)
+            hit = cache.get(role["id"])
+            if hit and hit.get("fingerprint") == fp and not self.refresh:
+                role["role_function"] = hit.get("role_function")
+            else:
+                role["function_fingerprint"] = fp
+                todo.append(role)
+        if not todo:
+            print("  functions: all roles cached")
+            return 0
+
+        batches = [todo[i:i + CAT_BATCH_SIZE] for i in range(0, len(todo), CAT_BATCH_SIZE)]
+        print(f"  tagging function for {len(todo)} role(s) in {len(batches)} call(s)...", flush=True)
+        verdicts = {}
+        for num, chunk in enumerate(batches, 1):
+            self._judge_function_chunk(chunk, verdicts, label=str(num))
+
+        tagged = 0
+        for role in todo:
+            answer = _clean((verdicts.get(role["id"]) or {}).get("function"))
+            role["role_function"] = answer if answer in ROLE_FUNCTIONS else None
+            fp = role.pop("function_fingerprint", None)
+            # Only a real answer is cached: a role the model skipped is retried
+            # next run instead of being remembered as untaggable.
+            if role["role_function"]:
+                cache[role["id"]] = {"fingerprint": fp, "role_function": role["role_function"]}
+                tagged += 1
+        self.save_function_cache(cache)
+        print(f"  functions: {tagged} tagged, {len(todo) - tagged} left blank")
+        return len(todo)
+
+    def _judge_function_chunk(self, chunk, verdicts, label=""):
+        """One function-tagging call, halving the chunk if it fails."""
+        try:
+            data = self.llm.complete_json(
+                self._function_prompt(chunk),
+                tag=f"role-function-{len(chunk)}",
+                validate=make_function_validator(chunk),
+                max_tokens=output_budget(len(chunk), per_item=FUNCTION_TOKENS_PER_ROLE),
+            )
+        except LLMError as exc:
+            if len(chunk) > 1:
+                half = len(chunk) // 2
+                print(f"    ! function batch {label} failed ({exc}); splitting into "
+                      f"{half} + {len(chunk) - half}")
+                self._judge_function_chunk(chunk[:half], verdicts, f"{label}a")
+                self._judge_function_chunk(chunk[half:], verdicts, f"{label}b")
+            else:
+                print(f"    ! could not tag function for {chunk[0].get('id')}: {exc}")
+            return
+
+        wanted = {r["id"] for r in chunk}
+        for item in _as_list(data) or []:
+            if isinstance(item, dict) and item.get("id") in wanted:
+                verdicts[item["id"]] = item
+
     def load_jd_cache(self):
         """Descriptions for manually added roles, keyed by role id.
 
@@ -1445,6 +1588,8 @@ Return ONLY a JSON object mapping each company name exactly as given to its sect
                 df.at[idx, "Recommendation"] = role["recommendation"]
             if role.get("sector"):
                 df.at[idx, "Sector"] = role["sector"]
+            if role.get("role_function"):
+                df.at[idx, "Function"] = role["role_function"]
             if role.get("days_to_outcome") is not None:
                 df.at[idx, "Days To Outcome"] = role["days_to_outcome"]
 
@@ -1540,6 +1685,7 @@ Return ONLY a JSON object mapping each company name exactly as given to its sect
             for field in CAT_FIELDS:
                 role.setdefault(field, None)
         self.categorize_roles(roles, load_archetypes(self.base_dir, df))
+        self.tag_functions(roles)
 
         sectors = self.enrich_orgs({r["org"] for r in roles})
         for role in roles:
