@@ -97,7 +97,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).parent))
 
 from llm import LLM, output_budget, LLMError            # noqa: E402
-from context import context_block        # noqa: E402
+from context import context_block, learned_block        # noqa: E402
 from job_scanner import JobScanner       # noqa: E402
 from profile_keywords import load_keywords, matches_exclude   # noqa: E402
 from store import COLUMN_MAP             # noqa: E402 - the column contract only, not the Store
@@ -480,6 +480,11 @@ class JobIntel:
         self.max_live_roles = load_max_live_roles(self.scanner) if max_live_roles is None else max_live_roles
         self.llm = LLM(self.base_dir, model=model)
         self.ctx = context_block(self.base_dir)
+        # Fit judgement only - the categoriser, sector labels and radar do not
+        # read it. Like profile.md, it is not in the fit fingerprint: approving
+        # a new version guides new and edited roles, and --refresh re-judges
+        # the rest, instead of every approval silently re-billing the tracker.
+        self.learned = learned_block(self.base_dir)
 
     # ---------------- role universe ----------------
 
@@ -799,7 +804,8 @@ class JobIntel:
 
         The output schema sits here, BEFORE the roles, so everything variable is
         strictly at the end - a cache prefix has to be a prefix."""
-        return f"""{self.ctx}
+        learned = f"\n{self.learned}" if self.learned else ""
+        return f"""{self.ctx}{learned}
 
 === TASK: HONEST FIT ANALYSIS ===
 You are the candidate's blunt career advisor. Judge each role below on real fit for

@@ -42,6 +42,7 @@ FALLBACK_TAGS = {
     "org-sectors": "T1",
     "close-reason": "T1",
     "role-function": "T1",
+    "preferences": "T3",
     "content-radar": "T2",
 }
 

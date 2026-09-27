@@ -4,6 +4,8 @@ Mission Control runner.
 Cadences:
   daily   - profile scanners, job intel, HTML build
   weekly  - content radar (runs when the newest radar is >= 7 days old)
+  weekly  - learned-preferences draft, me/learned.draft.md (>= 7 days old);
+            it is only a draft - nothing changes until you approve it
 
 Job roles are judged by Job Intel (LLM fit analysis) by default. Intel sends only
 NEW or EDITED roles to the model and reuses stored verdicts for everything else,
@@ -12,7 +14,7 @@ so a normal day costs close to nothing.
 Usage:
   uv run run_daily.py                 # respect cadences
   uv run run_daily.py --force-radar   # run the radar regardless of cadence
-  uv run run_daily.py --only jobs     # one stage: profiles|jobs|radar|history|render
+  uv run run_daily.py --only jobs     # one stage: profiles|jobs|radar|preferences|history|render
   uv run run_daily.py --radar-only    # radar now + rebuild pages, no job scan
   uv run run_daily.py --refresh-intel # re-judge every role from scratch (full price)
   uv run run_daily.py --no-intel      # legacy keyword JobScanner instead of intel
@@ -76,7 +78,7 @@ def log_routing():
         import routing
     except Exception:  # noqa: BLE001
         return
-    for tag in ("job-fit", "role-cat", "org-sectors", "content-radar"):
+    for tag in ("job-fit", "role-cat", "role-function", "org-sectors", "content-radar", "preferences"):
         ladder = routing.ladder_for_tag(tag)
         target = ladder[0].split("/", 1)[-1] if ladder else "claude CLI default"
         log(f"   route: {tag:14s} -> {target}")
@@ -143,6 +145,13 @@ def run_radar():
     return f"radar: {Path(out).name}" if out else "radar: no output"
 
 
+def run_preferences():
+    from preferences import write_draft
+    out = write_draft(ws())
+    return (f"preferences draft: {out.name} - review, then "
+            f"uv run agents/preferences.py --approve") if out else "preferences: no draft"
+
+
 def run_history():
     from history import History
     out = History(ws()).run()
@@ -168,6 +177,7 @@ STAGES = {
     "profiles": run_profiles,
     "jobs": run_jobs,
     "radar": run_radar,
+    "preferences": run_preferences,
     "history": run_history,
     "render": run_render,
 }
@@ -228,6 +238,13 @@ def main():
         stage(f"content radar (weekly - {why})", run_radar)
     else:
         log(f"-> content radar skipped ({why})")
+
+    from preferences import draft_is_due
+    due, why = draft_is_due(ws())
+    if due:
+        stage(f"learned-preferences draft (weekly - {why})", run_preferences)
+    else:
+        log(f"-> learned-preferences draft skipped ({why})")
 
     stage("history snapshot + deltas (daily)", run_history)
     stage("static html", run_render)

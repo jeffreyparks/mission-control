@@ -5,6 +5,7 @@ here is committed to git; templates/me/ ships the placeholder shape a fresh
 checkout starts from.
 """
 import hashlib
+import re
 from pathlib import Path
 
 
@@ -46,6 +47,28 @@ def load_context(base_dir):
         "resume": _resume_text(base_dir),
         "goals": goals_text,
     }
+
+
+def learned_block(base_dir):
+    """The candidate's APPROVED learned preferences (me/learned.md), or "".
+
+    Written by agents/preferences.py from past decisions, as a draft the
+    candidate approves - an unapproved me/learned.draft.md is never read here.
+    HTML comments (the draft's evidence counts and review notes) are stripped:
+    the judge reads the guidance, not the bookkeeping."""
+    path = Path(base_dir) / "me/learned.md"
+    if not path.exists():
+        return ""
+    text = re.sub(r"<!--.*?-->", "", path.read_text(), flags=re.S)
+    text = "\n".join(line for line in text.splitlines() if line.strip()).strip()
+    if not text:
+        return ""
+    return (
+        "=== LEARNED PREFERENCES (from the candidate's own past decisions) ===\n"
+        "Weigh these alongside the profile. They record what the candidate has\n"
+        "actually passed on and pursued; they never override facts in the JD.\n"
+        f"{text}\n"
+    )
 
 
 def context_block(base_dir, max_resume_chars=6000):

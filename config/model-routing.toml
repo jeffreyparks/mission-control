@@ -38,6 +38,11 @@ enabled = true
 # content-radar: summarise articles and repos. Weekly, tolerant of paraphrase.
 "content-radar" = "T2"
 
+# preferences: the weekly learned-preferences draft (agents/preferences.py).
+#   One call a week, and it shapes what the fit judge reads, so it is judged
+#   at the same tier as job-fit.
+"preferences" = "T3"
+
 # job-fit: the judgement you actually read and act on, so it starts at the
 # frontier tier rather than being routed down. It is named here like every
 # other call - an unrouted tag has no model name, which the Anthropic API
