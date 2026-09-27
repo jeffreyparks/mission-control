@@ -465,11 +465,18 @@ def evaluate(base_dir, force=False, llm=None, log=print, now=None):
         "tokens_in": stats.get("api_input_tokens") or None,
         "tokens_out": stats.get("api_output_tokens") or None,
     }
+    from profile_drafts import draft_for_latest, unpublished_findings
+    findings = synth["findings"] + unpublished_findings(base_dir, judged)
     evaluation_id = store.add_evaluation(record)
-    counts = store.sync_findings(evaluation_id, synth["findings"], now=record["created_at"])
-    log(f"   evaluation {evaluation_id}: {len(synth['findings'])} findings "
+    counts = store.sync_findings(evaluation_id, findings, now=record["created_at"])
+    log(f"   evaluation {evaluation_id}: {len(findings)} findings "
         f"({counts['new']} new, {counts['kept']} standing, {counts['fixed']} fixed, "
-        f"{counts['reopened']} reopened); {llm.report()}")
+        f"{counts['reopened']} reopened)")
+    try:
+        draft_for_latest(base_dir, llm=llm, log=log, now=now)
+    except Exception as exc:  # noqa: BLE001 - drafts must not sink a stored evaluation
+        log(f"   drafts failed: {exc}")
+    log(f"   {llm.report()}")
     return evaluation_id, why
 
 

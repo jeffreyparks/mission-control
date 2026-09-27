@@ -56,6 +56,25 @@
   .dismissbox.on{display:flex}
   .finding[hidden]{display:none}
   #livebadge{display:none}
+  .draft{background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 20px;margin:0 0 14px;box-shadow:var(--shadow)}
+  .draft h3{margin:0 0 2px}
+  .draft .lim{font-size:12px;color:var(--ink-mute);margin-bottom:10px}
+  .draft .cur{font-size:13px;color:var(--ink-dim);margin:0 0 10px;white-space:pre-wrap;overflow-wrap:anywhere}
+  .draft .cur b,.draft .apr b{color:var(--ink-mute);font-weight:500;margin-right:6px}
+  .draft .apr{font-size:13px;color:var(--ok-ink);background:var(--ok-bg);border-radius:6px;padding:6px 10px;
+    margin:0 0 10px;white-space:pre-wrap;overflow-wrap:anywhere}
+  .opt{border-top:1px solid var(--line-soft);padding:10px 0}
+  .opt .txt{font-size:14px;color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere}
+  .opt .om{font-size:12px;color:var(--ink-mute);margin-top:4px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .opt .om .over{color:var(--bad);font-weight:600}
+  .chk{font-size:11px;font-weight:600;color:var(--warn-ink);background:var(--warn-bg);border-radius:999px;padding:1px 8px}
+  .approvebox{display:none;margin-top:10px;gap:8px;flex-direction:column}
+  body.live .approvebox{display:flex}
+  .approvebox textarea{background:var(--bg-card);color:var(--ink);border:1px solid var(--line);border-radius:6px;
+    padding:8px;font-family:var(--sans);font-size:13px;min-height:70px;width:100%;box-sizing:border-box}
+  .approvebox .row2{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--ink-mute)}
+  body:not(.live) .useopt{display:none}
   @media(max-width:800px){.srcgrid{grid-template-columns:1fr}.drift{grid-template-columns:1fr}}
 </style></head>
 <body>
@@ -193,6 +212,41 @@
     {% endfor %}
     </div>
   </section>
+
+  <section>
+    <div class="sec-label"><b>06</b>Drafts</div>
+    <h2>Replacement text, for you to approve and paste in yourself</h2>
+    {% if drafts %}
+    <p class="count">Drafted from your resume and current profiles only. "Needs check" names words that appear in neither - verify or cut them. Nothing is applied anywhere.</p>
+    {% for d in drafts %}
+    <div class="draft" data-key="{{ d.key }}" data-limit="{{ d.limit }}">
+      <h3>{{ d.label }}</h3>
+      <div class="lim">Limit {{ d.limit }} characters · {{ label(d.source_key) }}</div>
+      <p class="cur"><b>Now</b>{{ d.current|truncate(500) if d.current else '(empty)' }}</p>
+      {% if d.approved %}<p class="apr"><b>Approved</b>{{ d.approved }}</p>{% endif %}
+      {% for o in d.options %}
+      <div class="opt">
+        <div class="txt">{{ o.text }}</div>
+        <div class="om">
+          <span class="{{ 'over' if o.over }}">{{ o.chars }} / {{ d.limit }}{% if o.over %} over the limit{% endif %}</span>
+          {% for w in o.needs_check %}<span class="chk" title="not in your resume or profiles">needs check: {{ w }}</span>{% endfor %}
+          {% if o.addressed %}<span>addresses: {{ o.addressed|join('; ') }}</span>{% endif %}
+          <button type="button" class="act copyopt">Copy</button>
+          <button type="button" class="act useopt">Use this</button>
+        </div>
+      </div>
+      {% endfor %}
+      <div class="approvebox">
+        <textarea maxlength="{{ d.limit }}">{{ d.approved or (d.options[0].text if d.options else '') }}</textarea>
+        <div class="row2"><button type="button" class="act approve">Approve</button>
+          <span class="cnt"></span><span class="flash"></span></div>
+      </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <p class="empty">No drafts yet. Run <code>mc profile --drafts</code>.</p>
+    {% endif %}
+  </section>
   {% endif %}
 
   <footer>
@@ -229,6 +283,14 @@
   window.__profileFilter = function(){ recount(); var on = bar.querySelector('.f.on'); apply(on ? on.dataset.show : 'active'); };
 })();
 
+// Copy works on any copy of the page, static or live.
+document.querySelectorAll('.copyopt').forEach(function(b){
+  b.addEventListener('click', function(){
+    var text = b.closest('.opt').querySelector('.txt').textContent;
+    if(navigator.clipboard) navigator.clipboard.writeText(text).then(function(){ b.textContent = 'Copied'; });
+  });
+});
+
 // Optional writeback, as on the tracker: a static copy stays read-only; with the
 // dashboard running, /api/health answers and the triage buttons appear.
 (function(){
@@ -240,7 +302,27 @@
     document.body.classList.add('live');
     var badge = document.getElementById('livebadge'); if(badge) badge.style.display = 'inline-block';
     document.querySelectorAll('#findings .finding').forEach(wire);
+    document.querySelectorAll('.draft').forEach(wireDraft);
   }).catch(function(){ /* read-only, as designed */ });
+
+  function wireDraft(el){
+    var ta = el.querySelector('textarea'), cnt = el.querySelector('.cnt'), flash = el.querySelector('.approvebox .flash');
+    var limit = parseInt(el.dataset.limit, 10);
+    function count(){ cnt.textContent = ta.value.length + ' / ' + limit; }
+    count(); ta.addEventListener('input', count);
+    el.querySelectorAll('.useopt').forEach(function(b){
+      b.addEventListener('click', function(){ ta.value = b.closest('.opt').querySelector('.txt').textContent; count(); ta.focus(); });
+    });
+    el.querySelector('.approve').addEventListener('click', function(e){
+      var b = e.target; b.disabled = true;
+      fetch(API + '/api/persona', {method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({field: el.dataset.key, text: ta.value})})
+      .then(function(r){ return r.json().then(function(j){ return r.ok ? j : Promise.reject(j); }); })
+      .then(function(){ flash.className = 'flash saved'; flash.textContent = 'approved - saved to me/persona.md'; })
+      .catch(function(err){ flash.className = 'flash failed'; flash.textContent = (err && err.error) || 'failed'; })
+      .finally(function(){ b.disabled = false; });
+    });
+  }
 
   function wire(el){
     var box = el.querySelector('.dismissbox'), flash = el.querySelector('.flash');

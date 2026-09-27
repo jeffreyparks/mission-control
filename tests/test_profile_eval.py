@@ -390,3 +390,13 @@ def test_report(base):
 def test_no_snapshots_means_no_evaluation(base):
     (eid, why), llm = _evaluate(base, [], keep=[])
     assert eid is None and "no profile snapshots" in why and llm.calls == []
+
+
+def test_evaluation_raises_approved_but_not_published(base):
+    import profile_drafts
+    store = Store(base)
+    store.save_snapshot_if_changed(_site())
+    profile_drafts.approve_field(base, "site:https://me.dev/#tagline", "A tagline not yet on the site")
+    _evaluate(base, [SQL_GAP], keep=["f1"])
+    titles = [f["title"] for f in store.profile_findings()]
+    assert "Approved Site tagline (https://me.dev/) is not on the profile yet" in titles

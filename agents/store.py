@@ -209,6 +209,7 @@ CREATE TABLE IF NOT EXISTS profile_evaluations (
     scores        TEXT NOT NULL,
     shares        TEXT,
     per_source    TEXT,
+    drafts        TEXT,
     summary       TEXT,
     model_calls   INTEGER,
     tokens_in     INTEGER,
@@ -305,6 +306,15 @@ class Store:
         with self.connect() as conn:
             conn.executescript(SCHEMA)
             self._add_missing_columns(conn)
+            self._add_profile_columns(conn)
+
+    @staticmethod
+    def _add_profile_columns(conn):
+        """Columns added to the profile tables after they first shipped. Additive
+        and idempotent, like _add_missing_columns."""
+        have = {row["name"] for row in conn.execute("PRAGMA table_info(profile_evaluations)")}
+        if "drafts" not in have:
+            conn.execute("ALTER TABLE profile_evaluations ADD COLUMN drafts TEXT")
 
     @staticmethod
     def _add_missing_columns(conn):
@@ -386,7 +396,7 @@ class Store:
 
     # ---------- profile evaluations and findings ----------
 
-    _EVAL_JSON = ("snapshot_ids", "brief", "scores", "shares", "per_source")
+    _EVAL_JSON = ("snapshot_ids", "brief", "scores", "shares", "per_source", "drafts")
 
     def add_evaluation(self, record):
         """Store one evaluation. JSON-shaped fields are serialised here."""
@@ -461,6 +471,17 @@ class Store:
                                  (f"resolved by evaluation {evaluation_id}", row["id"]))
                     counts["fixed"] += 1
         return counts
+
+    def set_evaluation_drafts(self, evaluation_id, drafts):
+        with self.connect() as conn:
+            conn.execute("UPDATE profile_evaluations SET drafts=? WHERE id=?",
+                         (json.dumps(drafts, ensure_ascii=False), evaluation_id))
+
+    def log_change(self, field, old, new, actor="dashboard"):
+        """A change-log line for something that is not a role field (approved
+        profile text, for instance), so every edit stays traceable."""
+        with self.connect() as conn:
+            self._log(conn, None, field, old, new, actor)
 
     def previous_evaluation(self):
         """The evaluation before the latest, for showing how scores moved."""

@@ -31,6 +31,8 @@ not changed what it says about you.
     uv run agents/profile_snapshot.py --collect-only    # snapshot now, print what changed
     uv run agents/profile_snapshot.py                   # snapshot, then evaluate if due
     uv run agents/profile_snapshot.py --force --report  # evaluate now, write a markdown copy
+    uv run agents/profile_snapshot.py --drafts          # redo draft rewrites for the latest evaluation
+    uv run agents/profile_snapshot.py --approve         # me/persona.draft.md -> me/persona.md
 """
 import argparse
 import hashlib
@@ -220,6 +222,10 @@ def main():
                     help="evaluate now, even if nothing changed")
     ap.add_argument("--report", action="store_true",
                     help="write a markdown copy of the latest evaluation to artifacts/profiles/")
+    ap.add_argument("--drafts", action="store_true",
+                    help="redo the draft rewrites for the latest evaluation (one model call) and stop")
+    ap.add_argument("--approve", action="store_true",
+                    help="promote me/persona.draft.md to me/persona.md (previous copy kept) and stop")
     workspace.add_argument(ap)
     args = ap.parse_args()
     if args.collect_only and (args.force or args.brief):
@@ -227,6 +233,19 @@ def main():
 
     base = workspace.resolve(args.user)
     workspace.load_env(base)
+
+    if args.approve:
+        from profile_drafts import approve_draft
+        out = approve_draft(base)
+        print(f"approved: {out} (previous copy in me/persona.prev.md)" if out
+              else "nothing to approve - no me/persona.draft.md yet (run mc profile --drafts)")
+        return 0 if out else 1
+
+    if args.drafts:
+        from profile_drafts import draft_for_latest
+        out = draft_for_latest(base)
+        print(f"drafts: {out}" if out else "no evaluation yet - run mc profile first")
+        return 0 if out else 1
 
     if args.brief:
         from profile_brief import build_brief, render_brief

@@ -339,7 +339,16 @@ def profile_context(base=None):
         banners.append(f"Voice was judged against {'your Career Positioning section' if persona == 'Career Positioning' else 'a neutral default'}. "
                        f"Add a ## Persona section to me/profile.md to say exactly how you want to come across.")
 
+    from profile_drafts import load_approved
+    approved = load_approved(base or _default_base())
+    titles = {f["id"]: f["title"] for f in all_findings}
+    drafts = [{**d, "approved": approved.get(d["key"]),
+               "options": [{**o, "addressed": [titles[i] for i in o.get("addresses", []) if i in titles]}
+                           for o in d["options"]]}
+              for d in (ev.get("drafts") or [])]
+
     ctx.update({
+        "drafts": drafts,
         "prev": prev, "brief": brief, "keys": keys, "rows": rows, "asks": asks,
         "shares": [(k, (ev["shares"] or {}).get(k)) for k in keys],
         "cards": cards, "findings": all_findings, "banners": banners,
