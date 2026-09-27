@@ -82,6 +82,18 @@ EDITABLE = {
 
 FREE_TEXT_MAX_LEN = {"notes": 2000, "comp_range": 120}
 
+APPLIED_STATUS = "03 Applied"
+
+
+def _after_write(store, role_id, field, value, result):
+    """Knock-on writes for a field that just changed. Moving a role to Applied
+    starts its application record (date applied, stage) where those are empty.
+    Returns {field: value} for anything filled, for the response."""
+    if field == "status" and value == APPLIED_STATUS and result["changed"]:
+        return store.fill_applied_defaults(role_id, actor="dashboard")
+    return {}
+
+
 # Ceiling on a single bulk write. Not a performance limit - a blast-radius one:
 # an accidental "select all" on a tracker that has grown past this should be
 # refused loudly rather than rewritten silently.
@@ -311,6 +323,7 @@ class Handler(SimpleHTTPRequestHandler):
         try:
             with _write_lock:
                 result = self.store.set_field(role_id, field, value or None, actor="dashboard")
+                filled = _after_write(self.store, role_id, field, value, result)
         except KeyError:
             return self._json({"error": f"unknown role: {role_id}"}, 404)
         except ValueError as exc:
@@ -323,6 +336,7 @@ class Handler(SimpleHTTPRequestHandler):
             "changed": result["changed"],
             "old": result["old"],
             "new": result["new"],
+            "filled": filled,
         })
 
     def _bulk(self, payload):
@@ -356,6 +370,7 @@ class Handler(SimpleHTTPRequestHandler):
             for role_id in dict.fromkeys(ids):     # de-duplicated, order kept
                 try:
                     outcome = self.store.set_field(role_id, field, value or None, actor="dashboard")
+                    filled = _after_write(self.store, role_id, field, value, outcome)
                 except KeyError:
                     results.append({"id": role_id, "error": f"unknown role: {role_id}"})
                     failed += 1
@@ -366,7 +381,8 @@ class Handler(SimpleHTTPRequestHandler):
                     continue
                 changed += 1 if outcome["changed"] else 0
                 results.append({"id": role_id, "changed": outcome["changed"],
-                                "old": outcome["old"], "new": outcome["new"]})
+                                "old": outcome["old"], "new": outcome["new"],
+                                "filled": filled})
 
         return self._json({
             "ok": failed == 0,

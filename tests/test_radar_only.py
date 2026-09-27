@@ -48,6 +48,14 @@ rc = main()
 check("a normal run still skips a radar that is not due", "radar" not in ran and "jobs" in ran,
       str(ran))
 
+rc = main("--profile-only")
+check("--profile-only exits 0", rc == 0, str(rc))
+check("--profile-only runs profiles then render only", ran == ["profiles", "render"], str(ran))
+
+rc = main("--profile-only", "--radar-only")
+check("--profile-only with --radar-only is rejected", rc not in (0, None) and ran == [],
+      f"{rc} {ran}")
+
 if fails:
     print(f"\n{len(fails)} failed")
     sys.exit(1)

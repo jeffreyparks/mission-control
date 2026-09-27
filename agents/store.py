@@ -57,12 +57,16 @@ COLUMN_MAP = {
     "Days To Outcome": "days_to_outcome",
     "Role Cat (suggested)": "role_cat_suggested",
     "Close Reason": "close_reason",
+    "Stage": "stage",
+    "Next Action": "next_action",
+    "Next Action Due": "next_action_due",
 }
 DB_TO_HEADER = {v: k for k, v in COLUMN_MAP.items()}
 
 # Columns a human owns. The pipeline never overwrites these.
 MANUAL_FIELDS = ("role_cat", "priority", "status", "outcomes", "notes",
-                 "date_applied", "comp_range", "other_links", "close_reason")
+                 "date_applied", "comp_range", "other_links", "close_reason",
+                 "stage", "next_action", "next_action_due")
 
 # Why YOU passed on a role - the user's side of a close, kept apart from
 # Outcomes, which records what the employer did. The split matters to anything
@@ -82,6 +86,22 @@ CLOSE_REASONS = [
 
 # The subset that expresses a preference about the role itself.
 PREFERENCE_CLOSE_REASONS = frozenset(CLOSE_REASONS[:6])
+
+# Where an applied role has got to. Kept apart from Status on purpose: status
+# says whether a role is live at all, and everything downstream (the tracker,
+# the preferences learner) keys off its five values. Stage only means anything
+# while a role is "03 Applied".
+STAGES = ["Applied", "Screen", "Interviewing", "Final", "Offer"]
+
+# Vocabularies for the Applications tab's contacts and touches. The store
+# records whatever it is given; the dashboard is the gate that enforces these.
+CONTACT_KINDS = ["recruiter", "hiring_manager", "referrer", "peer", "other"]
+TOUCH_CHANNELS = ["email", "linkedin", "call", "interview", "portal", "other"]
+TOUCH_DIRECTIONS = ["out", "in"]
+
+CONTACT_FIELDS = ("org", "role_id", "name", "title", "kind", "url", "email",
+                  "source", "notes")
+TOUCH_FIELDS = ("role_id", "contact_id", "date", "channel", "direction", "summary")
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS roles (
@@ -112,8 +132,45 @@ CREATE TABLE IF NOT EXISTS roles (
     days_to_outcome     REAL,
     role_cat_suggested  TEXT,
     close_reason        TEXT,
+    stage               TEXT,
+    next_action         TEXT,
+    next_action_due     TEXT,
     created_at          TEXT,
     updated_at          TEXT
+);
+
+-- People at an org: recruiters, hiring managers, referrers. Keyed to the org
+-- rather than a role, since one recruiter often covers several roles there;
+-- role_id is set only when a contact is about one role in particular.
+CREATE TABLE IF NOT EXISTS contacts (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    org         TEXT NOT NULL,
+    role_id     TEXT,
+    name        TEXT NOT NULL,
+    title       TEXT,
+    kind        TEXT,
+    url         TEXT,
+    email       TEXT,
+    source      TEXT,
+    notes       TEXT,
+    archived    INTEGER NOT NULL DEFAULT 0,
+    created_at  TEXT,
+    updated_at  TEXT
+);
+
+-- Every contact with an employer about a role, either way: an email sent, a
+-- recruiter's reply, an interview. contact_id is empty for things like
+-- "submitted via the portal".
+CREATE TABLE IF NOT EXISTS touches (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    role_id     TEXT NOT NULL,
+    contact_id  INTEGER,
+    date        TEXT NOT NULL,
+    channel     TEXT,
+    direction   TEXT,
+    summary     TEXT,
+    archived    INTEGER NOT NULL DEFAULT 0,
+    created_at  TEXT
 );
 
 CREATE TABLE IF NOT EXISTS changes (
@@ -126,6 +183,19 @@ CREATE TABLE IF NOT EXISTS changes (
     ts         TEXT
 );
 
+-- What each public profile said, one row per CHANGE (agents/profile_snapshot.py).
+-- A row is written only when `hash` differs from the latest row for that
+-- source_key. Not to be confused with profile_snapshot in data/history.db,
+-- which holds a daily LinkedIn keyword-coverage number for the home page.
+CREATE TABLE IF NOT EXISTS profile_snapshots (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    source_key   TEXT NOT NULL,
+    source       TEXT NOT NULL,
+    captured_at  TEXT NOT NULL,
+    hash         TEXT NOT NULL,
+    payload      TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS meta (
     key   TEXT PRIMARY KEY,
     value TEXT
@@ -133,6 +203,8 @@ CREATE TABLE IF NOT EXISTS meta (
 
 CREATE INDEX IF NOT EXISTS idx_changes_role ON changes(role_id);
 CREATE INDEX IF NOT EXISTS idx_roles_status ON roles(status);
+CREATE INDEX IF NOT EXISTS idx_touches_role ON touches(role_id);
+CREATE INDEX IF NOT EXISTS idx_profile_snapshots_key ON profile_snapshots(source_key, id);
 """
 
 
@@ -223,6 +295,53 @@ class Store:
 
     def is_empty(self):
         return self.count() == 0
+
+    # ---------- profile snapshots ----------
+
+    def latest_snapshot(self, source_key):
+        """The most recent stored snapshot for one source, as a dict, or None."""
+        with self.connect() as conn:
+            row = conn.execute(
+                "SELECT id, payload FROM profile_snapshots WHERE source_key=? "
+                "ORDER BY id DESC LIMIT 1", (source_key,)).fetchone()
+        if row is None:
+            return None
+        snap = json.loads(row["payload"])
+        snap["_id"] = row["id"]
+        return snap
+
+    def latest_snapshots(self, source=None):
+        """The newest snapshot for every source_key (optionally one source)."""
+        query = ("SELECT p.id, p.payload FROM profile_snapshots p JOIN "
+                 "(SELECT source_key, MAX(id) id FROM profile_snapshots GROUP BY source_key) m "
+                 "ON p.id = m.id")
+        params = ()
+        if source:
+            query += " WHERE p.source=?"
+            params = (source,)
+        with self.connect() as conn:
+            rows = conn.execute(query + " ORDER BY p.source_key", params).fetchall()
+        return [{**json.loads(r["payload"]), "_id": r["id"]} for r in rows]
+
+    def save_snapshot_if_changed(self, snap):
+        """Store `snap` unless its hash matches the latest for its source_key.
+
+        Returns (changed, snapshot_id): the new row's id, or the unchanged
+        latest row's. Either way the check time is recorded in meta, so "last
+        checked" is known even for a profile that has not changed in months.
+        """
+        latest = self.latest_snapshot(snap["source_key"])
+        self.set_meta(f"profile_checked:{snap['source_key']}", snap["captured_at"])
+        if latest and latest.get("hash") == snap["hash"]:
+            return False, latest["_id"]
+        with self.connect() as conn:
+            cur = conn.execute(
+                "INSERT INTO profile_snapshots(source_key, source, captured_at, hash, payload) "
+                "VALUES (?,?,?,?,?)",
+                (snap["source_key"], snap["source"], snap["captured_at"], snap["hash"],
+                 json.dumps(snap, ensure_ascii=False, default=str)),
+            )
+            return True, cur.lastrowid
 
     # ---------- ids ----------
 
@@ -344,6 +463,159 @@ class Store:
             )
             self._log(conn, role_id, field, old, value, actor)
         return {"changed": True, "old": old, "new": _norm(value)}
+
+    def fill_applied_defaults(self, role_id, today=None, actor="dashboard"):
+        """When a role moves to "03 Applied", start its application record:
+        date_applied is today and stage is "Applied" - each only if empty, so
+        re-opening a role never rewrites the date you first applied. Returns
+        {field: value} for whatever was filled."""
+        today = today or datetime.now().strftime("%Y-%m-%d")
+        with self.connect() as conn:
+            row = conn.execute("SELECT date_applied, stage FROM roles WHERE id=?",
+                               (role_id,)).fetchone()
+        if row is None:
+            raise KeyError(role_id)
+        filled = {}
+        for field, value in (("date_applied", today), ("stage", STAGES[0])):
+            if _norm(row[field]) is None:
+                self.set_field(role_id, field, value, actor=actor)
+                filled[field] = value
+        return filled
+
+    # ---------- contacts and touches ----------
+    #
+    # Same rules as roles: every write is logged to `changes`, and nothing is
+    # deleted - archiving hides a row, the row and its history stay. Each log
+    # entry is filed under the role it concerns (a contact's role_id may be
+    # empty), with field "contact:<id>" or "touch:<id>" and the values as JSON.
+
+    @staticmethod
+    def _clean_fields(fields, allowed):
+        unknown = set(fields) - set(allowed)
+        if unknown:
+            raise ValueError(f"unknown field(s): {', '.join(sorted(unknown))}")
+        return {k: _norm(v) for k, v in fields.items()}
+
+    @staticmethod
+    def _require_role(conn, role_id):
+        if conn.execute("SELECT 1 FROM roles WHERE id=?", (role_id,)).fetchone() is None:
+            raise KeyError(role_id)
+
+    def get_contact(self, contact_id):
+        with self.connect() as conn:
+            row = conn.execute("SELECT * FROM contacts WHERE id=?", (contact_id,)).fetchone()
+        return dict(row) if row else None
+
+    def add_contact(self, actor="dashboard", **fields):
+        """A new contact. org and name are required; role_id, if given, must
+        be a role that exists. Returns the stored row."""
+        values = self._clean_fields(fields, CONTACT_FIELDS)
+        if not values.get("org") or not values.get("name"):
+            raise ValueError("a contact needs an org and a name")
+        now = datetime.now().isoformat(timespec="seconds")
+        with self.connect() as conn:
+            if values.get("role_id"):
+                self._require_role(conn, values["role_id"])
+            cols = list(values)
+            cur = conn.execute(
+                f"INSERT INTO contacts({','.join(cols)},created_at,updated_at) "
+                f"VALUES({','.join('?' * len(cols))},?,?)",
+                [*values.values(), now, now],
+            )
+            contact_id = cur.lastrowid
+            self._log(conn, values.get("role_id"), f"contact:{contact_id}", None,
+                      json.dumps(values), actor)
+        return self.get_contact(contact_id)
+
+    def update_contact(self, contact_id, actor="dashboard", **fields):
+        """Change some of a contact's fields. Only the fields that actually
+        change are written and logged."""
+        values = self._clean_fields(fields, CONTACT_FIELDS + ("archived",))
+        if "archived" in values:
+            values["archived"] = 1 if values["archived"] else 0
+        for required in ("org", "name"):
+            if required in values and not values[required]:
+                raise ValueError(f"a contact's {required} cannot be empty")
+        with self.connect() as conn:
+            row = conn.execute("SELECT * FROM contacts WHERE id=?", (contact_id,)).fetchone()
+            if row is None:
+                raise KeyError(contact_id)
+            if values.get("role_id"):
+                self._require_role(conn, values["role_id"])
+            deltas = {f: v for f, v in values.items() if not _same(row[f], v)}
+            if not deltas:
+                return {"changed": False, "contact": dict(row)}
+            conn.execute(
+                f"UPDATE contacts SET {','.join(f'{f}=?' for f in deltas)}, updated_at=? WHERE id=?",
+                [*deltas.values(), datetime.now().isoformat(timespec="seconds"), contact_id],
+            )
+            self._log(conn, deltas.get("role_id", row["role_id"]), f"contact:{contact_id}",
+                      json.dumps({f: row[f] for f in deltas}), json.dumps(deltas), actor)
+        return {"changed": True, "contact": self.get_contact(contact_id)}
+
+    def archive_contact(self, contact_id, actor="dashboard"):
+        return self.update_contact(contact_id, actor=actor, archived=True)
+
+    def contacts_for(self, org, include_archived=False):
+        """Everyone at an org, matched without regard to case or surrounding
+        spaces, so a contact shows on every role there."""
+        query = "SELECT * FROM contacts WHERE lower(trim(org)) = lower(trim(?))"
+        if not include_archived:
+            query += " AND archived = 0"
+        with self.connect() as conn:
+            rows = conn.execute(query + " ORDER BY name, id", (org or "",)).fetchall()
+        return [dict(r) for r in rows]
+
+    def get_touch(self, touch_id):
+        with self.connect() as conn:
+            row = conn.execute("SELECT * FROM touches WHERE id=?", (touch_id,)).fetchone()
+        return dict(row) if row else None
+
+    def add_touch(self, actor="dashboard", **fields):
+        """A new touch. role_id and date are required and the role must exist;
+        contact_id, if given, must be a contact that exists."""
+        values = self._clean_fields(fields, TOUCH_FIELDS)
+        if not values.get("role_id") or not values.get("date"):
+            raise ValueError("a touch needs a role_id and a date")
+        now = datetime.now().isoformat(timespec="seconds")
+        with self.connect() as conn:
+            self._require_role(conn, values["role_id"])
+            if values.get("contact_id") is not None:
+                found = conn.execute("SELECT 1 FROM contacts WHERE id=?",
+                                     (values["contact_id"],)).fetchone()
+                if found is None:
+                    raise KeyError(values["contact_id"])
+            cols = list(values)
+            cur = conn.execute(
+                f"INSERT INTO touches({','.join(cols)},created_at) "
+                f"VALUES({','.join('?' * len(cols))},?)",
+                [*values.values(), now],
+            )
+            touch_id = cur.lastrowid
+            self._log(conn, values["role_id"], f"touch:{touch_id}", None,
+                      json.dumps(values), actor)
+        return self.get_touch(touch_id)
+
+    def archive_touch(self, touch_id, actor="dashboard"):
+        with self.connect() as conn:
+            row = conn.execute("SELECT * FROM touches WHERE id=?", (touch_id,)).fetchone()
+            if row is None:
+                raise KeyError(touch_id)
+            if row["archived"]:
+                return {"changed": False, "touch": dict(row)}
+            conn.execute("UPDATE touches SET archived=1 WHERE id=?", (touch_id,))
+            self._log(conn, row["role_id"], f"touch:{touch_id}",
+                      json.dumps({"archived": 0}), json.dumps({"archived": 1}), actor)
+        return {"changed": True, "touch": self.get_touch(touch_id)}
+
+    def touches_for(self, role_id, include_archived=False):
+        """A role's touches, newest first."""
+        query = "SELECT * FROM touches WHERE role_id=?"
+        if not include_archived:
+            query += " AND archived = 0"
+        with self.connect() as conn:
+            rows = conn.execute(query + " ORDER BY date DESC, id DESC", (role_id,)).fetchall()
+        return [dict(r) for r in rows]
 
 
     def backup_db(self, keep=KEEP_BACKUPS):

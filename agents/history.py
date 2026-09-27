@@ -20,7 +20,10 @@ appending a duplicate.
 SOURCES (read only, never recomputed):
   artifacts/jobs/intel-*.json          roles + run counts
   artifacts/content/radar-*.json       picks
-  artifacts/profiles/linkedin-scan-*.md  "### Keyword Coverage: NN%"
+  artifacts/profiles/linkedin-scan-*.md  "### Keyword Coverage: NN%" (old reports, up to
+                                         the Profile stage; kept so the trend starts real)
+  profile_snapshots in mission-control.db  today's LinkedIn coverage, from the latest
+                                         snapshot and the current Target Keywords
 
 OUTPUT: artifacts/history/deltas-YYYY-MM-DD.json (plus get_deltas() for the renderer)
 
@@ -197,6 +200,37 @@ class History:
                 "VALUES (?,?,?)", (date, "linkedin", float(match.group(1))))
         return 1
 
+    def snapshot_linkedin_capture(self, date=None):
+        """Today's LinkedIn keyword coverage, from the latest profile snapshot.
+
+        The Profile stage stopped writing the daily linkedin-scan reports, so
+        this is where the home page's coverage number now comes from. Same
+        measure as those reports: the profile's own text (identity, positions,
+        skills), not posts, against the current Target Keywords.
+        """
+        agents = str(Path(__file__).resolve().parent)
+        if agents not in sys.path:
+            sys.path.insert(0, agents)
+        from profile_keywords import keyword_coverage, load_keywords
+        from store import Store
+
+        snap = Store(self.base_dir).latest_snapshot("linkedin:export")
+        if not snap:
+            return 0
+        text = "\n".join(
+            [str(v) for v in (snap.get("identity") or {}).values()]
+            + [f"{i.get('title', '')}\n{i.get('text', '')}"
+               for i in snap.get("items") or [] if i.get("kind") != "post"])
+        coverage = keyword_coverage(text, load_keywords(self.base_dir)["target"])
+        if coverage is None:
+            return 0
+        with self.conn:
+            self.conn.execute(
+                "INSERT OR REPLACE INTO profile_snapshot (date, platform, coverage_pct) "
+                "VALUES (?,?,?)",
+                (date or datetime.now().strftime("%Y-%m-%d"), "linkedin", float(coverage["pct"])))
+        return 1
+
     def backfill(self):
         """Load every dated artifact on disk, so history starts real, not empty.
 
@@ -209,6 +243,7 @@ class History:
             stats["radar"] += 1 if self.snapshot_radar(path) else 0
         for path in self._linkedin_files():
             stats["linkedin"] += self.snapshot_linkedin(path)
+        stats["linkedin"] += self.snapshot_linkedin_capture()
         return stats
 
     # ----------------------------------------------------------------- dates
