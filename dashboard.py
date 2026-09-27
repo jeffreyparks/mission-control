@@ -24,6 +24,7 @@ Deliberate limits:
 """
 import argparse
 import json
+import re
 import subprocess
 import sys
 import threading
@@ -52,7 +53,8 @@ def _server_commit():
 SERVER_COMMIT = _server_commit()
 SERVER_STARTED_AT = datetime.now().isoformat(timespec="seconds")
 
-from store import CLOSE_REASONS, Store  # noqa: E402
+from store import (CLOSE_REASONS, CONTACT_KINDS, STAGES, TOUCH_CHANNELS,  # noqa: E402
+                   TOUCH_DIRECTIONS, Store)
 from job_intel import JobIntel, load_archetypes, OUTCOME_LABELS, _clean, _date, parse_outcome  # noqa: E402
 
 sys.path.insert(0, str(BASE))
@@ -82,11 +84,42 @@ EDITABLE = {
     # input rather than a dropdown.
     "notes": None,
     "comp_range": None,   # rendered as "Salary" in the dashboard
+    # The Applications tab. Stage is where an applied role has got to; a
+    # Next Action you type overrides the suggested one, and a Next Action Due
+    # on its own snoozes it.
+    "stage": [""] + STAGES,
+    "next_action": None,
+    "next_action_due": None,
+    "date_applied": None,
 }
 
-FREE_TEXT_MAX_LEN = {"notes": 2000, "comp_range": 120}
+FREE_TEXT_MAX_LEN = {"notes": 2000, "comp_range": 120, "next_action": 200}
+
+# Free-text fields that must hold a calendar date (YYYY-MM-DD) or be empty.
+DATE_FIELDS = {"date_applied", "next_action_due"}
+_DATE_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
+
+
+def _valid_date(value):
+    if not isinstance(value, str) or not _DATE_RE.fullmatch(value):
+        return False
+    try:
+        datetime.strptime(value, "%Y-%m-%d")
+    except ValueError:
+        return False
+    return True
+
+
+# Contacts and touches: the text fields each may carry and their length caps,
+# and the fields that come from a closed vocabulary.
+CONTACT_TEXT_MAX_LEN = {"org": 200, "role_id": 200, "name": 200, "title": 200,
+                        "url": 500, "email": 254, "source": 200, "notes": 1000}
+TOUCH_TEXT_MAX_LEN = {"role_id": 200, "summary": 1000}
+CONTACT_VOCAB = {"kind": CONTACT_KINDS}
+TOUCH_VOCAB = {"channel": TOUCH_CHANNELS, "direction": TOUCH_DIRECTIONS}
 
 APPLIED_STATUS = "03 Applied"
+CLOSED_STATUS = "04 Closed"
 
 
 def _after_write(store, role_id, field, value, result):
@@ -281,9 +314,69 @@ class Handler(SimpleHTTPRequestHandler):
             limit = FREE_TEXT_MAX_LEN.get(field)
             if limit and value and len(value) > limit:
                 return value, f"{field} is too long (max {limit} characters)"
+        if field in DATE_FIELDS and value and not _valid_date(value):
+            return value, f"{field} must be a date, YYYY-MM-DD"
         if field == "priority" and value not in (None, ""):
             value = float(value)
         return value, None
+
+    @staticmethod
+    def _validate_record(payload, text_caps, vocab, extra=()):
+        """(clean fields, error) for a contact or touch payload. Every field
+        must be known; text is capped; vocabulary fields must be blank or in
+        their list. `extra` names fields the caller checks itself."""
+        unknown = set(payload) - set(text_caps) - set(vocab) - set(extra)
+        if unknown:
+            return None, f"unknown field(s): {', '.join(sorted(unknown))}"
+        clean = {}
+        for field, value in payload.items():
+            if field in extra:
+                continue
+            if value is not None and not isinstance(value, str):
+                return None, f"{field} must be text"
+            if field in vocab and (value or "") not in [""] + vocab[field]:
+                return None, f"value not allowed for {field}: {value!r}"
+            limit = text_caps.get(field)
+            if limit and value and len(value) > limit:
+                return None, f"{field} is too long (max {limit} characters)"
+            clean[field] = value or None
+        return clean, None
+
+    def _validate_contact(self, payload, creating):
+        clean, error = self._validate_record(payload, CONTACT_TEXT_MAX_LEN, CONTACT_VOCAB,
+                                             extra=() if creating else ("archived",))
+        if error:
+            return None, error
+        if creating and not (clean.get("org") and clean.get("name")):
+            return None, "a contact needs an org and a name"
+        url = clean.get("url")
+        if url and not re.match(r"https?://", url, re.I):
+            return None, "url must start with http:// or https://"
+        email = clean.get("email")
+        if email and (" " in email or "@" not in email):
+            return None, "email does not look like an address"
+        if "archived" in payload:
+            if not isinstance(payload["archived"], bool):
+                return None, "archived must be true or false"
+            clean["archived"] = payload["archived"]
+        return clean, None
+
+    def _validate_touch(self, payload):
+        clean, error = self._validate_record(payload, TOUCH_TEXT_MAX_LEN, TOUCH_VOCAB,
+                                             extra=("date", "contact_id"))
+        if error:
+            return None, error
+        if not clean.get("role_id"):
+            return None, "a touch needs a role_id"
+        if not _valid_date(payload.get("date")):
+            return None, "date must be a date, YYYY-MM-DD"
+        clean["date"] = payload["date"]
+        contact_id = payload.get("contact_id")
+        if contact_id is not None:
+            if isinstance(contact_id, bool) or not isinstance(contact_id, int):
+                return None, "contact_id must be a number"
+            clean["contact_id"] = contact_id
+        return clean, None
 
     def log_message(self, fmt, *args):
         if not self.quiet:
@@ -338,6 +431,9 @@ class Handler(SimpleHTTPRequestHandler):
                 # Kept apart from `editable`, which names ROLE fields: a finding's
                 # state is written through /api/finding/<id>, never /api/role/.
                 "finding_states": list(Store.FINDING_STATES),
+                "date_fields": sorted(DATE_FIELDS),
+                "vocab": {"contact_kind": CONTACT_KINDS, "touch_channel": TOUCH_CHANNELS,
+                          "touch_direction": TOUCH_DIRECTIONS},
                 # relative to this server's own base, not the module-level BASE
                 # constant - those differ for a temp-dir store such as a test.
                 "db": str(self.store.db_path.relative_to(self.store.base_dir)),
@@ -355,13 +451,36 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json({"error": "not found"}, 404)
         return super().do_GET()
 
+    # POST routes. Exact paths first, then the patterned ones; the role route
+    # is last so /api/role/<id>/close is not read as a role id.
+    _POST_EXACT = {
+        "/api/roles/bulk": "_bulk",
+        "/api/contacts": "_create_contact",
+        "/api/touches": "_create_touch",
+        "/api/persona": "_persona",
+        "/api/settings": "_settings",
+    }
+    _POST_PATTERNS = [
+        (re.compile(r"/api/finding/([^/]+)/?"), "_finding"),
+        (re.compile(r"/api/role/([^/]+)/close/?"), "_close_role"),
+        (re.compile(r"/api/contact/(\d+)/?"), "_update_contact"),
+        (re.compile(r"/api/touch/(\d+)/?"), "_update_touch"),
+        (re.compile(r"/api/role/([^/]+)/?"), "_set_role_field"),
+    ]
+
     def do_POST(self):
         path = urlparse(self.path).path
         if not self._loopback():
             return self._json({"error": "loopback only"}, 403)
-        if (path not in ("/api/roles/bulk",) and not path.startswith("/api/role/")
-                and not path.startswith("/api/finding/")
-                and path not in ("/api/persona", "/api/settings")):
+
+        handler, args = self._POST_EXACT.get(path), ()
+        if handler is None:
+            for pattern, name in self._POST_PATTERNS:
+                match = pattern.fullmatch(path)
+                if match:
+                    handler, args = name, match.groups()
+                    break
+        if handler is None:
             return self._json({"error": "not found"}, 404)
 
         try:
@@ -369,18 +488,12 @@ class Handler(SimpleHTTPRequestHandler):
             payload = json.loads(self.rfile.read(length) or b"{}")
         except (ValueError, json.JSONDecodeError):
             return self._json({"error": "bad json"}, 400)
+        if not isinstance(payload, dict):
+            return self._json({"error": "body must be a json object"}, 400)
 
-        if path == "/api/roles/bulk":
-            return self._bulk(payload)
-        if path.startswith("/api/finding/"):
-            return self._finding(path[len("/api/finding/"):].strip("/"), payload)
-        if path == "/api/persona":
-            return self._persona(payload)
-        if path == "/api/settings":
-            return self._settings(payload)
+        return getattr(self, handler)(payload, *args)
 
-        role_id = path[len("/api/role/"):].strip("/")
-
+    def _set_role_field(self, payload, role_id):
         field = payload.get("field")
         value = payload.get("value")
         value, error = self._validate(field, value)
@@ -406,7 +519,7 @@ class Handler(SimpleHTTPRequestHandler):
             "filled": filled,
         })
 
-    def _finding(self, raw_id, payload):
+    def _finding(self, payload, raw_id):
         """Your triage of one Profile finding: {state, note}."""
         try:
             finding_id = int(raw_id)
@@ -466,6 +579,89 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json({"error": str(exc)}, 400)
         return self._json({"ok": True, "group": group, "field": field,
                            "changed": old != new, "value": new})
+
+    def _close_role(self, payload, role_id):
+        """Close a role in one action: status to Closed, plus what the employer
+        did (Outcomes) and why you passed (Close Reason), either of which may
+        be blank. Blank leaves the field as it was - it never erases an outcome
+        you wrote by hand. Each write is its own logged set_field, like bulk."""
+        unknown = set(payload) - {"outcome", "close_reason"}
+        if unknown:
+            return self._json({"error": f"unknown field(s): {', '.join(sorted(unknown))}"}, 400)
+        writes = [("status", CLOSED_STATUS)]
+        for key, field in (("outcome", "outcomes"), ("close_reason", "close_reason")):
+            value = payload.get(key)
+            value, error = self._validate(field, value)
+            if error:
+                return self._json({"error": error}, 400)
+            if value:
+                writes.append((field, value))
+
+        results = {}
+        try:
+            with _write_lock:
+                if self.store.get_role(role_id) is None:
+                    raise KeyError(role_id)
+                for field, value in writes:
+                    results[field] = self.store.set_field(role_id, field, value, actor="dashboard")
+        except KeyError:
+            return self._json({"error": f"unknown role: {role_id}"}, 404)
+        return self._json({"ok": True, "id": role_id, "changes": results})
+
+    def _create_contact(self, payload):
+        clean, error = self._validate_contact(payload, creating=True)
+        if error:
+            return self._json({"error": error}, 400)
+        try:
+            with _write_lock:
+                contact = self.store.add_contact(actor="dashboard", **clean)
+        except KeyError:
+            return self._json({"error": f"unknown role: {clean.get('role_id')}"}, 404)
+        except ValueError as exc:
+            return self._json({"error": str(exc)}, 400)
+        return self._json({"ok": True, "contact": contact})
+
+    def _update_contact(self, payload, contact_id):
+        clean, error = self._validate_contact(payload, creating=False)
+        if error:
+            return self._json({"error": error}, 400)
+        if not clean:
+            return self._json({"error": "nothing to update"}, 400)
+        try:
+            with _write_lock:
+                if self.store.get_contact(int(contact_id)) is None:
+                    return self._json({"error": f"unknown contact: {contact_id}"}, 404)
+                result = self.store.update_contact(int(contact_id), actor="dashboard", **clean)
+        except KeyError:
+            return self._json({"error": f"unknown role: {clean.get('role_id')}"}, 404)
+        except ValueError as exc:
+            return self._json({"error": str(exc)}, 400)
+        return self._json({"ok": True, **result})
+
+    def _create_touch(self, payload):
+        clean, error = self._validate_touch(payload)
+        if error:
+            return self._json({"error": error}, 400)
+        try:
+            with _write_lock:
+                touch = self.store.add_touch(actor="dashboard", **clean)
+        except KeyError as exc:
+            return self._json({"error": f"unknown role or contact: {exc.args[0]}"}, 404)
+        except ValueError as exc:
+            return self._json({"error": str(exc)}, 400)
+        return self._json({"ok": True, "touch": touch})
+
+    def _update_touch(self, payload, touch_id):
+        """Touches are only ever archived - to fix one, archive it and log it
+        again, so the log keeps what was first recorded."""
+        if payload != {"archived": True}:
+            return self._json({"error": 'the only update to a touch is {"archived": true}'}, 400)
+        try:
+            with _write_lock:
+                result = self.store.archive_touch(int(touch_id), actor="dashboard")
+        except KeyError:
+            return self._json({"error": f"unknown touch: {touch_id}"}, 404)
+        return self._json({"ok": True, **result})
 
     def _bulk(self, payload):
         """One field, one value, many rows - the batch behind the dashboard's

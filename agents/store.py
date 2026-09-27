@@ -561,6 +561,12 @@ class Store:
         columns = list(COLUMN_MAP.keys()) + ["_id"]
         return pd.DataFrame(records, columns=columns) if records else pd.DataFrame(columns=columns)
 
+    def get_role(self, role_id):
+        """One roles row as a dict, db column names, or None."""
+        with self.connect() as conn:
+            row = conn.execute("SELECT * FROM roles WHERE id=?", (role_id,)).fetchone()
+        return dict(row) if row else None
+
     def history(self, role_id=None, limit=50):
         query = "SELECT * FROM changes"
         args = []

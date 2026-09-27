@@ -16,10 +16,10 @@ Later phases, not covered here:
 
 ## The date applied has to be filled in first
 
-When this was written, none of the 17 applied roles in the `default` workspace
-had `date_applied` set, and only 2 had a record in the change log of when they
-became `03 Applied`. Every nudge is timed from `date_applied`, so filling it in
-comes first (step 2 below).
+Nothing set `date_applied` when a role moved to `03 Applied`, so an existing
+workspace can have applied roles with no date at all, and the change log only
+records the move for roles moved since it existed. Every nudge is timed from
+`date_applied`, so filling it in comes first (step 2 below).
 
 ## 1. Data changes (`agents/store.py`)
 
