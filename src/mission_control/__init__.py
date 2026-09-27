@@ -64,7 +64,7 @@ mc render [--user NAME]
     (no scans, no LLM calls)
 
 mc profile --collect-only [--user NAME]
-    snapshot LinkedIn, GitHub and BlueSky now and print which changed
+    snapshot LinkedIn, GitHub, BlueSky and your sites now and print which changed
     (no LLM calls; a snapshot is stored only when the profile's words changed)
 
 mc users

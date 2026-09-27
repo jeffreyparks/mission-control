@@ -346,7 +346,7 @@ def test_stage_stores_changes_and_isolates_failures(base, monkeypatch):
 def test_collectors_follow_the_workspace_identity(base):
     found, skipped = profile_snapshot.collectors(base, env={"GITHUB_USERNAME": "me"})
     assert [label for label, _ in found] == ["github", "linkedin"]
-    assert skipped == ["bluesky (no BLUESKY_HANDLE)"]
+    assert skipped == ["bluesky (no BLUESKY_HANDLE)", "sites (none in config/profile.yaml)"]
 
 
 # ---------- home page coverage ----------

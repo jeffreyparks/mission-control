@@ -2,8 +2,8 @@
 Profile snapshots: what each public profile says, captured and fingerprinted.
 
 The Profile stage replaces the three daily scanner reports. Each source has a
-collector (github_scanner, linkedin_scanner, bluesky_scanner) that returns ONE
-snapshot in the shape below. The stage stores a snapshot only when its
+collector (github_scanner, linkedin_scanner, bluesky_scanner, site_scanner)
+that returns ONE snapshot in the shape below. The stage stores a snapshot only when its
 fingerprint differs from the last one stored for that source, so an unchanged
 profile adds nothing - and, from step 3 of the Profile spec, costs no model
 calls either.
@@ -42,6 +42,39 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 ITEM_HASHED_KEYS = ("kind", "id", "date", "title", "text", "url", "weight", "meta")
+
+CONFIG_DEFAULTS = {
+    "sites": [],
+    "linkedin_stale_days": 30,
+    "reevaluate_days": 7,
+    "pursued_min_fit": 8,
+    "pursued_window_days": 60,
+}
+
+
+def load_config(base_dir):
+    """config/profile.yaml - the workspace's copy if it has one, else the repo's.
+
+    Missing keys fall back to CONFIG_DEFAULTS, and each site is normalised to
+    {"url", "max_pages"}; a site entry may also be a bare URL string.
+    """
+    import yaml
+    import workspace
+
+    path = workspace.config_path(base_dir, "profile.yaml")
+    raw = {}
+    if path.exists():
+        raw = yaml.safe_load(path.read_text()) or {}
+    config = {**CONFIG_DEFAULTS, **{k: v for k, v in raw.items() if v is not None}}
+    sites = []
+    for entry in config.get("sites") or []:
+        if isinstance(entry, str):
+            entry = {"url": entry}
+        if isinstance(entry, dict) and entry.get("url"):
+            sites.append({"url": str(entry["url"]).strip(),
+                          "max_pages": int(entry.get("max_pages") or 0)})
+    config["sites"] = sites
+    return config
 
 
 def make_snapshot(source, source_key, identity, items, stats=None):
@@ -105,6 +138,9 @@ def collectors(base_dir, env=None):
     from github_scanner import GitHubScanner
     from linkedin_scanner import LinkedInScanner
     from bluesky_scanner import BlueSkyScanner
+    from site_scanner import SiteScanner
+
+    config = load_config(base_dir)
 
     found, skipped = [], []
     github_user = (env.get("GITHUB_USERNAME") or "").strip()
@@ -114,11 +150,17 @@ def collectors(base_dir, env=None):
         found.append(("github", GitHubScanner(github_user, base_dir).collect))
     else:
         skipped.append("github (no GITHUB_USERNAME)")
-    found.append(("linkedin", LinkedInScanner(base_dir).collect))
+    found.append(("linkedin",
+                  LinkedInScanner(base_dir, stale_days=config["linkedin_stale_days"]).collect))
     if bluesky_handle:
         found.append(("bluesky", BlueSkyScanner(bluesky_handle, base_dir).collect))
     else:
         skipped.append("bluesky (no BLUESKY_HANDLE)")
+    for site in config["sites"]:
+        found.append((f"site {site['url']}",
+                      SiteScanner(site["url"], base_dir, max_pages=site["max_pages"]).collect))
+    if not config["sites"]:
+        skipped.append("sites (none in config/profile.yaml)")
     return found, skipped
 
 

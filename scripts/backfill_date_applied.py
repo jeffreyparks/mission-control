@@ -31,11 +31,11 @@ BASE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(BASE))
 sys.path.insert(0, str(BASE / "agents"))
 
-import workspace                       # noqa: E402
-from job_intel import parse_outcome    # noqa: E402
-from store import STAGES, Store        # noqa: E402
+import workspace                                      # noqa: E402
+from applications import BACKFILL_ACTOR as ACTOR      # noqa: E402
+from job_intel import parse_outcome                   # noqa: E402
+from store import STAGES, Store                       # noqa: E402
 
-ACTOR = "backfill_date_applied"
 APPLIED = "03 Applied"
 
 # Outcome label (job_intel.OUTCOME_LABELS) -> stage. Labels that end an
