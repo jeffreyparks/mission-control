@@ -45,11 +45,23 @@ for i in range(6):
     rows.append(row(f"Bank{i}", "Director, Data Science", "04 Closed", "Finance - Banking",
                     "Data Science & ML", "Not a fit - industry", notes="Industry fit"))
 # Tech roles pursued - applied, researching, or heard back from the employer.
+# The model had said skip on three of them: overrides.
 for i in range(3):
-    rows.append(row(f"Tech{i}", "Director, Data Science", "03 Applied", "Tech - SaaS", "Data Science & ML"))
+    rows.append(row(f"Tech{i}", "Director, Data Science", "03 Applied", "Tech - SaaS",
+                    "Data Science & ML", rec="skip"))
 rows.append(row("Tech3", "Director, Data Science", "02 Researching", "Tech - SaaS", "Data Science & ML"))
 rows.append(row("Tech4", "Director, Data Science", "04 Closed", "Tech - SaaS", "Data Science & ML",
                 outcome="Rejected (3d)"))
+# Retail passed on five times, but the model had said skip every time: a real
+# pattern the model already follows, so it must not become a candidate.
+for i in range(5):
+    rows.append(row(f"Shop{i}", "Director, Analytics", "04 Closed", "Retail - E-commerce",
+                    "Data & Analytics", "Comp", rec="skip"))
+# Twelve engineering passes with only two overrides: under the share bar, so
+# the model already agrees in all but name.
+for i in range(12):
+    rows.append(row(f"Eng{i}", "Software Engineer", "04 Closed", "Energy - Utilities",
+                    "Engineering", "Not a fit - function", rec="apply" if i < 2 else "skip"))
 # None of these say anything about what you want: all must be ignored.
 rows.append(row("Media0", "Director", "04 Closed", "Media - News", "Marketing", "Chose another role at org"))
 rows.append(row("Media1", "Director", "04 Closed", "Media - News", "Marketing", "Posting closed"))
@@ -71,7 +83,7 @@ later = datetime.now() + timedelta(days=prefs.WINDOW_DAYS + 5)
 check("decisions outside the window are ignored", prefs.load_decisions(store, now=later) == [])
 
 ev = prefs.build_evidence(decisions)
-check("baseline", ev["decisions"] == 11 and ev["pursued"] == 5, str(ev["decisions"]))
+check("baseline", ev["decisions"] == 28 and ev["pursued"] == 5, str(ev["decisions"]))
 by_value = {(c["dimension"], c["value"]): c for c in ev["candidates"]}
 fin = by_value.get(("industry", "Finance"))
 check("finance becomes an avoid candidate", fin and fin["lean"] == "avoid", str(list(by_value)))
@@ -80,7 +92,15 @@ check("notes travel with the candidate", fin and fin["sample_notes"]
       and "Industry fit" in fin["sample_notes"][0])
 tech = by_value.get(("industry", "Tech"))
 check("tech becomes a seek candidate", tech and tech["lean"] == "seek", str(tech))
-check("a mixed group is not a candidate", ("function", "Data Science & ML") not in by_value)
+check("a mixed group is never an avoid",
+      by_value.get(("function", "Data Science & ML"), {}).get("lean") != "avoid")
+agreed = {(c["dimension"], c["value"]) for c in ev["agreed"]}
+check("a pattern the model already follows is not a candidate",
+      ("industry", "Retail") not in by_value and ("industry", "Retail") in agreed, str(agreed))
+check("a few overrides in a big agreeing group are still agreement",
+      ("function", "Engineering") not in by_value and ("function", "Engineering") in agreed)
+check("the unspecified-level leftover is never a group",
+      not any(v == prefs.UNSPECIFIED_LEVEL for _d, v in list(by_value) + list(agreed)))
 
 # Too few decisions: nothing is a candidate.
 small = prefs.build_evidence(decisions[:4])
@@ -110,6 +130,28 @@ check("draft written, learned.md untouched", path.name == "learned.draft.md"
 check("kept statement in the draft", "Treat roles at banks as a weak fit" in draft)
 check("evidence counts come from the data", "passed 6, pursued 0 of 6" in draft, draft)
 check("dropped candidates are recorded with why", "already in the profile" in draft)
+check("patterns the model follows are listed as left out",
+      "already follows" in draft and "industry = Retail" in draft)
+
+# The model's call is read as of each decision, not today. A later refresh
+# that flips the banks to skip must not turn the overrides into agreement.
+with store.connect() as conn:
+    conn.execute("UPDATE changes SET ts='2026-01-01T00:00:00' WHERE field='status'")
+    conn.execute("INSERT INTO changes(role_id,field,old_value,new_value,actor,ts) "
+                 "SELECT id,'status','00 New find',status,'dashboard','2026-01-01T00:00:00' FROM roles")
+    for rid in [r["id"] for r in conn.execute("SELECT id FROM roles WHERE org LIKE 'Bank%'")]:
+        conn.execute("UPDATE roles SET recommendation='skip' WHERE id=?", (rid,))
+        conn.execute("INSERT INTO changes(role_id,field,old_value,new_value,actor,ts) "
+                     "VALUES(?,?,?,?,?,?)", (rid, "recommendation", "apply", "skip", "pipeline",
+                                             "2026-02-01T00:00:00"))
+later_ev = prefs.build_evidence(prefs.load_decisions(store, now=datetime(2026, 3, 1)))
+later_fin = {(c["dimension"], c["value"]): c for c in later_ev["candidates"]}.get(("industry", "Finance"))
+check("overrides are judged against the call at decision time",
+      later_fin is not None and later_fin["passed_though_model_liked"] == 6, str(later_fin))
+check("recommendation_at", prefs.recommendation_at(
+      [("2026-02-01", "apply", "skip")], "2026-01-01", "skip") == "apply"
+      and prefs.recommendation_at([("2026-02-01", "apply", "skip")], "2026-03-01", "skip") == "skip"
+      and prefs.recommendation_at([], "2026-01-01", "research") == "research")
 
 validate = prefs.make_validator(ev)
 check("validator rejects unknown ids", not validate([{"id": "c99", "keep": True, "statement": "x"}]))
