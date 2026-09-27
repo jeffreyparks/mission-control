@@ -14,7 +14,7 @@ sites: []
 # A LinkedIn export older than this many days is flagged as stale.
 linkedin_stale_days: 30
 
-# Used by the evaluation (a later step of the Profile tab):
+# What the evaluation judges your profile against:
 reevaluate_days: 7          # re-judge at least this often, even with nothing changed
-pursued_min_fit: 8          # a role scoring this or higher counts as pursued, applied or not
+pursued_min_fit: 70         # fit score (0-100) at which a role counts as pursued, applied or not
 pursued_window_days: 60     # how far back pursued roles are read

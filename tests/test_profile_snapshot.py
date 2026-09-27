@@ -2,6 +2,7 @@
 home page's LinkedIn coverage number. No network - every HTTP call is faked."""
 import csv
 import io
+import json
 import os
 import sys
 import time
@@ -284,12 +285,41 @@ def test_linkedin_stale_export_is_flagged(base):
     assert snap["stats"]["stale"] is True and snap["stats"]["age_days"] >= 45
 
 
-def test_linkedin_pdf_snapshot(base, monkeypatch):
-    pdf_text = "Jo Doe\nHead of Marketing Science\nTop Skills\nPython\nCausal Inference\nExperience\nDirector"
+PDF_TEXT = """Contact
+555-010-9999 (Mobile)
+jo.doe@example.com
+www.linkedin.com/in/jo-doe
+(LinkedIn)
+Top Skills
+Incrementality
+Causal Inference
+Jo Doe
+Head of Marketing Science | MMM & Experimentation | 12
+Years, $40M Budget
+Boston, Massachusetts, United States
+Summary
+I run measurement teams. Reach me at jo.doe@example.com or 555.010.9999.
+Experience
+Acme
+Director"""
 
+
+def test_linkedin_pdf_parses_past_the_contact_sidebar():
+    from linkedin_scanner import parse_pdf_text
+    identity, items = parse_pdf_text(PDF_TEXT)
+    assert identity == {"name": "Jo Doe",
+                        "headline": "Head of Marketing Science | MMM & Experimentation | 12 Years, $40M Budget",
+                        "location": "Boston, Massachusetts, United States"}
+    assert [i["title"] for i in items if i["kind"] == "skill"] == ["Incrementality", "Causal Inference"]
+    full = items[0]["text"]
+    assert "555" not in full and "@" not in full and "Contact" not in full
+    assert "I run measurement teams." in full
+
+
+def test_linkedin_pdf_snapshot(base, monkeypatch):
     class Page:
         def extract_text(self):
-            return pdf_text
+            return PDF_TEXT
 
     class Reader:
         def __init__(self, _path):
@@ -300,9 +330,19 @@ def test_linkedin_pdf_snapshot(base, monkeypatch):
     (base / "me/linkedin/profile.pdf").write_bytes(b"%PDF-1.4 stub")
 
     snap = LinkedInScanner(base).collect()
-    assert snap["identity"] == {"name": "Jo Doe", "headline": "Head of Marketing Science"}
-    assert [i["title"] for i in snap["items"] if i["kind"] == "skill"] == ["Python", "Causal Inference"]
+    assert snap["identity"]["headline"].startswith("Head of Marketing Science")
     assert snap["stats"]["export_file"] == "profile.pdf"
+    assert "555" not in json.dumps(snap)
+
+
+def test_linkedin_zip_text_is_scrubbed(base):
+    path = base / "me/linkedin/linkedin-export.zip"
+    with zipfile.ZipFile(path, "w") as archive:
+        archive.writestr("Profile.csv", _csv([{
+            "First Name": "Jo", "Last Name": "Doe", "Headline": "Head of Marketing Science",
+            "Summary": "Call 555-010-9999 or mail jo@example.com.", "Industry": "", "Geo Location": ""}]))
+    snap = LinkedInScanner(base).collect()
+    assert "555" not in snap["identity"]["about"] and "@" not in snap["identity"]["about"]
 
 
 def test_linkedin_newer_export_wins(base, monkeypatch):

@@ -196,6 +196,47 @@ CREATE TABLE IF NOT EXISTS profile_snapshots (
     payload      TEXT NOT NULL
 );
 
+-- One row per Profile evaluation (agents/profile_eval.py): what was judged
+-- (snapshot ids, the target brief) and the result. Counts and shares are
+-- computed in Python; only scores and wording come from a model.
+CREATE TABLE IF NOT EXISTS profile_evaluations (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    created_at    TEXT NOT NULL,
+    trigger       TEXT,
+    snapshot_ids  TEXT NOT NULL,
+    brief_hash    TEXT NOT NULL,
+    brief         TEXT NOT NULL,
+    scores        TEXT NOT NULL,
+    shares        TEXT,
+    per_source    TEXT,
+    summary       TEXT,
+    model_calls   INTEGER,
+    tokens_in     INTEGER,
+    tokens_out    INTEGER
+);
+
+-- Findings live across evaluations, matched by fingerprint, so your triage
+-- (accepted, dismissed) survives the next run. See sync_findings().
+CREATE TABLE IF NOT EXISTS profile_findings (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    fingerprint    TEXT NOT NULL UNIQUE,
+    evaluation_id  INTEGER NOT NULL,
+    first_seen     TEXT NOT NULL,
+    dimension      TEXT NOT NULL,
+    source_key     TEXT,
+    severity       TEXT NOT NULL,
+    title          TEXT NOT NULL,
+    quote          TEXT,
+    url            TEXT,
+    ask            TEXT,
+    ask_roles      INTEGER,
+    fix            TEXT,
+    rank           INTEGER,
+    came_back      INTEGER NOT NULL DEFAULT 0,
+    state          TEXT NOT NULL DEFAULT 'open',
+    state_note     TEXT
+);
+
 CREATE TABLE IF NOT EXISTS meta (
     key   TEXT PRIMARY KEY,
     value TEXT
@@ -342,6 +383,95 @@ class Store:
                  json.dumps(snap, ensure_ascii=False, default=str)),
             )
             return True, cur.lastrowid
+
+    # ---------- profile evaluations and findings ----------
+
+    _EVAL_JSON = ("snapshot_ids", "brief", "scores", "shares", "per_source")
+
+    def add_evaluation(self, record):
+        """Store one evaluation. JSON-shaped fields are serialised here."""
+        values = {k: (json.dumps(v, ensure_ascii=False, default=str) if k in self._EVAL_JSON else v)
+                  for k, v in record.items()}
+        cols = list(values)
+        with self.connect() as conn:
+            cur = conn.execute(
+                f"INSERT INTO profile_evaluations({','.join(cols)}) "
+                f"VALUES({','.join('?' * len(cols))})", list(values.values()))
+            return cur.lastrowid
+
+    def latest_evaluation(self):
+        with self.connect() as conn:
+            row = conn.execute(
+                "SELECT * FROM profile_evaluations ORDER BY id DESC LIMIT 1").fetchone()
+        if row is None:
+            return None
+        out = dict(row)
+        for key in self._EVAL_JSON:
+            out[key] = json.loads(out[key]) if out.get(key) else None
+        return out
+
+    def sync_findings(self, evaluation_id, findings, now=None):
+        """Merge one evaluation's findings into the standing list.
+
+          - a finding seen before (same fingerprint) keeps its state, and takes
+            the new wording, severity and rank
+          - a dismissed finding stays dismissed; it only reopens if its
+            severity has risen
+          - an open or accepted finding NOT raised this time becomes fixed
+          - a fixed finding raised again reopens, marked came_back
+
+        Returns {"new": n, "kept": n, "fixed": n, "reopened": n}.
+        """
+        now = now or datetime.now().isoformat(timespec="seconds")
+        rank_of = {"low": 0, "medium": 1, "high": 2}
+        counts = {"new": 0, "kept": 0, "fixed": 0, "reopened": 0}
+        seen = set()
+        fields = ("dimension", "source_key", "severity", "title", "quote", "url", "ask",
+                  "ask_roles", "fix", "rank")
+        with self.connect() as conn:
+            for f in findings:
+                seen.add(f["fingerprint"])
+                row = conn.execute("SELECT * FROM profile_findings WHERE fingerprint=?",
+                                   (f["fingerprint"],)).fetchone()
+                values = [f.get(k) for k in fields]
+                if row is None:
+                    conn.execute(
+                        f"INSERT INTO profile_findings(fingerprint, evaluation_id, first_seen, "
+                        f"{','.join(fields)}) VALUES (?,?,?,{','.join('?' * len(fields))})",
+                        [f["fingerprint"], evaluation_id, now, *values])
+                    counts["new"] += 1
+                    continue
+                state, came_back, note = row["state"], row["came_back"], row["state_note"]
+                if state == "fixed":
+                    state, came_back, note = "open", 1, None
+                    counts["reopened"] += 1
+                elif state == "dismissed" and rank_of.get(f["severity"], 0) > rank_of.get(row["severity"], 0):
+                    state, note = "open", f"reopened: severity rose to {f['severity']}"
+                    counts["reopened"] += 1
+                else:
+                    counts["kept"] += 1
+                conn.execute(
+                    f"UPDATE profile_findings SET evaluation_id=?, state=?, came_back=?, state_note=?, "
+                    f"{','.join(f'{k}=?' for k in fields)} WHERE id=?",
+                    [evaluation_id, state, came_back, note, *values, row["id"]])
+            for row in conn.execute(
+                    "SELECT id, fingerprint FROM profile_findings WHERE state IN ('open','accepted')").fetchall():
+                if row["fingerprint"] not in seen:
+                    conn.execute("UPDATE profile_findings SET state='fixed', state_note=? WHERE id=?",
+                                 (f"resolved by evaluation {evaluation_id}", row["id"]))
+                    counts["fixed"] += 1
+        return counts
+
+    def profile_findings(self, states=("open", "accepted")):
+        query = "SELECT * FROM profile_findings"
+        params = ()
+        if states:
+            query += f" WHERE state IN ({','.join('?' * len(states))})"
+            params = tuple(states)
+        order = (" ORDER BY CASE severity WHEN 'high' THEN 0 WHEN 'medium' THEN 1 ELSE 2 END,"
+                 " COALESCE(ask_roles, 0) DESC, rank")
+        with self.connect() as conn:
+            return [dict(r) for r in conn.execute(query + order, params)]
 
     # ---------- ids ----------
 

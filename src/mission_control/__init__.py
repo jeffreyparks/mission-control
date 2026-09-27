@@ -3,7 +3,7 @@
     mc setup       scaffold me/, fill in the basics, first run
     mc run         run the daily pipeline
     mc render      rebuild the static dashboard from existing data
-    mc profile     snapshot your public profiles (--collect-only)
+    mc profile     snapshot your public profiles and judge them against your targets
     mc dashboard   editable local dashboard (background by default)
     mc users       list workspaces
     mc help        show this list of commands
@@ -63,9 +63,13 @@ mc render [--user NAME]
     rebuild the static dashboard pages from that workspace's existing data
     (no scans, no LLM calls)
 
-mc profile --collect-only [--user NAME]
-    snapshot LinkedIn, GitHub, BlueSky and your sites now and print which changed
-    (no LLM calls; a snapshot is stored only when the profile's words changed)
+mc profile [--collect-only] [--brief] [--force] [--report] [--user NAME]
+    snapshot LinkedIn, GitHub, BlueSky and your sites, then judge them against
+    the roles you pursue when something changed or a week has passed
+    --collect-only   snapshot only, no LLM calls
+    --brief          print what the profile is judged against, then stop
+    --force          evaluate now even if nothing changed
+    --report         write artifacts/profiles/profile-DATE.md
 
 mc users
     list the workspaces under workspace/
@@ -210,7 +214,7 @@ def main():
     sub.add_parser("render", add_help=False,
                     help="rebuild static dashboard pages from existing data")
     sub.add_parser("profile", add_help=False,
-                    help="snapshot your public profiles (--collect-only)")
+                    help="snapshot and evaluate your public profiles")
     sub.add_parser("users", add_help=False, help="list workspaces")
     sub.add_parser("dashboard", add_help=False,
                     help="editable local dashboard (background by default)")
