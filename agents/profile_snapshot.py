@@ -29,6 +29,8 @@ likes and repost counts drift daily, and a profile that only gained a like has
 not changed what it says about you.
 
     uv run agents/profile_snapshot.py --collect-only    # snapshot now, print what changed
+    uv run agents/profile_snapshot.py                   # snapshot, then evaluate if due
+    uv run agents/profile_snapshot.py --force --report  # evaluate now, write a markdown copy
 """
 import argparse
 import hashlib
@@ -47,7 +49,7 @@ CONFIG_DEFAULTS = {
     "sites": [],
     "linkedin_stale_days": 30,
     "reevaluate_days": 7,
-    "pursued_min_fit": 8,
+    "pursued_min_fit": 70,
     "pursued_window_days": 60,
 }
 
@@ -212,16 +214,37 @@ def main():
     ap = argparse.ArgumentParser(description="Profile snapshots and evaluation.")
     ap.add_argument("--collect-only", action="store_true",
                     help="snapshot every source now - no model calls - and print what changed")
+    ap.add_argument("--brief", action="store_true",
+                    help="print the target brief (only cheap, cached tagging calls) and stop")
+    ap.add_argument("--force", action="store_true",
+                    help="evaluate now, even if nothing changed")
+    ap.add_argument("--report", action="store_true",
+                    help="write a markdown copy of the latest evaluation to artifacts/profiles/")
     workspace.add_argument(ap)
     args = ap.parse_args()
-    if not args.collect_only:
-        ap.error("only --collect-only is available so far; evaluation comes in a later step")
+    if args.collect_only and (args.force or args.brief):
+        ap.error("--collect-only makes no model calls; it cannot be combined with --force or --brief")
 
     base = workspace.resolve(args.user)
     workspace.load_env(base)
+
+    if args.brief:
+        from profile_brief import build_brief, render_brief
+        print(render_brief(build_brief(base, load_config(base))))
+        return 0
+
     result = run_profile_stage(base)
     print(summary(result))
-    return 1 if result["failed"] and not (result["changed"] or result["unchanged"]) else 0
+    if args.collect_only:
+        return 1 if result["failed"] and not (result["changed"] or result["unchanged"]) else 0
+
+    from profile_eval import evaluate, write_report
+    evaluation_id, why = evaluate(base, force=args.force)
+    print(f"evaluation: {why}" if evaluation_id is None else f"evaluation {evaluation_id} stored ({why})")
+    if args.report:
+        out = write_report(base)
+        print(f"report: {out}" if out else "report: no evaluation yet")
+    return 0
 
 
 if __name__ == "__main__":

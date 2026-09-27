@@ -38,6 +38,22 @@ enabled = true
 # content-radar: summarise articles and repos. Weekly, tolerant of paraphrase.
 "content-radar" = "T2"
 
+# profile-asks: list each pursued role's asks as short terms, so Python can count
+#   them. A tagging job, cached per description. Not yet evaluated on a cheaper tier.
+"profile-asks" = "T1"
+
+# profile-ask-merge: map different wordings of one ask to a canonical term from
+#   the same list, before Python counts. One call per brief, cached.
+"profile-ask-merge" = "T2"
+
+# profile-claims: the resume's concrete claims, for the proof check. Once per resume.
+"profile-claims" = "T2"
+
+# profile-eval-*: judge the public profile against the brief. Judgment work, at most
+#   weekly; stays on the top tier until an eval says otherwise.
+"profile-eval-source" = "T4"
+"profile-eval-synth" = "T4"
+
 # preferences: the weekly learned-preferences draft (agents/preferences.py).
 #   One call a week, and it shapes what the fit judge reads, so it is judged
 #   at the same tier as job-fit.

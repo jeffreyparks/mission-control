@@ -14,6 +14,7 @@ profile, and anything judging it should say so.
 """
 import csv
 import hashlib
+import re
 import zipfile
 from datetime import datetime
 from pathlib import Path
@@ -68,7 +69,7 @@ class LinkedInScanner:
         identity = {
             "name": " ".join(filter(None, [profile.get("First Name"), profile.get("Last Name")])),
             "headline": profile.get("Headline"),
-            "about": profile.get("Summary"),
+            "about": scrub(profile.get("Summary")),
             "industry": profile.get("Industry"),
             "location": profile.get("Geo Location"),
         }
@@ -81,14 +82,14 @@ class LinkedInScanner:
                 "id": f"{company}|{title}|{p.get('Started On', '')}",
                 "date": _month(p.get("Started On")),
                 "title": " at ".join(filter(None, [title, company])),
-                "text": p.get("Description", ""),
+                "text": scrub(p.get("Description", "")),
                 "meta": {"finished": p.get("Finished On") or None},
             })
         for s in self._csv("Skills.csv"):
             if s.get("Name"):
                 items.append({"kind": "skill", "id": s["Name"], "title": s["Name"]})
         for post in self._csv("Posts.csv"):
-            text = post.get("ShareCommentary") or post.get("Content") or ""
+            text = scrub(post.get("ShareCommentary") or post.get("Content") or "")
             date = (post.get("Date") or "")[:10] or None
             items.append({
                 "kind": "post",
@@ -117,27 +118,77 @@ class LinkedInScanner:
         from pypdf import PdfReader
 
         text = "\n".join(page.extract_text() or "" for page in PdfReader(self.pdf_path).pages)
-        lines = [line.strip() for line in text.splitlines() if line.strip()]
-        identity = {
-            "name": lines[0] if lines else "",
-            "headline": lines[1] if len(lines) > 1 else "",
-        }
+        return parse_pdf_text(text)
 
-        # The PDF has no structure to speak of: keep the whole text as one
-        # section, plus whatever sits under a Skills heading.
-        items = [{"kind": "section", "id": "full_text", "title": "Profile (PDF)", "text": text}]
-        in_skills = False
-        for line in lines:
-            if line in ("Top Skills", "Skills", "Competencies"):
-                in_skills = True
-                continue
-            if in_skills:
-                if line in ("Experience", "Education", "Certifications", "Languages",
-                            "Honors-Awards", "Publications", "Summary"):
-                    break
-                if len(line) > 2:
-                    items.append({"kind": "skill", "id": line, "title": line})
-        return identity, items
+
+# ---------- PDF parsing ----------
+
+# LinkedIn's "Save to PDF" puts a sidebar first - Contact, Top Skills, Languages,
+# Certifications... - then the name, the headline (wrapped over several lines),
+# the location, and "Summary" or "Experience".
+SIDEBAR_HEADINGS = ("Contact", "Top Skills", "Languages", "Certifications", "Honors-Awards",
+                    "Publications", "Patents")
+BODY_HEADINGS = ("Summary", "Experience", "Education")
+PHONE_RE = re.compile(r"\+?\(?\d{3}\)?[\s.\-]?\d{3}[\s.\-]?\d{4}(\s*\((Mobile|Home|Work)\))?")
+EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+")
+
+
+def scrub(text):
+    """Phone numbers and email addresses out - they are not profile content."""
+    return EMAIL_RE.sub("", PHONE_RE.sub("", text or ""))
+
+
+def _name_shaped(line):
+    words = line.split()
+    return (1 < len(words) <= 4 and len(line) <= 40 and "|" not in line
+            and not any(ch.isdigit() for ch in line)
+            and all(w[0].isupper() for w in words if w[0].isalpha()))
+
+
+def parse_pdf_text(text):
+    """(identity, items) from the text of a LinkedIn profile PDF."""
+    lines = [line.strip() for line in (text or "").splitlines() if line.strip()]
+    body = next((n for n, line in enumerate(lines) if line in BODY_HEADINGS), None)
+
+    name = headline = location = ""
+    name_at = None
+    if body is not None and body >= 2:
+        location = lines[body - 1]
+        for n in range(body - 2, -1, -1):
+            if lines[n] in SIDEBAR_HEADINGS:
+                break
+            if _name_shaped(lines[n]):
+                name_at = n
+                break
+        if name_at is not None:
+            name = lines[name_at]
+            headline = " ".join(lines[name_at + 1:body - 1])
+
+    # Contact block: from "Contact" to the next sidebar heading. Never kept.
+    kept, in_contact = [], False
+    for n, line in enumerate(lines):
+        if line == "Contact":
+            in_contact = True
+            continue
+        if in_contact and (line in SIDEBAR_HEADINGS or n == name_at):
+            in_contact = False
+        if not in_contact:
+            kept.append(line)
+    full = scrub("\n".join(kept)).strip()
+
+    identity = {"name": name, "headline": scrub(headline).strip(), "location": location}
+    items = [{"kind": "section", "id": "full_text", "title": "Profile (PDF)", "text": full}]
+    in_skills = False
+    for n, line in enumerate(lines):
+        if line == "Top Skills":
+            in_skills = True
+            continue
+        if in_skills:
+            if line in SIDEBAR_HEADINGS or line in BODY_HEADINGS or n == name_at:
+                break
+            if len(line) > 2:
+                items.append({"kind": "skill", "id": line, "title": line})
+    return identity, items
 
 
 def _month(value):

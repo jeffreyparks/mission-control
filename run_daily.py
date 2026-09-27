@@ -2,7 +2,7 @@
 Mission Control runner.
 
 Cadences:
-  daily   - profile snapshots, job intel, HTML build
+  daily   - profile snapshots (+ evaluation when due), job intel, HTML build
   weekly  - content radar (runs when the newest radar is >= 7 days old)
   weekly  - learned-preferences draft, me/learned.draft.md (>= 7 days old);
             it is only a draft - nothing changes until you approve it
@@ -80,7 +80,8 @@ def log_routing():
         import routing
     except Exception:  # noqa: BLE001
         return
-    for tag in ("job-fit", "role-cat", "role-function", "org-sectors", "content-radar", "preferences"):
+    for tag in ("job-fit", "role-cat", "role-function", "org-sectors", "content-radar", "preferences",
+                "profile-asks", "profile-ask-merge", "profile-claims", "profile-eval-source", "profile-eval-synth"):
         ladder = routing.ladder_for_tag(tag)
         target = ladder[0].split("/", 1)[-1] if ladder else "claude CLI default"
         log(f"   route: {tag:14s} -> {target}")
@@ -103,8 +104,11 @@ def radar_is_due():
 # ---------- stages ----------
 
 def run_profiles():
+    from profile_eval import evaluate
     from profile_snapshot import run_profile_stage, summary
-    return summary(run_profile_stage(ws(), log=log))
+    line = summary(run_profile_stage(ws(), log=log))
+    evaluation_id, why = evaluate(ws(), log=log)
+    return f"{line}; evaluation " + (f"{evaluation_id} ({why})" if evaluation_id else f"skipped: {why}")
 
 
 def run_jobs():
