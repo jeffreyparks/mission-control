@@ -24,6 +24,11 @@
     <div><dt>Refreshed</dt><dd>{{ d.date }}</dd></div>
   </dl>
 
+  {% if d.profile_gaps %}
+  <p class="count" style="margin-top:14px">Asked to cover your profile gaps: {{ d.profile_gaps|join(', ') }}
+    &nbsp;·&nbsp; <a href="profile.html">why</a></p>
+  {% endif %}
+
   <section>
     <div class="sec-label"><b>00</b>The filter every pick ran through</div>
     <div class="pull"><p>{{ d.sections['00_filter'].text }}</p></div>
@@ -36,7 +41,7 @@
     <div class="grid">
       {% for p in picks %}
       <article class="card">
-        <div class="tag"><b>{{ p.tier }}</b> &nbsp;·&nbsp; {{ p.theme }}{% if p.watch_topic %} &nbsp;·&nbsp; watching: {{ p.watch_topic }}{% endif %}</div>
+        <div class="tag"><b>{{ p.tier }}</b> &nbsp;·&nbsp; {{ p.theme }}{% if p.watch_topic %} &nbsp;·&nbsp; {{ 'profile gap' if p.profile_gap else 'watching' }}: {{ p.watch_topic }}{% endif %}</div>
         <h3>{{ p.headline }}</h3>
         <p>{{ p.why_it_matters }}</p>
         <div class="angle">

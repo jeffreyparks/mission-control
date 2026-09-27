@@ -531,3 +531,57 @@ def write_report(base_dir):
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(text)
     return out
+
+
+# ---------- Content Radar ----------
+
+GAP_TOPICS_MAX = 5
+_SOURCE_NAMES = {"linkedin": "LinkedIn", "github": "GitHub", "bluesky": "BlueSky"}
+
+
+def _source_name(key):
+    kind, _, rest = (key or "").partition(":")
+    if kind == "site":
+        from urllib.parse import urlparse
+        return "your site " + (urlparse(rest).netloc or rest)
+    return _SOURCE_NAMES.get(kind, key or "your profiles")
+
+
+def profile_gap_topics(base_dir, limit=GAP_TOPICS_MAX):
+    """Coverage gaps worth writing your way out of, for the Content Radar.
+
+    Open or accepted coverage findings of high or medium severity that name an
+    ask - one topic per ask, most severe and most asked-for first. Dismissing
+    or fixing the finding removes the topic on the next radar run. Returns
+    [{"topic", "note"}], the same shape as load_watch_topics; [] when there is
+    no evaluation (or no database) yet.
+    """
+    from store import DB_NAME
+    if not (Path(base_dir) / DB_NAME).exists():
+        return []
+    try:
+        from store import Store
+        store = Store(base_dir)
+        ev = store.latest_evaluation()
+        findings = store.profile_findings() if ev else []
+    except Exception:  # noqa: BLE001 - the radar must run without profile data
+        return []
+    with_jd = (ev or {}).get("brief", {}).get("with_jd")
+    rank = {"high": 0, "medium": 1}
+    gaps = {}
+    for f in findings:
+        if f["dimension"] != "coverage" or f["severity"] not in rank or not f["ask"]:
+            continue
+        g = gaps.setdefault(f["ask"], {"ask": f["ask"], "rank": rank[f["severity"]],
+                                       "roles": f["ask_roles"], "sources": []})
+        g["rank"] = min(g["rank"], rank[f["severity"]])
+        name = _source_name(f["source_key"])
+        if name not in g["sources"]:
+            g["sources"].append(name)
+    ordered = sorted(gaps.values(), key=lambda g: (g["rank"], -(g["roles"] or 0), g["ask"]))[:limit]
+    out = []
+    for g in ordered:
+        asked = (f"{g['roles']} of {with_jd} pursued roles ask for it" if g["roles"] and with_jd
+                 else "one of your stated targets")
+        out.append({"topic": g["ask"], "note": f"{asked}; not shown on {', '.join(g['sources'])}"})
+    return out
