@@ -55,7 +55,8 @@ from store import CLOSE_REASONS, Store  # noqa: E402
 from job_intel import JobIntel, load_archetypes, OUTCOME_LABELS, _clean, _date, parse_outcome  # noqa: E402
 
 sys.path.insert(0, str(BASE))
-from render.build import _env, render_tracker as _render_tracker_page  # noqa: E402
+from render.build import _env, render_profile as _render_profile_page  # noqa: E402
+from render.build import render_tracker as _render_tracker_page  # noqa: E402
 import workspace  # noqa: E402
 
 # Fields the dashboard may write, and the values it may write for them. A closed
@@ -180,6 +181,20 @@ def render_tracker_live(base):
         return None
 
 
+def render_profile_live(base):
+    """The Profile page, fresh from the database, so triage shows on reload.
+    None if it fails - the static copy on disk is served instead."""
+    try:
+        _path, html = _render_profile_page(_env(), write=False, base=Path(base))
+        return html
+    except Exception as exc:  # noqa: BLE001
+        sys.stderr.write(f"live profile render failed, serving the static file: {exc}\n")
+        return None
+
+
+FINDING_NOTE_MAX_LEN = 500
+
+
 def _outcome_options():
     seen, options = set(), [""]
     for _needle, pretty in OUTCOME_LABELS:
@@ -256,8 +271,21 @@ class Handler(SimpleHTTPRequestHandler):
 
     # ---------- routes ----------
 
+    def _html(self, html):
+        body = html.encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(body)
+
     def do_GET(self):
         path = urlparse(self.path).path
+        if path == "/profile.html":
+            html = render_profile_live(self.store.base_dir)
+            if html is not None:
+                return self._html(html)
         if path == "/job-tracker.html":
             html = render_tracker_live(self.store.base_dir)
             if html is not None:
@@ -279,6 +307,9 @@ class Handler(SimpleHTTPRequestHandler):
                 "ok": True,
                 "rows": self.store.count(),
                 "editable": self.editable,
+                # Kept apart from `editable`, which names ROLE fields: a finding's
+                # state is written through /api/finding/<id>, never /api/role/.
+                "finding_states": list(Store.FINDING_STATES),
                 # relative to this server's own base, not the module-level BASE
                 # constant - those differ for a temp-dir store such as a test.
                 "db": str(self.store.db_path.relative_to(self.store.base_dir)),
@@ -300,7 +331,8 @@ class Handler(SimpleHTTPRequestHandler):
         path = urlparse(self.path).path
         if not self._loopback():
             return self._json({"error": "loopback only"}, 403)
-        if path not in ("/api/roles/bulk",) and not path.startswith("/api/role/"):
+        if (path not in ("/api/roles/bulk",) and not path.startswith("/api/role/")
+                and not path.startswith("/api/finding/")):
             return self._json({"error": "not found"}, 404)
 
         try:
@@ -311,6 +343,8 @@ class Handler(SimpleHTTPRequestHandler):
 
         if path == "/api/roles/bulk":
             return self._bulk(payload)
+        if path.startswith("/api/finding/"):
+            return self._finding(path[len("/api/finding/"):].strip("/"), payload)
 
         role_id = path[len("/api/role/"):].strip("/")
 
@@ -338,6 +372,26 @@ class Handler(SimpleHTTPRequestHandler):
             "new": result["new"],
             "filled": filled,
         })
+
+    def _finding(self, raw_id, payload):
+        """Your triage of one Profile finding: {state, note}."""
+        try:
+            finding_id = int(raw_id)
+        except ValueError:
+            return self._json({"error": f"unknown finding: {raw_id}"}, 404)
+        state, note = payload.get("state"), payload.get("note")
+        if state not in Store.FINDING_STATES:
+            return self._json({"error": f"state must be one of {', '.join(Store.FINDING_STATES)}"}, 400)
+        if note is not None and not isinstance(note, str):
+            return self._json({"error": "note must be text"}, 400)
+        if note and len(note) > FINDING_NOTE_MAX_LEN:
+            return self._json({"error": f"note is too long (max {FINDING_NOTE_MAX_LEN} characters)"}, 400)
+        try:
+            with _write_lock:
+                result = self.store.set_finding_state(finding_id, state, note, actor="dashboard")
+        except KeyError:
+            return self._json({"error": f"unknown finding: {finding_id}"}, 404)
+        return self._json({"ok": True, "id": finding_id, **result})
 
     def _bulk(self, payload):
         """One field, one value, many rows - the batch behind the dashboard's

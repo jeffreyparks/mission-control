@@ -5,6 +5,7 @@ Pages (all share render/theme.css and the render/_nav.html.j2 shell):
   index.html         home / daily brief, pulls both feeds
   content-radar.html weekly content radar   <- artifacts/content/radar-*.json
   job-tracker.html   daily job tracker      <- artifacts/jobs/intel-*.json
+  profile.html       public-profile review  <- profile_evaluations in the database
 
 Each page always renders from the LATEST json for its feed, so the two agents
 can run on different cadences without blocking each other.
@@ -215,6 +216,7 @@ def render_index(env, intel, radar, base=None):
     shortlist = [r for r in roles if r.get("recommendation") == "apply"][:6]
     html = env.get_template("index.html.j2").render(
         deltas=_deltas(base=base),
+        profile=profile_summary(base=base),
         intel=intel,
         radar=radar,
         picks=_radar_picks(radar),
@@ -226,6 +228,135 @@ def render_index(env, intel, radar, base=None):
     out = (base or _default_base()) / "artifacts/html" / "index.html"
     out.write_text(html)
     return out
+
+
+# ---------------------------------------------------------------------------
+# profile
+# ---------------------------------------------------------------------------
+
+PROFILE_DIMENSIONS = ("coverage", "drift", "consistency", "proof", "register", "freshness")
+DIMENSION_HELP = {
+    "coverage": "What the target roles ask for, shown anywhere public",
+    "drift": "How much of your public voice stays on target",
+    "consistency": "Headline, bios and taglines telling one story",
+    "proof": "Resume claims backed by something visible",
+    "register": "Voice matching your intended persona",
+    "freshness": "Recent activity (a rule, not a model)",
+}
+
+
+def source_label(key):
+    kind, _, rest = (key or "").partition(":")
+    if kind == "site":
+        from urllib.parse import urlparse
+        return urlparse(rest).netloc or rest
+    return {"linkedin": "LinkedIn", "github": "GitHub", "bluesky": "BlueSky"}.get(kind, key or "All sources")
+
+
+def _store(base):
+    sys.path.insert(0, str(BASE / "agents"))
+    from store import Store
+    return Store(base or _default_base())
+
+
+def profile_summary(base=None):
+    """The Home card: weakest dimension, open high-severity findings, date. None
+    before the first evaluation."""
+    try:
+        store = _store(base)
+        ev = store.latest_evaluation()
+    except Exception as exc:  # noqa: BLE001 - home must render without profile data
+        print(f"  profile summary unavailable: {exc}")
+        return None
+    if not ev:
+        return None
+    overall = ev["scores"]["overall"]
+    scored = [(overall[d], d) for d in PROFILE_DIMENSIONS if overall.get(d) is not None]
+    weakest = min(scored)[1] if scored else None
+    findings = store.profile_findings()
+    return {
+        "date": ev["created_at"][:10],
+        "weakest": weakest,
+        "weakest_score": overall.get(weakest) if weakest else None,
+        "open": len(findings),
+        "high": sum(1 for f in findings if f["severity"] == "high"),
+    }
+
+
+def profile_context(base=None):
+    """Everything profile.html shows, from the database. Shared with dashboard.py."""
+    sys.path.insert(0, str(BASE / "agents"))
+    from profile_eval import _profile_url, coverage_matrix
+
+    store = _store(base)
+    ev = store.latest_evaluation()
+    ctx = {"ev": ev, "built": datetime.now().strftime("%Y-%m-%d %H:%M"),
+           "dims": PROFILE_DIMENSIONS, "dim_help": DIMENSION_HELP, "label": source_label}
+    if not ev:
+        return ctx
+    prev = store.previous_evaluation()
+    brief = ev["brief"]
+    keys = list(ev["scores"]["per_source"])
+    snaps = {k: store.get_snapshot(i) for k, i in (ev["snapshot_ids"] or {}).items()}
+    snaps = {k: v for k, v in snaps.items() if v}
+
+    rows = []
+    for d in PROFILE_DIMENSIONS:
+        now = ev["scores"]["overall"].get(d)
+        before = (prev["scores"]["overall"].get(d) if prev else None)
+        rows.append({"dim": d, "overall": now,
+                     "delta": (now - before) if now is not None and before is not None else None,
+                     "cells": [ev["scores"]["per_source"][k].get(d) for k in keys]})
+
+    matrix = coverage_matrix(brief, list(snaps.values())) if snaps else {}
+    asks = [{**a, "seen": [matrix.get(a["ask"], {}).get(k, False) for k in keys]}
+            for a in brief["asks"][:10]]
+
+    all_findings = store.profile_findings(states=None)
+    open_by_source = {}
+    for f in all_findings:
+        if f["state"] in ("open", "accepted"):
+            open_by_source.setdefault(f["source_key"], []).append(f)
+    cards = []
+    for k in keys:
+        snap = snaps.get(k) or {}
+        stats = snap.get("stats", {})
+        cards.append({
+            "key": k, "label": source_label(k), "url": _profile_url(snap) if snap else None,
+            "identity": snap.get("identity", {}), "item_count": len(snap.get("items", [])),
+            "last_activity": stats.get("last_activity"), "captured": (snap.get("captured_at") or "")[:10],
+            "stale": stats.get("stale"), "export_date": stats.get("export_date"),
+            "findings": open_by_source.get(k, [])[:3],
+        })
+
+    banners = []
+    for card in cards:
+        if card["stale"] and card["key"].startswith("linkedin:"):
+            banners.append(f"Your LinkedIn export is from {card['export_date']}, so LinkedIn findings "
+                           f"describe your profile as it was then. Download a fresh export into me/linkedin/.")
+    persona = brief.get("persona", {}).get("source")
+    if persona != "Persona":
+        banners.append(f"Voice was judged against {'your Career Positioning section' if persona == 'Career Positioning' else 'a neutral default'}. "
+                       f"Add a ## Persona section to me/profile.md to say exactly how you want to come across.")
+
+    ctx.update({
+        "prev": prev, "brief": brief, "keys": keys, "rows": rows, "asks": asks,
+        "shares": [(k, (ev["shares"] or {}).get(k)) for k in keys],
+        "cards": cards, "findings": all_findings, "banners": banners,
+        "counts": {s: sum(1 for f in all_findings if f["state"] == s)
+                   for s in ("open", "accepted", "dismissed", "fixed")},
+    })
+    return ctx
+
+
+def render_profile(env, write=True, base=None):
+    """Profile page. Returns (path_or_None, html)."""
+    html = env.get_template("profile.html.j2").render(**profile_context(base))
+    out = None
+    if write:
+        out = (base or _default_base()) / "artifacts/html" / "profile.html"
+        out.write_text(html)
+    return out, html
 
 
 def main():
@@ -247,10 +378,12 @@ def main():
     intel = _load("intel-*.json", "artifacts/jobs", base=base)
 
     tracker_path, _tracker_html = render_tracker(env, intel, base=base)
+    profile_path, _profile_html = render_profile(env, base=base)
     written = [p for p in (
         render_index(env, intel, radar, base=base),
         render_radar(env, radar, base=base),
         tracker_path,
+        profile_path,
     ) if p]
     for p in written:
         print(f"rendered {p.relative_to(base)}")

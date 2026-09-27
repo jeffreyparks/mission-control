@@ -462,6 +462,45 @@ class Store:
                     counts["fixed"] += 1
         return counts
 
+    def previous_evaluation(self):
+        """The evaluation before the latest, for showing how scores moved."""
+        with self.connect() as conn:
+            row = conn.execute(
+                "SELECT * FROM profile_evaluations ORDER BY id DESC LIMIT 1 OFFSET 1").fetchone()
+        if row is None:
+            return None
+        out = dict(row)
+        for key in self._EVAL_JSON:
+            out[key] = json.loads(out[key]) if out.get(key) else None
+        return out
+
+    def get_snapshot(self, snapshot_id):
+        with self.connect() as conn:
+            row = conn.execute("SELECT id, payload FROM profile_snapshots WHERE id=?",
+                               (snapshot_id,)).fetchone()
+        return {**json.loads(row["payload"]), "_id": row["id"]} if row else None
+
+    FINDING_STATES = ("open", "accepted", "dismissed", "fixed")
+
+    def set_finding_state(self, finding_id, state, note=None, actor="dashboard"):
+        """Your triage of one finding. Logged in the change log like tracker
+        edits. Returns {"changed", "old", "new"}; KeyError for an unknown id."""
+        if state not in self.FINDING_STATES:
+            raise ValueError(f"unknown finding state: {state!r}")
+        note = _norm(note)
+        with self.connect() as conn:
+            row = conn.execute("SELECT state, state_note FROM profile_findings WHERE id=?",
+                               (finding_id,)).fetchone()
+            if row is None:
+                raise KeyError(finding_id)
+            if row["state"] == state and (row["state_note"] or None) == note:
+                return {"changed": False, "old": row["state"], "new": state}
+            conn.execute("UPDATE profile_findings SET state=?, state_note=? WHERE id=?",
+                         (state, note, finding_id))
+            self._log(conn, None, f"finding:{finding_id}:state", row["state"],
+                      state + (f" ({note})" if note else ""), actor)
+        return {"changed": True, "old": row["state"], "new": state}
+
     def profile_findings(self, states=("open", "accepted")):
         query = "SELECT * FROM profile_findings"
         params = ()
