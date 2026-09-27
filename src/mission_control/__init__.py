@@ -48,9 +48,10 @@ mc setup [--status] [--dry-run]
     --status    what's configured, no prompts, no LLM calls
     --dry-run   preview scan scope before spending anything
 
-mc run [--force-radar] [--only STAGE] [--refresh-intel] [--no-intel]
+mc run [--force-radar] [--radar-only] [--only STAGE] [--refresh-intel] [--no-intel]
     run the daily pipeline
     --force-radar    run the weekly content radar now
+    --radar-only     content radar now + rebuild pages, no job scan
     --only STAGE     one stage: profiles | jobs | radar | history | render
     --refresh-intel  re-judge every role instead of reusing cached verdicts
     --no-intel       legacy keyword scanner instead of LLM fit

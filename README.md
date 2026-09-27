@@ -69,6 +69,7 @@ Built In, Indeed and LinkedIn. Companies, boards and scanning rules are set in
 |---|---|
 | `mc run` | The normal daily run |
 | `mc run --force-radar` | Run the weekly Content Radar now (it normally runs once every 7 days) |
+| `mc run --radar-only` | Run the Content Radar now and rebuild the pages, with no job scan |
 | `mc run --only jobs` | Run one stage: `profiles`, `jobs`, `radar`, `history` or `render` |
 | `mc run --refresh-intel` | Re-judge every role, not just new or changed ones |
 | `mc run --max-live 50` | Judge at most 50 newly found roles this run (the default limit is 200) |

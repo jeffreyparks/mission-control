@@ -13,6 +13,7 @@ Usage:
   uv run run_daily.py                 # respect cadences
   uv run run_daily.py --force-radar   # run the radar regardless of cadence
   uv run run_daily.py --only jobs     # one stage: profiles|jobs|radar|history|render
+  uv run run_daily.py --radar-only    # radar now + rebuild pages, no job scan
   uv run run_daily.py --refresh-intel # re-judge every role from scratch (full price)
   uv run run_daily.py --no-intel      # legacy keyword JobScanner instead of intel
 """
@@ -177,6 +178,8 @@ def main():
     ap.add_argument("--force-radar", action="store_true",
                     help="run the content radar even if it is not due")
     ap.add_argument("--only", choices=sorted(STAGES), help="run a single stage")
+    ap.add_argument("--radar-only", action="store_true",
+                    help="run the content radar now and rebuild the pages - no job scan")
     intel = ap.add_mutually_exclusive_group()
     intel.add_argument("--intel", dest="intel", action="store_true", default=True,
                        help="LLM fit analysis for job roles (default)")
@@ -189,6 +192,8 @@ def main():
                           "(default: rules.max_live_roles in job-sources.yaml, else 200)")
     workspace.add_argument(ap)
     args = ap.parse_args()
+    if args.only and args.radar_only:
+        ap.error("--radar-only and --only cannot be combined")
 
     global WS
     WS = workspace.resolve(args.user)
@@ -204,6 +209,14 @@ def main():
 
     if args.only:
         ok = stage(args.only, STAGES[args.only])
+        log("done")
+        return 0 if ok else 1
+
+    if args.radar_only:
+        # History is skipped on purpose: it snapshots the day's jobs, and with
+        # no job scan it would record a misleading "nothing changed" day.
+        ok = stage("content radar (radar only)", run_radar)
+        stage("static html", run_render)
         log("done")
         return 0 if ok else 1
 
