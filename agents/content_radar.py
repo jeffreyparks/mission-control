@@ -106,7 +106,7 @@ import yaml
 from bs4 import BeautifulSoup
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from llm import LLM, LLMError          # noqa: E402
+from llm import LLM, LLMError, output_budget   # noqa: E402
 from context import context_block      # noqa: E402
 from profile_keywords import load_watch_topics   # noqa: E402
 
@@ -117,6 +117,13 @@ MAX_ENTRIES_PER_SOURCE = 6
 MAX_ARTICLES_TOTAL = 30
 TARGET_PICKS = 8
 MAX_PICKS_PER_THEME = 3
+# Output budgets. The default 4096 cut the article answer off mid-JSON: up to
+# TARGET_PICKS picks of several sentences each, plus the filter and network
+# sections. Unused budget costs nothing.
+ARTICLE_TOKENS_PER_PICK = 900
+ARTICLE_TOKENS_OVERHEAD = 2000   # filter paragraph + network section
+REPO_TOKENS_PER_REPO = 150       # one-line verdict per repo
+REPO_TOKENS_OVERHEAD = 800       # summary + queue
 FORMATS = ["LinkedIn post", "Tweet", "Short technical post", "LinkedIn comment + reply"]
 TIERS = ["primary", "secondary", "supporting"]
 UA = {"User-Agent": "Mozilla/5.0 (compatible; MissionControl/1.0; +content-radar)"}
@@ -443,7 +450,10 @@ No markdown, no commentary outside the JSON.
         try:
             return self._as_payload(
                 self.llm.complete_json(prompt, tag="content-radar-articles",
-                                       validate=self._wants_object),
+                                       validate=self._wants_object,
+                                       max_tokens=output_budget(
+                                           TARGET_PICKS, per_item=ARTICLE_TOKENS_PER_PICK,
+                                           overhead=ARTICLE_TOKENS_OVERHEAD)),
                 "picks")
         except LLMError as exc:
             print(f"  x LLM article analysis failed: {exc}")
@@ -502,7 +512,10 @@ No markdown, no commentary outside the JSON.
         try:
             return self._as_payload(
                 self.llm.complete_json(prompt, tag="content-radar-repos",
-                                       validate=self._wants_object),
+                                       validate=self._wants_object,
+                                       max_tokens=output_budget(
+                                           len(repos), per_item=REPO_TOKENS_PER_REPO,
+                                           overhead=REPO_TOKENS_OVERHEAD)),
                 "repos")
         except LLMError as exc:
             print(f"  x LLM repo analysis failed: {exc}")

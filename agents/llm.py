@@ -319,12 +319,24 @@ class LLM:
         if "error" in body:
             raise LLMError(f"openrouter error: {str(body['error'])[:300]}")
         try:
-            content = body["choices"][0]["message"]["content"]
+            choice = body["choices"][0]
+            content = choice["message"]["content"]
         except (KeyError, IndexError):
             raise LLMError(f"unexpected openrouter body: {str(body)[:300]}")
 
         usage = body.get("usage") or {}
-        self.stats["cost_usd"] += float(usage.get("cost") or 0.0)
+        self.stats["cost_usd"] += float(usage.get("cost") or 0.0)   # paid even if cut off
+        # Same contract as the Anthropic path: a cut-off answer is reported as
+        # truncation, not left to fail JSON parsing and escalate up the ladder
+        # to a pricier model with the same ceiling. Reasoning models spend
+        # part of the budget thinking, so this is easier to hit than it looks.
+        if choice.get("finish_reason") == "length":
+            budget = max_tokens or DEFAULT_MAX_TOKENS
+            raise TruncatedResponse(
+                f"response hit the {budget}-token output budget and was cut off "
+                f"({usage.get('completion_tokens', '?')} output tokens); "
+                f"send fewer items per call or raise the budget"
+            )
         return content
 
     def _dispatch(self, prompt, selector, max_tokens=None, cache_prefix=None):

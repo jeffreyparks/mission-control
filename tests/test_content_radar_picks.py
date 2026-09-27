@@ -58,16 +58,16 @@ one_pick = {"tier": "primary", "theme": "Agentic Systems", "headline": "h",
             "source_url": "u0", "why_it_matters": "w", "angle": "a",
             "formats": ["Tweet"], "source_name": "S", "source_date": "2026-09-21"}
 
-radar.llm.complete_json = lambda prompt, tag=None, validate=None: [one_pick]
+radar.llm.complete_json = lambda prompt, tag=None, validate=None, max_tokens=None: [one_pick]
 res = radar.analyze_articles(arts, "2026-09-21")
 check("a bare array of picks is coerced to the documented wrapper",
       isinstance(res, dict) and len(res.get("picks") or []) == 1, str(type(res)))
 
-radar.llm.complete_json = lambda prompt, tag=None, validate=None: "not json at all"
+radar.llm.complete_json = lambda prompt, tag=None, validate=None, max_tokens=None: "not json at all"
 check("an unusable scalar degrades to empty, it does not raise",
       radar.analyze_articles(arts, "2026-09-21") == {})
 
-radar.llm.complete_json = lambda prompt, tag=None, validate=None: [{"name": "r", "verdict": "no-change"}]
+radar.llm.complete_json = lambda prompt, tag=None, validate=None, max_tokens=None: [{"name": "r", "verdict": "no-change"}]
 check("a bare array of repos is coerced too",
       (radar.analyze_repos([{"name": "r", "url": "u", "language": "", "stars": 0,
                              "pushed_at": "", "topics": [], "archived": False,

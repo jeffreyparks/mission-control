@@ -71,6 +71,47 @@ try:
         pass
     check("truncation is not retried or escalated (one call, not four)", len(calls) == 1, str(calls))
 
+    # ---- OpenRouter truncation is reported too ----------------------------
+    # A cut-off OpenRouter answer used to look like bad JSON: retried, then
+    # escalated to a pricier model that hit the same ceiling.
+    class _ORResp:
+        status_code = 200
+        def __init__(self, finish): self._finish = finish
+        def json(self):
+            return {"choices": [{"message": {"content": '{"picks": ['},
+                                 "finish_reason": self._finish}],
+                    "usage": {"completion_tokens": 4096, "cost": 0.01}}
+
+    os.environ["OPENROUTER_API_KEY"] = "test-key"
+    or_calls = []
+    def _or_post(url, headers=None, json=None, timeout=None):
+        or_calls.append((json or {}).get("model"))
+        return _ORResp("length")
+    llm_mod.requests.post = _or_post
+    or_client = LLM(Path(tempfile.mkdtemp()), route=False)
+    try:
+        or_client._call_openrouter("x", "openrouter/openai/gpt-oss-120b", max_tokens=4096)
+        check("a cut-off OpenRouter response raises", False)
+    except TruncatedResponse as exc:
+        check("a cut-off OpenRouter response raises TruncatedResponse", True)
+        check("the OpenRouter error names the budget", "4096" in str(exc) and "cut off" in str(exc),
+              str(exc)[:80])
+    check("a cut-off OpenRouter call is still costed", or_client.stats["cost_usd"] == 0.01,
+          str(or_client.stats["cost_usd"]))
+
+    or_calls.clear()
+    or_client2 = LLM(Path(tempfile.mkdtemp()), model="openrouter/openai/gpt-oss-120b")
+    try:
+        or_client2.complete_json("x", tag="content-radar-articles", force=True)
+    except TruncatedResponse:
+        pass
+    check("OpenRouter truncation is not retried or escalated", len(or_calls) == 1, str(or_calls))
+
+    llm_mod.requests.post = lambda url, headers=None, json=None, timeout=None: _ORResp("stop")
+    check("a finished OpenRouter response still returns its content",
+          LLM(Path(tempfile.mkdtemp()), route=False)._call_openrouter(
+              "x", "openrouter/openai/gpt-oss-120b") == '{"picks": [')
+
     # ---- prompt caching -------------------------------------------------
     llm_mod.requests.post = lambda url, headers=None, json=None, timeout=None: (
         sent.update(json or {}) or _Resp("end_turn"))
