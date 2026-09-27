@@ -403,6 +403,24 @@ class Store:
             self._log(conn, role_id, field, old, value, actor)
         return {"changed": True, "old": old, "new": _norm(value)}
 
+    def fill_applied_defaults(self, role_id, today=None, actor="dashboard"):
+        """When a role moves to "03 Applied", start its application record:
+        date_applied is today and stage is "Applied" - each only if empty, so
+        re-opening a role never rewrites the date you first applied. Returns
+        {field: value} for whatever was filled."""
+        today = today or datetime.now().strftime("%Y-%m-%d")
+        with self.connect() as conn:
+            row = conn.execute("SELECT date_applied, stage FROM roles WHERE id=?",
+                               (role_id,)).fetchone()
+        if row is None:
+            raise KeyError(role_id)
+        filled = {}
+        for field, value in (("date_applied", today), ("stage", STAGES[0])):
+            if _norm(row[field]) is None:
+                self.set_field(role_id, field, value, actor=actor)
+                filled[field] = value
+        return filled
+
     # ---------- contacts and touches ----------
     #
     # Same rules as roles: every write is logged to `changes`, and nothing is
