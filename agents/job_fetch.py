@@ -19,6 +19,8 @@ from urllib.parse import urlparse, urlunparse, parse_qsl, urlencode
 import requests
 from bs4 import BeautifulSoup
 
+from posted import to_iso_date
+
 __all__ = ["fetch_posting", "canonical_url"]
 
 USER_AGENT = (
@@ -39,6 +41,7 @@ KEYS = (
     "location",
     "comp_range",
     "jd",
+    "posted",
     "source",
     "error",
 )
@@ -69,6 +72,7 @@ def _blank(url: str, source: str = "html", error: str | None = None) -> dict:
         "location": None,
         "comp_range": None,
         "jd": None,
+        "posted": None,
         "source": source,
         "error": error,
     }
@@ -336,6 +340,7 @@ def _from_greenhouse(url: str, org_slug: str, job_id: str, timeout: int) -> dict
     if comp is None:
         comp = _comp_from_text(out["jd"])
     out["comp_range"] = comp
+    out["posted"] = to_iso_date(data.get("first_published") or data.get("updated_at"))
     return out
 
 
@@ -410,6 +415,7 @@ def _from_lever(url: str, org_slug: str, posting_id: str, timeout: int) -> dict:
         if low is not None and high is not None:
             out["comp_range"] = f"{symbol}{_fmt_num(low)} - {symbol}{_fmt_num(high)}"
 
+    out["posted"] = to_iso_date(data.get("createdAt"))
     # Lever's API does not return a display company name; derive nothing.
     out["org"] = None
     return out
@@ -583,6 +589,7 @@ def _from_jsonld(url: str, soup: BeautifulSoup) -> dict | None:
         out["comp_range"] = _comp_from_base_salary(
             node.get("baseSalary")
         ) or _comp_from_text(out["jd"])
+        out["posted"] = to_iso_date(node.get("datePosted"))
         if out["title"] or out["jd"]:
             return out
     return None

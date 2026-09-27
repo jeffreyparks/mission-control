@@ -72,7 +72,9 @@ class JobScanner:
                     'url': job.get('absolute_url', ''),
                     'location': job.get('location', {}).get('name', ''),
                     'description': f"{job.get('title', '')} {job.get('content', '')}",
-                    'posted': job.get('updated_at', '')
+                    # first_published is when it went up; updated_at moves on
+                    # every edit, so it is only the fallback.
+                    'posted': job.get('first_published') or job.get('updated_at', '')
                 })
             
             return jobs

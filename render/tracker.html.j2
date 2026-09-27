@@ -15,6 +15,10 @@
      min-widths are that demand. Notes gets the most room, since it holds
      free-form text rather than a short number. */
   th.salarycell, td.salarycell{min-width:130px}
+  td.postedcell{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--ink-dim)}
+  .posted.fresh{font-weight:600;color:var(--ok-ink);background:var(--ok-bg);border-radius:999px;padding:1px 8px}
+  .posted.stale{color:var(--ink-mute)}
+  .posted.est{font-style:italic;color:var(--ink-mute)}
   th.notescell, td.notescell{min-width:280px}
   .salarycell .textfield{max-width:140px}
   .notescell .textfield{max-width:340px}
@@ -140,6 +144,15 @@
         </div>
       </div>
       <div class="fgroup">
+        <span class="flabel">Posted</span>
+        <div class="filters" id="postedf">
+          <button class="f on" data-posted="">Any</button>
+          <button class="f" data-posted="3">3 days</button>
+          <button class="f" data-posted="7">7 days</button>
+          <button class="f" data-posted="14">14 days</button>
+        </div>
+      </div>
+      <div class="fgroup">
         <span class="flabel">Status</span>
         <div class="filters" id="statusf">
           <button class="f on" data-status="">All</button>
@@ -171,13 +184,14 @@
     <table id="rt">
       <thead><tr>
         <th class="selcell"><input type="checkbox" id="bulkhead" title="Select all shown"></th>
-        <th>Org</th><th>Role</th><th>Category</th><th>Fit</th><th>Rec</th>
+        <th>Org</th><th>Role</th><th>Category</th><th>Fit</th><th>Rec</th><th title="Days since the board says it was posted. Italic ~ means no board date: days since the tracker first saw it, so at least that old - and left out of the Posted filter.">Posted</th>
         <th>Status</th><th>Outcome</th><th>Close reason</th><th class="salarycell">Salary</th><th class="notescell">Notes</th>
       </tr></thead>
       <tbody>
       {% for r in roles %}
         <tr data-rec="{{ r.recommendation or '' }}"
             data-status="{{ r.status or '' }}"
+            data-posted-days="{{ r.posted_days if r.posted_basis == 'board' else '' }}"
             data-id="{{ r.store_id or '' }}"
             data-blob="{{ (r.org ~ ' ' ~ r.title ~ ' ' ~ (r.sector or '') ~ ' ' ~ (r.role_function or '') ~ ' ' ~ (r.role_cat or '') ~ ' ' ~ (r.suggested_role_cat or '') ~ ' ' ~ (r.suggestion_reason or '') ~ ' ' ~ (r.why or '') ~ ' ' ~ (r.seniority_read or ''))|lower }}">
           <td class="selcell"></td>
@@ -212,6 +226,7 @@
           </td>
           <td><span class="fit {% if (r.fit_score or 0) >= 70 %}hi{% elif (r.fit_score or 0) >= 45 %}mid{% else %}lo{% endif %}">{{ r.fit_score if r.fit_score is not none else '—' }}</span></td>
           <td class="reccell" data-rec-value="{{ r.recommendation or '' }}">{% if r.recommendation %}<span class="rec {{ r.recommendation }}">{{ r.recommendation }}</span>{% else %}—{% endif %}</td>
+          <td class="postedcell">{% if r.posted_days is none %}—{% else %}<span class="posted{% if r.posted_basis != 'board' %} est{% elif r.posted_days <= 3 %} fresh{% elif r.posted_days > 30 %} stale{% endif %}" title="{% if r.posted_basis == 'board' %}Posted {{ r.posted_on }}{% else %}No board date - first seen by the tracker {{ r.posted_on }}, so posted then or earlier{% endif %}">{% if r.posted_basis != 'board' %}~{% endif %}{% if r.posted_days == 0 %}today{% else %}{{ r.posted_days }}d{% endif %}</span>{% endif %}</td>
           <td class="statuscell">{% if r.store_id %}<span class="dot {{ (r.status or '')|lower|replace('00 ','')|replace('01 ','')|replace('02 ','')|replace('03 ','')|replace('04 ','') }}">{{ r.status or '—' }}</span>{% else %}<span class="dot">—</span>{% endif %}</td>
           <td class="outcell" data-outcome-value="{{ r.outcome_label or '' }}">{% if r.outcome_display %}<span class="bad-chip">{{ r.outcome_display }}</span>{% else %}—{% endif %}</td>
           <td class="reasoncell" data-reason-value="{{ r.close_reason or '' }}">{{ r.close_reason or '—' }}</td>
@@ -267,14 +282,18 @@ document.querySelectorAll('.tab').forEach(function(t){
     document.getElementById(t.dataset.pane).classList.add('on');
   };
 });
-var rec='', status='', q=document.getElementById('q');
+var rec='', status='', posted='', q=document.getElementById('q');
 function apply(){
   var term=q.value.trim().toLowerCase(), n=0;
   document.querySelectorAll('#rt tbody tr').forEach(function(tr){
     var okRec = !rec || tr.dataset.rec===rec;
     var okStatus = !status || tr.dataset.status===status;
+    // Only a board date counts: a first-seen estimate can be months late (a
+    // whole board imported at once), so an undated row never matches.
+    var days = tr.dataset.postedDays;
+    var okPosted = !posted || (days !== '' && +days <= +posted);
     var okQ = !term || tr.dataset.blob.indexOf(term)!==-1;
-    var show = okRec && okStatus && okQ;
+    var show = okRec && okStatus && okPosted && okQ;
     tr.style.display = show ? '' : 'none';
     // A hidden row drops out of the selection: "apply to selected" must only
     // ever touch rows the user can actually see at the moment they click it.
@@ -287,14 +306,16 @@ function apply(){
 q.oninput=apply;
 // One handler for both filter rows: the group id decides which variable moves,
 // so adding another facet later means adding one line, not another block.
-[['recf','rec'],['statusf','status']].forEach(function(pair){
+[['recf','rec'],['statusf','status'],['postedf','posted']].forEach(function(pair){
   var group=document.getElementById(pair[0]);
   if(!group) return;
   group.querySelectorAll('.f').forEach(function(b){
     b.onclick=function(){
       group.querySelectorAll('.f').forEach(function(x){x.classList.remove('on')});
       b.classList.add('on');
-      if(pair[1]==='rec'){ rec=b.dataset.rec; } else { status=b.dataset.status; }
+      if(pair[1]==='rec'){ rec=b.dataset.rec; }
+      else if(pair[1]==='posted'){ posted=b.dataset.posted; }
+      else { status=b.dataset.status; }
       apply();
     };
   });

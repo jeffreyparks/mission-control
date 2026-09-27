@@ -99,6 +99,14 @@ def render_radar(env, d, base=None):
     return out
 
 
+def _days_since(iso_day, today):
+    try:
+        then = datetime.strptime(str(iso_day)[:10], "%Y-%m-%d").date()
+    except (TypeError, ValueError):
+        return None
+    return max((today - then).days, 0)
+
+
 def _tracker_context(d):
     """Everything the tracker template needs, computed from d["roles"]/d["orgs"].
 
@@ -108,6 +116,22 @@ def _tracker_context(d):
     """
     roles = d["roles"]
     orgs = d["orgs"]
+
+    # Freshness, as of now - the dashboard re-renders per request, so ages stay
+    # current between pipeline runs. A board date is used when there is one;
+    # otherwise the day the tracker first saw the role stands in, flagged as
+    # an estimate (the posting is at least that old, possibly much older - the
+    # first scan of a board imports every posting on it at once). The page
+    # shows the estimate but never filters or highlights on it.
+    today = datetime.now().date()
+    for r in roles:
+        day, basis = r.get("date_posted"), "board"
+        if not day:
+            day, basis = r.get("date_opened"), "first seen"
+        age = _days_since(day, today)
+        r["posted_on"] = day if age is not None else None
+        r["posted_days"] = age
+        r["posted_basis"] = basis if age is not None else None
 
     cat_counts = Counter((r.get("role_cat") or "Unassigned / new find") for r in roles)
     cats = cat_counts.most_common(10)

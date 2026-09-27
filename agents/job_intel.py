@@ -39,6 +39,7 @@ OUTPUT: artifacts/jobs/intel-YYYY-MM-DD.json
       "status":        str | null,            # user column, tracker rows only
       "date_opened":   "YYYY-MM-DD" | null,
       "date_applied":  "YYYY-MM-DD" | null,
+      "date_posted":   "YYYY-MM-DD" | null,     # the board's own date; never estimated
       "outcome":       str | null,            # raw Outcomes cell
       "outcome_label": str | null,            # "Rejected" / "Interview" / ...
       "days_to_outcome": int | null,          # elapsed days, for "Rejected (2d)" UI
@@ -98,6 +99,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from llm import LLM, output_budget, LLMError            # noqa: E402
 from context import context_block, learned_block        # noqa: E402
+from posted import to_iso_date                           # noqa: E402
 from job_scanner import JobScanner       # noqa: E402
 from profile_keywords import load_keywords, matches_exclude   # noqa: E402
 from store import COLUMN_MAP             # noqa: E402 - the column contract only, not the Store
@@ -209,7 +211,7 @@ def load_max_live_roles(scanner):
 
 
 NEW_COLUMNS = ["Fit Score", "Fit Rationale", "Recommendation", "Sector", "Function",
-               "Days To Outcome", SUGGESTED_CAT_COLUMN]
+               "Date Posted", "Days To Outcome", SUGGESTED_CAT_COLUMN]
 
 # Written by merge_categories, carried forward verbatim when a role is unchanged.
 CAT_FIELDS = ["suggested_role_cat", "suggestion_confidence", "suggestion_reason"]
@@ -543,6 +545,7 @@ class JobIntel:
                 "status": _clean(row.get("Status")),
                 "date_opened": opened.strftime("%Y-%m-%d") if opened is not None else None,
                 "date_applied": applied.strftime("%Y-%m-%d") if applied is not None else None,
+                "date_posted": to_iso_date(_clean(row.get("Date Posted"))),
                 "outcome": _clean(row.get("Outcomes")),
                 "outcome_label": label,
                 "days_to_outcome": days,
@@ -556,7 +559,7 @@ class JobIntel:
             # A role added by URL carries a real description; use it.
             extra = cache.get(roles[-1]["id"])
             if extra:
-                for field in ("jd", "location", "comp_range"):
+                for field in ("jd", "location", "comp_range", "date_posted"):
                     if extra.get(field) and not roles[-1].get(field):
                         roles[-1][field] = extra[field]
         return roles
@@ -635,6 +638,26 @@ class JobIntel:
         print(f"  fetched {len(raw)} live postings from {len(by_source)} source(s)")
         return raw
 
+    @staticmethod
+    def fill_posted_dates(tracked, raw):
+        """Give tracker rows the board's posting date when today's scan still
+        lists them, matched by URL. Only a real board date is taken - a row
+        whose posting is gone keeps what it had, or stays blank."""
+        by_url = {}
+        for job in raw:
+            day = to_iso_date(job.get("posted"))
+            if day and job.get("url"):
+                by_url[_clean(job["url"])] = day
+        filled = 0
+        for role in tracked:
+            day = by_url.get(role.get("url"))
+            if day and day != role.get("date_posted"):
+                role["date_posted"] = day
+                filled += 1
+        if filled:
+            print(f"  posting dates: {filled} tracker role(s) dated from today's scan")
+        return filled
+
     def prefilter_live(self, raw, tracker_ids, tracker_urls=None):
         """Cheap, honest prefilter. Only shrinks the batch bill; no scoring claims.
 
@@ -711,6 +734,7 @@ class JobIntel:
                 "status": "01 Open",
                 "date_opened": None,
                 "date_applied": None,
+                "date_posted": to_iso_date(job.get("posted")),
                 "outcome": None,
                 "outcome_label": None,
                 "days_to_outcome": None,
@@ -1344,6 +1368,7 @@ Return ONLY a JSON array, one object per role, echoing the id exactly:
             "location": _clean(posting.get("location")),
             "comp_range": _clean(posting.get("comp_range")),
             "jd": _strip_html(posting.get("jd") or "", limit=jd_limit) or None,
+            "date_posted": to_iso_date(posting.get("posted")),
             "source": posting.get("source"),
             "added": datetime.now().strftime("%Y-%m-%d"),
         }
@@ -1359,6 +1384,7 @@ Return ONLY a JSON array, one object per role, echoing the id exactly:
             "Source": source_tags.MANUAL,
             "Status": "01 Open",
             "Date Opened": today,
+            "Date Posted": cache[rid]["date_posted"],
             "Last Updated": today,
             "Range": cache[rid]["comp_range"],
         }
@@ -1373,7 +1399,7 @@ Return ONLY a JSON array, one object per role, echoing the id exactly:
             assert len(df) == before + 1, "append did not add exactly one row"
         self.save_tracker(df, actor="add_role")
 
-        got = [k for k in ("location", "comp_range", "jd") if cache[rid].get(k)]
+        got = [k for k in ("location", "comp_range", "jd", "date_posted") if cache[rid].get(k)]
         return rid, (f"added {org} - {title} (via {posting.get('source')}; "
                      f"captured {', '.join(got) or 'title only'})")
 
@@ -1530,6 +1556,7 @@ Return ONLY a JSON object mapping each company name exactly as given to its sect
                 "location": _clean(role.get("location")),
                 "comp_range": _clean(role.get("comp_range")),
                 "jd": role.get("jd") or None,
+                "date_posted": role.get("date_posted"),
                 "source": (role.get("source")
                            or source_tags.label_for(role.get("url"), role.get("org"))),
                 "added": today,
@@ -1545,6 +1572,7 @@ Return ONLY a JSON object mapping each company name exactly as given to its sect
                            or source_tags.label_for(role.get("url"), role.get("org"))),
                 "Role Link": _clean(role.get("url")),
                 "Date Opened": today,
+                "Date Posted": role.get("date_posted"),
                 "Last Updated": today,
             })
             if _clean(role.get("comp_range")):
@@ -1596,6 +1624,8 @@ Return ONLY a JSON object mapping each company name exactly as given to its sect
                 df.at[idx, "Sector"] = role["sector"]
             if role.get("role_function"):
                 df.at[idx, "Function"] = role["role_function"]
+            if role.get("date_posted"):
+                df.at[idx, "Date Posted"] = role["date_posted"]
             if role.get("days_to_outcome") is not None:
                 df.at[idx, "Days To Outcome"] = role["days_to_outcome"]
 
@@ -1652,7 +1682,9 @@ Return ONLY a JSON object mapping each company name exactly as given to its sect
         print(f"  tracker: {len(tracked)} roles")
 
         tracked_urls = {r["url"] for r in tracked if r.get("url")}
-        live = self.prefilter_live(self.fetch_live_roles(), {r["id"] for r in tracked}, tracked_urls)
+        raw_live = self.fetch_live_roles()
+        self.fill_posted_dates(tracked, raw_live)
+        live = self.prefilter_live(raw_live, {r["id"] for r in tracked}, tracked_urls)
 
         judged_pool = tracked + live
         fresh, reused = self.split_by_freshness(judged_pool, seed=seed_fits)

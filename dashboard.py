@@ -114,6 +114,7 @@ def _overlay_live_values(intel_data, store):
             role["outcome"] = _clean(row.get("Outcomes"))
             role["close_reason"] = _clean(row.get("Close Reason"))
             role["role_function"] = _clean(row.get("Function"))
+            role["date_posted"] = _clean(row.get("Date Posted")) or role.get("date_posted")
             label, days, display = parse_outcome(
                 role["outcome"], row.get("Date Applied"), row.get("Last Updated"))
             role["outcome_label"], role["days_to_outcome"], role["outcome_display"] = label, days, display
