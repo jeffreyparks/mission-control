@@ -14,6 +14,9 @@
   .chg .line{margin:0 0 6px;font-size:14px;color:var(--ink-dim)}
   .chg .line:last-child{margin-bottom:0}
   .chg .arrow{font-size:13px;color:var(--ink-mute);margin:0 6px}
+  .homegrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .homecard .kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+  @media(max-width:1000px){.homegrid{grid-template-columns:1fr}}
 </style></head>
 <body>
 
@@ -62,6 +65,22 @@
       </div>
       {% else %}
       <p class="empty">No radar file yet. Run <code>agents/content_radar.py</code>.</p>
+      {% endif %}
+    </a>
+
+    <a class="homecard" href="profile.html">
+      <div class="k">When it changes</div>
+      <h3>Profile</h3>
+      {% if profile %}
+      <p>Judged {{ profile.date }}. Weakest:
+      <b>{{ profile.weakest }}</b>{% if profile.weakest_score is not none %} ({{ profile.weakest_score }}/5){% endif %}.</p>
+      <div class="kpis">
+        <div class="kpi"><div class="k">Open</div><div class="v">{{ profile.open }}</div></div>
+        <div class="kpi"><div class="k">High</div><div class="v" style="color:var(--bad)">{{ profile.high }}</div></div>
+        <div class="kpi"><div class="k">Weakest</div><div class="v">{{ profile.weakest_score if profile.weakest_score is not none else '–' }}</div></div>
+      </div>
+      {% else %}
+      <p class="empty">No evaluation yet. Run <code>mc profile</code>.</p>
       {% endif %}
     </a>
   </div>
@@ -153,17 +172,6 @@
     </div>
     {% endif %}
 
-    {% if deltas.coverage and deltas.coverage.change %}
-    <div class="row">
-      <div class="k">LinkedIn keywords</div>
-      <div class="v">
-        <p class="line"><b>{{ deltas.coverage.pct }}%</b> coverage
-          <span class="arrow">was {{ deltas.coverage.prev_pct }}% on {{ deltas.coverage.prev_date }}</span>
-          <span class="{{ 'up' if deltas.coverage.change > 0 else 'down' }}">
-            {{ '+' if deltas.coverage.change > 0 else '' }}{{ deltas.coverage.change }}pt</span></p>
-      </div>
-    </div>
-    {% endif %}
     {% endif %}
   </section>
 

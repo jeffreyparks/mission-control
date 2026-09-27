@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Profile{% if ev %} — {{ ev.created_at[:10] }}{% endif %}</title>
+<link rel="stylesheet" href="theme.css?v={{ asset_v }}">
+{% include '_theme.html.j2' %}
+<style>
+  /* page-specific only; theme.css is shared */
+  .banner{border:1px solid var(--warn-line);background:var(--warn-bg);color:var(--warn-ink);
+    border-radius:var(--radius);padding:10px 14px;font-size:13px;margin:10px 0 0}
+  .scoretbl td.num,.scoretbl th.num{text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .scoretbl .dimname{font-weight:600;color:var(--ink)}
+  .scoretbl .help{font-size:12px;color:var(--ink-mute)}
+  .score{display:inline-block;min-width:26px;font-family:var(--mono);font-weight:600}
+  .s1,.s2{color:var(--bad)} .s3{color:var(--warn)} .s4,.s5{color:var(--ok)} .s-{color:var(--ink-mute)}
+  .delta{font-size:11px;font-weight:600;margin-left:4px}
+  .delta.up{color:var(--ok)} .delta.down{color:var(--bad)}
+  .askgrid td.seen{text-align:center;font-size:14px}
+  .askgrid .yes{color:var(--ok)} .askgrid .no{color:var(--ink-mute)}
+  .askgrid .n{font-family:var(--mono);font-size:12px;color:var(--ink-dim);white-space:nowrap}
+  .drift{display:grid;grid-template-columns:170px 1fr 160px;gap:12px;align-items:center;
+    padding:8px 0;border-top:1px solid var(--line-soft);font-size:13px}
+  .drift .bar{display:flex;height:10px;border-radius:999px;overflow:hidden;background:var(--line-soft)}
+  .drift .bar i{display:block;height:100%}
+  .drift .on{background:var(--ok)} .drift .adj{background:var(--info)} .drift .tan{background:var(--bad)}
+  .drift .nums{color:var(--ink-dim);font-variant-numeric:tabular-nums;font-size:12px}
+  .legend{display:flex;gap:14px;font-size:12px;color:var(--ink-mute);margin:6px 0 4px}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+  .srcgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  .card .ident{font-size:13px;color:var(--ink-dim);margin:0 0 4px;overflow-wrap:anywhere}
+  .card .ident b{color:var(--ink-mute);font-weight:500;margin-right:4px}
+  .card ul{margin:6px 0 0;padding-left:18px;font-size:13px;color:var(--ink-dim)}
+  .finding{border-top:1px solid var(--line-soft);padding:14px 0}
+  .finding h3{font-size:15px;margin:0 0 4px}
+  .finding .meta{font-size:12px;color:var(--ink-mute);margin-bottom:6px}
+  .finding blockquote{margin:6px 0;padding:6px 12px;border-left:3px solid var(--line);
+    color:var(--ink-dim);font-size:13px;overflow-wrap:anywhere}
+  .finding .fix{font-size:13px;color:var(--ink)}
+  .finding .fix b{color:var(--accent);font-weight:600}
+  .sev{font-size:11px;font-weight:600;padding:1px 8px;border-radius:999px;margin-right:6px}
+  .sev.high{color:var(--bad);background:var(--bad-bg)} .sev.medium{color:var(--warn-ink);background:var(--warn-bg)}
+  .sev.low{color:var(--ink-mute);background:var(--line-soft)}
+  .state{font-size:11px;font-weight:600;padding:1px 8px;border-radius:999px;background:var(--line-soft);
+    color:var(--ink-mute);margin-left:6px}
+  .state.accepted{color:var(--info-ink);background:var(--info-bg)}
+  .state.fixed{color:var(--ok-ink);background:var(--ok-bg)}
+  .back{font-size:11px;font-weight:600;color:var(--bad);margin-left:6px}
+  .note{font-size:12px;color:var(--ink-mute);font-style:italic;margin-top:4px}
+  .actions{display:none;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px}
+  body.live .actions{display:flex}
+  .act{font-size:12px;font-weight:500;font-family:var(--sans);border:1px solid var(--line);
+    background:var(--bg-card);color:var(--ink-dim);border-radius:6px;padding:3px 10px;cursor:pointer}
+  .act:hover{border-color:var(--ink-mute);color:var(--ink)}
+  .act:disabled{opacity:.5;cursor:default}
+  .dismissbox{display:none;gap:6px;align-items:center}
+  .dismissbox.on{display:flex}
+  .finding[hidden]{display:none}
+  #livebadge{display:none}
+  @media(max-width:800px){.srcgrid{grid-template-columns:1fr}.drift{grid-template-columns:1fr}}
+</style></head>
+<body>
+
+{% with page='profile', subtitle='Public profile review' %}{% include '_nav.html.j2' %}{% endwith %}
+
+<div class="wrap">
+  <header class="masthead">
+    <div class="eyebrow">LinkedIn · GitHub · BlueSky · your sites</div>
+    <h1>Profile</h1>
+    {% if ev %}
+    <p class="standfirst">{{ ev.summary }}</p>
+    <div class="chips" style="margin-top:18px">
+      <span class="chip on">Evaluated {{ ev.created_at[:16]|replace('T', ' ') }}</span>
+      <span class="chip">Trigger: {{ ev.trigger }}</span>
+      <span class="chip">{{ brief.pursued }} pursued roles, {{ brief.with_jd }} with descriptions, last {{ brief.window_days }} days</span>
+      <span class="chip live" id="livebadge">Live · triage saves</span>
+    </div>
+    {% for b in banners %}<div class="banner">{{ b }}</div>{% endfor %}
+    {% else %}
+    <p class="standfirst">No evaluation yet. Run <code>mc profile</code> to snapshot your profiles and judge
+    them against the roles you are pursuing.</p>
+    {% endif %}
+  </header>
+
+  {% if ev %}
+  <section>
+    <div class="sec-label"><b>01</b>Scorecard</div>
+    <h2>How your public profile reads, 1 to 5</h2>
+    <table class="scoretbl">
+      <thead><tr><th>Dimension</th><th class="num">Overall</th>
+        {% for k in keys %}<th class="num">{{ label(k) }}</th>{% endfor %}</tr></thead>
+      <tbody>
+      {% for r in rows %}
+        <tr>
+          <td><div class="dimname">{{ r.dim|capitalize }}</div><div class="help">{{ dim_help[r.dim] }}</div></td>
+          <td class="num"><span class="score s{{ r.overall if r.overall is not none else '-' }}">{{ r.overall if r.overall is not none else '–' }}</span>
+            {% if r.delta %}<span class="delta {{ 'up' if r.delta > 0 else 'down' }}">{{ '+' if r.delta > 0 else '' }}{{ r.delta }}</span>{% endif %}</td>
+          {% for c in r.cells %}<td class="num"><span class="score s{{ c if c is not none else '-' }}">{{ c if c is not none else '–' }}</span></td>{% endfor %}
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% if prev %}<p class="count">Changes are against the evaluation of {{ prev.created_at[:10] }}.</p>{% endif %}
+  </section>
+
+  <section>
+    <div class="sec-label"><b>02</b>Target brief</div>
+    <h2>What the roles you pursue ask for, and where you show it</h2>
+    <table class="askgrid">
+      <thead><tr><th>Ask</th><th>Roles</th>{% for k in keys %}<th style="text-align:center">{{ label(k) }}</th>{% endfor %}</tr></thead>
+      <tbody>
+      {% for a in asks %}
+        <tr>
+          <td>{{ a.ask }}</td>
+          <td class="n">{% if a.roles is not none %}{{ a.roles }} of {{ brief.with_jd }}{% else %}stated{% endif %}</td>
+          {% for s in a.seen %}<td class="seen">{% if s %}<span class="yes" title="mentioned">✓</span>{% else %}<span class="no" title="not found">·</span>{% endif %}</td>{% endfor %}
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <p class="count">✓ = the exact words appear. The evaluation also credits synonyms and clear demonstrations; this grid does not.</p>
+  </section>
+
+  <section>
+    <div class="sec-label"><b>03</b>Drift</div>
+    <h2>How much of each source stays on target</h2>
+    <div class="legend"><span><i class="on" style="background:var(--ok)"></i>On target</span>
+      <span><i style="background:var(--info)"></i>Adjacent</span><span><i style="background:var(--bad)"></i>Tangent</span></div>
+    {% for k, s in shares %}
+    <div class="drift">
+      <div>{{ label(k) }}</div>
+      {% if s %}
+      <div class="bar"><i class="on" style="width:{{ (s.on * 100)|round }}%"></i><i class="adj" style="width:{{ (s.adjacent * 100)|round }}%"></i><i class="tan" style="width:{{ (s.tangent * 100)|round }}%"></i></div>
+      <div class="nums">{{ (s.on * 100)|round|int }}% on · {{ (s.adjacent * 100)|round|int }}% adj · {{ (s.tangent * 100)|round|int }}% tan</div>
+      {% else %}<div class="nums">no items tagged</div><div></div>{% endif %}
+    </div>
+    {% endfor %}
+    <p class="count">BlueSky reposts count at half weight: they are your choice to amplify, not your words.</p>
+  </section>
+
+  <section>
+    <div class="sec-label"><b>04</b>Sources</div>
+    <h2>Each profile as it was captured</h2>
+    <div class="srcgrid">
+      {% for c in cards %}
+      <article class="card">
+        <div class="tag"><b>{{ c.label }}</b> &nbsp;·&nbsp; captured {{ c.captured or '–' }}
+          {% if c.last_activity %}&nbsp;·&nbsp; last active {{ c.last_activity }}{% endif %}
+          &nbsp;·&nbsp; {{ c.item_count }} item{{ '' if c.item_count == 1 else 's' }}</div>
+        {% for k, v in c.identity.items() if k not in ('readme',) %}
+          <p class="ident"><b>{{ k|replace('_', ' ') }}</b>{{ v|truncate(240) }}</p>
+        {% endfor %}
+        {% if c.findings %}
+        <ul>{% for f in c.findings %}<li><span class="sev {{ f.severity }}">{{ f.severity }}</span>{{ f.title }}</li>{% endfor %}</ul>
+        {% else %}<p class="ident">No open findings.</p>{% endif %}
+        <div class="srcline">{% if c.url %}<a href="{{ c.url }}" target="_blank" rel="noopener">Open the live profile</a>{% else %}From your export in me/linkedin/{% endif %}</div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label"><b>05</b>Findings</div>
+    <h2>What to fix, most important first</h2>
+    <div class="filters" id="findfilters">
+      <button type="button" class="f on" data-show="active">Open &amp; accepted <i>{{ counts.open + counts.accepted }}</i></button>
+      <button type="button" class="f" data-show="dismissed">Dismissed <i>{{ counts.dismissed }}</i></button>
+      <button type="button" class="f" data-show="fixed">Fixed <i>{{ counts.fixed }}</i></button>
+      <button type="button" class="f" data-show="all">All <i>{{ findings|length }}</i></button>
+    </div>
+    <div id="findings">
+    {% for f in findings %}
+      <div class="finding" data-id="{{ f.id }}" data-state="{{ f.state }}"{% if f.state not in ('open', 'accepted') %} hidden{% endif %}>
+        <h3><span class="sev {{ f.severity }}">{{ f.severity }}</span>{{ f.title }}
+          <span class="state {{ f.state }}">{{ f.state }}</span>{% if f.came_back %}<span class="back">came back</span>{% endif %}</h3>
+        <div class="meta">{{ f.dimension|capitalize }} · {{ label(f.source_key) }}
+          {% if f.ask %} · ask: {{ f.ask }}{% if f.ask_roles %} ({{ f.ask_roles }} roles){% endif %}{% endif %}
+          {% if f.url %} · <a href="{{ f.url }}" target="_blank" rel="noopener">source</a>{% endif %}</div>
+        {% if f.quote %}<blockquote>{{ f.quote }}</blockquote>{% endif %}
+        <div class="fix"><b>Fix</b> &nbsp;{{ f.fix }}</div>
+        {% if f.state_note %}<div class="note">{{ f.state_note }}</div>{% endif %}
+        <div class="actions">
+          <button type="button" class="act" data-to="accepted">Accept</button>
+          <button type="button" class="act" data-to="dismiss-open">Dismiss</button>
+          <button type="button" class="act" data-to="fixed">Mark fixed</button>
+          <button type="button" class="act" data-to="open">Reopen</button>
+          <span class="dismissbox"><input class="textfield" maxlength="500" placeholder="Why? (optional)">
+            <button type="button" class="act" data-to="dismissed">Dismiss</button></span>
+          <span class="flash"></span>
+        </div>
+      </div>
+    {% else %}
+      <p class="empty">No findings. That is a real answer, not a gap.</p>
+    {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <footer>
+    <span>profile_evaluations · profile_findings · profile_snapshots in data/mission-control.db</span>
+    <span>Built {{ built }}</span>
+  </footer>
+</div>
+
+<script>
+// Filters work on any copy of the page, static or live.
+(function(){
+  var bar = document.getElementById('findfilters');
+  if(!bar) return;
+  function apply(show){
+    document.querySelectorAll('#findings .finding').forEach(function(el){
+      var s = el.dataset.state;
+      var visible = show === 'all' || (show === 'active' ? (s === 'open' || s === 'accepted') : s === show);
+      el.hidden = !visible;
+    });
+  }
+  bar.addEventListener('click', function(e){
+    var b = e.target.closest('.f'); if(!b) return;
+    bar.querySelectorAll('.f').forEach(function(x){ x.classList.toggle('on', x === b); });
+    apply(b.dataset.show);
+  });
+  function recount(){
+    var n = {active: 0, dismissed: 0, fixed: 0, all: 0};
+    document.querySelectorAll('#findings .finding').forEach(function(el){
+      var s = el.dataset.state; n.all++;
+      if(s === 'open' || s === 'accepted') n.active++; else if(n[s] !== undefined) n[s]++;
+    });
+    bar.querySelectorAll('.f').forEach(function(b){ b.querySelector('i').textContent = n[b.dataset.show]; });
+  }
+  window.__profileFilter = function(){ recount(); var on = bar.querySelector('.f.on'); apply(on ? on.dataset.show : 'active'); };
+})();
+
+// Optional writeback, as on the tracker: a static copy stays read-only; with the
+// dashboard running, /api/health answers and the triage buttons appear.
+(function(){
+  if(window.location.protocol === 'file:') return;
+  var API = window.location.origin;
+  fetch(API + '/api/health').then(function(r){ return r.ok ? r.json() : Promise.reject(); })
+  .then(function(h){
+    if(!h.ok || !h.finding_states) return;
+    document.body.classList.add('live');
+    var badge = document.getElementById('livebadge'); if(badge) badge.style.display = 'inline-block';
+    document.querySelectorAll('#findings .finding').forEach(wire);
+  }).catch(function(){ /* read-only, as designed */ });
+
+  function wire(el){
+    var box = el.querySelector('.dismissbox'), flash = el.querySelector('.flash');
+    function show(){
+      var s = el.dataset.state;
+      el.querySelector('[data-to="accepted"]').hidden = s === 'accepted';
+      el.querySelector('[data-to="dismiss-open"]').hidden = s === 'dismissed';
+      el.querySelector('[data-to="fixed"]').hidden = s === 'fixed';
+      el.querySelector('[data-to="open"]').hidden = s === 'open';
+    }
+    show();
+    el.querySelector('.actions').addEventListener('click', function(e){
+      var b = e.target.closest('.act'); if(!b) return;
+      var to = b.dataset.to;
+      if(to === 'dismiss-open'){ box.classList.toggle('on'); box.querySelector('input').focus(); return; }
+      var note = to === 'dismissed' ? box.querySelector('input').value.trim() : null;
+      b.disabled = true;
+      fetch(API + '/api/finding/' + el.dataset.id, {method: 'POST',
+        headers: {'Content-Type': 'application/json'}, body: JSON.stringify({state: to, note: note})})
+      .then(function(r){ return r.json().then(function(j){ return r.ok ? j : Promise.reject(j); }); })
+      .then(function(){
+        el.dataset.state = to;
+        var chip = el.querySelector('.state'); chip.className = 'state ' + to; chip.textContent = to;
+        box.classList.remove('on');
+        flash.className = 'flash saved'; flash.textContent = 'saved';
+        show(); window.__profileFilter();
+      }).catch(function(err){
+        flash.className = 'flash failed'; flash.textContent = (err && err.error) || 'failed';
+      }).finally(function(){ b.disabled = false; });
+    });
+  }
+})();
+</script>
+</body></html>

@@ -154,6 +154,7 @@ def run_render():
     tracker_path, _html = build.render_tracker(env, intel, base=base)
     build.render_index(env, intel, radar, base=base)
     build.render_radar(env, radar, base=base)
+    build.render_profile(env, base=base)
     return "html rebuilt"
 
 
