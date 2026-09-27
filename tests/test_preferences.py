@@ -43,7 +43,7 @@ rows = []
 # Six banks passed on for industry, all rated apply by the model.
 for i in range(6):
     rows.append(row(f"Bank{i}", "Director, Data Science", "04 Closed", "Finance - Banking",
-                    "Data Science & ML", "Not a fit - industry", notes="Industry fit"))
+                    "Data Science & ML", "Not a fit - industry", notes="Wrong sector for me"))
 # Tech roles pursued - applied, researching, or heard back from the employer.
 # The model had said skip on three of them: overrides.
 for i in range(3):
@@ -89,7 +89,7 @@ fin = by_value.get(("industry", "Finance"))
 check("finance becomes an avoid candidate", fin and fin["lean"] == "avoid", str(list(by_value)))
 check("disagreement with the model is counted", fin and fin["passed_though_model_liked"] == 6)
 check("notes travel with the candidate", fin and fin["sample_notes"]
-      and "Industry fit" in fin["sample_notes"][0])
+      and "Wrong sector for me" in fin["sample_notes"][0])
 tech = by_value.get(("industry", "Tech"))
 check("tech becomes a seek candidate", tech and tech["lean"] == "seek", str(tech))
 check("a mixed group is never an avoid",

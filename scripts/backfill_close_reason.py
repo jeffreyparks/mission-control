@@ -2,8 +2,8 @@
 """One-off: fill Close Reason on closed roles from the notes you already wrote.
 
 Close Reason is new. Before it, the only record of why you passed on a role was
-free text in Notes ("Deprior since applied to other roles", "Closing due to
-gaps and location"). This reads those notes back and files each closed role
+free text in Notes ("Went for their other opening instead", "Too many gaps,
+and it's on-site"). This reads those notes back and files each closed role
 under one of store.CLOSE_REASONS, with one cheap batched LLM call per chunk.
 
 Only closed rows with notes and no Close Reason yet are touched, so the script
@@ -61,17 +61,17 @@ THE REASONS (use the exact text, or "none"):
 RULES:
   - Judge only from the note. Do not guess from the title or company.
   - "Chose another role at org": the note says they applied to, or preferred, a
-    different role at the same company ("deprior since applied to other roles",
-    "a bit lower than the other DS role", "deprior since applied to Lead").
-  - "Posting closed": the employer took the posting down ("closed by poster").
+    different role at the same company ("went for their other opening instead",
+    "weaker than the other analytics role there", "applied to the manager role").
+  - "Posting closed": the employer took the posting down ("listing removed").
   - "Not a fit - skills gap": the note cites gaps or requirements they cannot meet.
   - "Not a fit - function" / "- level" / "- industry": the wrong kind of work,
     the wrong seniority, the wrong sector.
-  - Terse notes name the dimension that failed: "Industry fit" or "Industry
-    (pharma)" -> "Not a fit - industry"; "Skills fit" -> "Not a fit - skills gap";
-    "Role" -> "Not a fit - function"; "Step down" or "Junior" -> "Not a fit - level".
+  - Terse notes name the dimension that failed: "Industry" or "Wrong sector
+    (mining)" -> "Not a fit - industry"; "Skills" -> "Not a fit - skills gap";
+    "Role" -> "Not a fit - function"; "Too junior" -> "Not a fit - level".
   - "Other" is only for a real reason to pass that fits none of the above
-    ("Not interested", "Company"). A note that records no decision at all - a
+    ("Culture", "Gut says no"). A note that records no decision at all - a
     question, a reminder, an interview log - is "none".
   - When a note gives two reasons, pick the first one it names.
   - An employer rejection is NOT a reason the seeker closed it. If the note only

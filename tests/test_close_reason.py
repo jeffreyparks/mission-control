@@ -116,11 +116,11 @@ finally:
 # ---- backfill ---------------------------------------------------------------
 bw = Path(tempfile.mkdtemp())
 seed = [
-    ("Acme", "DS", "04 Closed", "Deprior since applied to other roles", None),
-    ("Beta", "FP&A", "04 Closed", "Closing due to gaps and location", None),
+    ("Acme", "DS", "04 Closed", "Went for their other opening instead", None),
+    ("Beta", "FP&A", "04 Closed", "Too many gaps, and it's on-site", None),
     ("Gamma", "PM", "04 Closed", "Auto-discovered. Location: SF", None),     # pipeline note
     ("Delta", "DS", "04 Closed", None, None),                                # no note
-    ("Eps", "DS", "04 Closed", "Pay too low", "Comp"),                       # already set
+    ("Eps", "DS", "04 Closed", "Band is under target", "Comp"),                       # already set
     ("Zeta", "DS", "01 Open", "Looks interesting", None),                    # not closed
 ]
 bstore = Store(bw)
