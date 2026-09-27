@@ -74,24 +74,6 @@ class TruncatedResponse(LLMError):
     ceiling."""
 
 
-def api_cost(model_id, usage):
-    """USD for one Anthropic API call, or None when the model has no price.
-
-    None is deliberately not 0.0: an unpriced model should show up as unknown
-    spend, not as free."""
-    prices = routing.load_prices().get(model_id)
-    if not prices:
-        return None
-    per_million = lambda n, rate: (n or 0) / 1_000_000 * rate   # noqa: E731
-    base_in = prices.get("input", 0.0)
-    return (per_million(usage.get("input_tokens"), base_in)
-            + per_million(usage.get("output_tokens"), prices.get("output", 0.0))
-            + per_million(usage.get("cache_creation_input_tokens"),
-                          prices.get("cache_write", base_in * 1.25))
-            + per_million(usage.get("cache_read_input_tokens"),
-                          prices.get("cache_read", base_in * 0.10)))
-
-
 def _join_prompt(cache_prefix, prompt):
     """The full prompt text, for transports that take one string."""
     return f"{cache_prefix}\n\n{prompt}" if cache_prefix else prompt
@@ -129,10 +111,9 @@ class LLM:
         self.model = model          # explicit pin; disables routing
         self.timeout = timeout
         self.route = route and model is None
-        self.stats = {"hits": 0, "misses": 0, "cost_usd": 0.0, "by_model": {},
+        self.stats = {"hits": 0, "misses": 0, "by_model": {},
                        "cache_write_tokens": 0, "cache_read_tokens": 0,
-                       "api_input_tokens": 0, "api_output_tokens": 0,
-                       "unpriced_models": set()}
+                       "api_input_tokens": 0, "api_output_tokens": 0}
 
     # ---------- cache ----------
 
@@ -204,7 +185,6 @@ class LLM:
         if envelope.get("is_error"):
             raise LLMError(f"claude returned an error: {str(envelope)[:400]}")
 
-        self.stats["cost_usd"] += float(envelope.get("total_cost_usd") or 0.0)
         return envelope.get("result", "")
 
     def _call_anthropic_api(self, prompt, model=None, max_tokens=None, cache_prefix=None):
@@ -270,14 +250,6 @@ class LLM:
         self.stats["api_input_tokens"] += usage.get("input_tokens") or 0
         self.stats["api_output_tokens"] += usage.get("output_tokens") or 0
 
-        # The API bills per token but reports none of it in dollars, so price it
-        # here from the table in config/model-routing.toml.
-        cost = api_cost(model_id, usage)
-        if cost is None:
-            self.stats["unpriced_models"].add(model_id)
-        else:
-            self.stats["cost_usd"] += cost
-
         # Truncation is reported, not inferred from a JSON parse failure, so the
         # caller can shrink the request instead of paying twice for the same
         # ceiling. Raised even though `content` holds a partial answer: half a
@@ -306,7 +278,6 @@ class LLM:
                     "messages": [{"role": "user", "content": prompt}],
                     "temperature": 0,
                     "max_tokens": max_tokens or DEFAULT_MAX_TOKENS,
-                    "usage": {"include": True},
                 },
                 timeout=self.timeout,
             )
@@ -325,7 +296,6 @@ class LLM:
             raise LLMError(f"unexpected openrouter body: {str(body)[:300]}")
 
         usage = body.get("usage") or {}
-        self.stats["cost_usd"] += float(usage.get("cost") or 0.0)   # paid even if cut off
         # Same contract as the Anthropic path: a cut-off answer is reported as
         # truncation, not left to fail JSON parsing and escalate up the ladder
         # to a pricier model with the same ceiling. Reasoning models spend
@@ -416,8 +386,7 @@ class LLM:
         raise LLMError(f"all models failed for tag {tag}: " + " ; ".join(errors[-3:]))
 
     def report(self):
-        line = (f"LLM: {self.stats['misses']} calls, {self.stats['hits']} cached, "
-                f"${self.stats['cost_usd']:.3f}")
+        line = f"LLM: {self.stats['misses']} calls, {self.stats['hits']} cached"
         if self.stats["by_model"]:
             parts = [f"{s.split('/')[-1]} x{v['calls']}"
                      for s, v in self.stats["by_model"].items()]
@@ -436,9 +405,4 @@ class LLM:
             line += ")"
         elif read or written:
             line += f" (prompt cache: {read:,} read, {written:,} written)"
-
-        unpriced = self.stats.get("unpriced_models") or set()
-        if unpriced:
-            line += (f" [cost excludes unpriced {', '.join(sorted(unpriced))} - "
-                     f"add it to [prices] in config/model-routing.toml]")
         return line

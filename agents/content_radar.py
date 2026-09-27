@@ -42,7 +42,7 @@ JSON SCHEMA (artifacts/content/radar-YYYY-MM-DD.json)
     "picks": int,
     "themes": [str],                 # distinct themes the picks covered
     "repos_reviewed": int,
-    "llm": str                       # LLM cost/cache report line
+    "llm": str                       # LLM calls/cache report line
   },
   "sections": {
     "00_filter": {

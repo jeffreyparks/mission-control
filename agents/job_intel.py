@@ -22,7 +22,7 @@ OUTPUT: artifacts/jobs/intel-YYYY-MM-DD.json
   "date":          "YYYY-MM-DD",
   "counts":        {"roles": int, "tracker_roles": int, "live_roles": int,
                     "orgs": int, "apply": int, "research": int, "skip": int},
-  "llm":           str,                       # cost / cache report line
+  "llm":           str,                       # calls / cache report line
   "roles": [
     {
       "id":            str,                   # stable slug: org--title

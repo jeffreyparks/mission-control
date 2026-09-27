@@ -123,7 +123,7 @@ week" normal answers, so expect most roles to be skipped. That's it working, not
   and the prompt. A normal day only judges new or edited roles. AI responses are also cached, so
   re-running on unchanged input is free.
 
-### Models and cost
+### Models
 
 Calls go to Claude, through the `claude` CLI (billed to your subscription) or the Anthropic API
 (billed per token), and optionally to cheaper open models on [OpenRouter](https://openrouter.ai).
@@ -139,10 +139,9 @@ Two files control this:
 | File | Sets |
 |---|---|
 | `.env` | Which backend to use (`LLM_BACKEND=cli` or `api`), your API keys, and which model each tier is (`MC_MODEL_T1` to `MC_MODEL_T4`) |
-| `config/model-routing.toml` | Which tier each kind of call starts at, and the price table used to cost API calls |
+| `config/model-routing.toml` | Which tier each kind of call starts at |
 
-Each run logs which model handled each kind of call and what it spent. A first full run has cost
-roughly $1.60 for jobs and $0.60 for the radar; cached re-runs cost nothing.
+Each run logs which model handled each kind of call and how many tokens it used.
 
 ## Your data
 

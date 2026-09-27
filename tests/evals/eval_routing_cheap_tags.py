@@ -59,7 +59,7 @@ Return ONLY a JSON object mapping each company name exactly as given to its sect
         missing = [o for o in orgs if o not in data]
         print(f"  {selector:48s} {time.time()-t0:5.1f}s  exact {exact}/{len(orgs)}  "
               f"industry {industry}/{len(orgs)}  shape {shape_ok}/{len(orgs)}  "
-              f"missing {len(missing)}  ${client.stats['cost_usd']:.4f}")
+              f"missing {len(missing)}")
         disagree = [(o, truth[o], data.get(o)) for o in orgs if data.get(o, "").strip() != truth[o].strip()]
         for row in disagree[:5]:
             print(f"      {row[0]:22s} claude={row[1]:28s} cheap={row[2]}")
@@ -103,7 +103,7 @@ def eval_rolecat():
                 agree += 1
         missing = [i for i in ids if i not in by_id]
         print(f"  {selector:48s} {time.time()-t0:5.1f}s  agree {agree}/{len(ids)}  "
-              f"missing {len(missing)}  ${client.stats['cost_usd']:.4f}")
+              f"missing {len(missing)}")
 
 
 if __name__ == "__main__":

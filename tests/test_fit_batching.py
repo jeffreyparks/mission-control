@@ -80,7 +80,7 @@ try:
         def json(self):
             return {"choices": [{"message": {"content": '{"picks": ['},
                                  "finish_reason": self._finish}],
-                    "usage": {"completion_tokens": 4096, "cost": 0.01}}
+                    "usage": {"completion_tokens": 4096}}
 
     os.environ["OPENROUTER_API_KEY"] = "test-key"
     or_calls = []
@@ -96,8 +96,6 @@ try:
         check("a cut-off OpenRouter response raises TruncatedResponse", True)
         check("the OpenRouter error names the budget", "4096" in str(exc) and "cut off" in str(exc),
               str(exc)[:80])
-    check("a cut-off OpenRouter call is still costed", or_client.stats["cost_usd"] == 0.01,
-          str(or_client.stats["cost_usd"]))
 
     or_calls.clear()
     or_client2 = LLM(Path(tempfile.mkdtemp()), model="openrouter/openai/gpt-oss-120b")

@@ -70,12 +70,11 @@ def main():
             "secs": round(secs, 1), "scored": len(deltas), "mae": mae,
             "rec_agree": f"{rec_match}/{len(ids)}",
             "missing": len(missing_ids), "bad_schema": len(bad_schema),
-            "cost": round(client.stats["cost_usd"], 4),
             "sample": {rid: (by_id[rid]["fit_score"] if rid in by_id else None) for rid in ids},
         }
         r = results[selector]
         print(f"{selector:50s} {r['secs']:6.1f}s  MAE {mae if mae is None else round(mae,1):>5}  "
-              f"rec {r['rec_agree']}  missing {r['missing']}  schema-bad {r['bad_schema']}  ${r['cost']}")
+              f"rec {r['rec_agree']}  missing {r['missing']}  schema-bad {r['bad_schema']}")
 
     print("\ntruth scores: ", {rid: truth[rid]["fit_score"] for rid in ids})
     for sel, r in results.items():
