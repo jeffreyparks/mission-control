@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Job Search Tracker — {{ d.date }}</title>
+<title>Tracker — {{ d.date }}</title>
 <link rel="stylesheet" href="theme.css?v={{ asset_v }}">
 {% include '_theme.html.j2' %}
 <style>
@@ -79,11 +79,11 @@
 </style></head>
 <body>
 
-{% with page='tracker', subtitle='Job Search Tracker' %}{% include '_nav.html.j2' %}{% endwith %}
+{% with page='tracker', subtitle='Tracker' %}{% include '_nav.html.j2' %}{% endwith %}
 
 <div class="wrap">
   <header class="masthead" style="padding-bottom:22px">
-    <h1>Job Search Tracker</h1>
+    <h1>Tracker</h1>
     <p class="standfirst">Every role opened for the AI &amp; measurement search, the fit read behind each one,
     and the company directory that sits under it.</p>
     <div class="chips" style="margin-top:18px">
@@ -269,7 +269,7 @@
 
   <footer>
     <span>Source of record: artifacts/jobs/org-roles-tracker.xlsx · intel-{{ d.date }}.json</span>
-    <span>Mission Control · Job Search Tracker</span>
+    <span>Mission Control · Tracker</span>
   </footer>
 </div>
 
