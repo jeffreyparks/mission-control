@@ -6,6 +6,7 @@ Pages (all share render/theme.css and the render/_nav.html.j2 shell):
   content-radar.html weekly content radar   <- artifacts/content/radar-*.json
   job-tracker.html   daily job tracker      <- artifacts/jobs/intel-*.json
   profile.html       public-profile review  <- profile_evaluations in the database
+  settings.html      profile settings       <- me/profile.md, .env, config/profile.yaml
 
 Each page always renders from the LATEST json for its feed, so the two agents
 can run on different cadences without blocking each other.
@@ -368,6 +369,24 @@ def render_profile(env, write=True, base=None):
     return out, html
 
 
+def render_settings(env, write=True, base=None):
+    """Settings page: the profile fields the dashboard can edit. A static copy
+    is read-only; served by dashboard.py it saves. Returns (path_or_None, html)."""
+    base = base or _default_base()
+    sys.path.insert(0, str(BASE / "agents"))
+    import profile_settings
+
+    html = env.get_template("settings.html.j2").render(
+        settings=profile_settings.read_all(base), spec=profile_settings.spec(),
+        review_limits=profile_settings.REVIEW_NUMBERS, max_sites=profile_settings.MAX_SITES,
+        max_site_pages=profile_settings.MAX_SITE_PAGES, workspace_name=Path(base).name)
+    out = None
+    if write:
+        out = base / "artifacts/html" / "settings.html"
+        out.write_text(html)
+    return out, html
+
+
 def main():
     import argparse
     sys.path.insert(0, str(BASE))
@@ -388,11 +407,13 @@ def main():
 
     tracker_path, _tracker_html = render_tracker(env, intel, base=base)
     profile_path, _profile_html = render_profile(env, base=base)
+    settings_path, _settings_html = render_settings(env, base=base)
     written = [p for p in (
         render_index(env, intel, radar, base=base),
         render_radar(env, radar, base=base),
         tracker_path,
         profile_path,
+        settings_path,
     ) if p]
     for p in written:
         print(f"rendered {p.relative_to(base)}")

@@ -17,7 +17,8 @@ off, it is simply read-only. Nothing breaks, the dropdowns just do not appear.
 
 Deliberate limits:
   - binds to loopback only, and refuses any client that is not loopback
-  - only the fields in EDITABLE can be written
+  - only the fields in EDITABLE can be written, plus the profile settings
+    agents/profile_settings.py validates (never a secret such as a password)
   - no shutdown, no shell, no arbitrary paths: static files are served from
     that workspace's artifacts/html/ and nowhere else
 """
@@ -57,6 +58,8 @@ from job_intel import JobIntel, load_archetypes, OUTCOME_LABELS, _clean, _date, 
 sys.path.insert(0, str(BASE))
 from render.build import _env, render_profile as _render_profile_page  # noqa: E402
 from render.build import render_tracker as _render_tracker_page  # noqa: E402
+from render.build import render_settings as _render_settings_page  # noqa: E402
+import profile_settings  # noqa: E402
 import workspace  # noqa: E402
 
 # Fields the dashboard may write, and the values it may write for them. A closed
@@ -195,6 +198,23 @@ def render_profile_live(base):
 FINDING_NOTE_MAX_LEN = 500
 
 
+def render_settings_live(base):
+    """The Settings page, read fresh from the files it edits. None if it fails."""
+    try:
+        _path, html = _render_settings_page(_env(), write=False, base=Path(base))
+        return html
+    except Exception as exc:  # noqa: BLE001
+        sys.stderr.write(f"live settings render failed, serving the static file: {exc}\n")
+        return None
+
+
+def _role_cat_options(base, store):
+    try:
+        return [""] + [a["label"] for a in load_archetypes(base, store.to_df())]
+    except Exception:  # noqa: BLE001 - a missing me/profile.md must not break serving
+        return [""]
+
+
 def _outcome_options():
     seen, options = set(), [""]
     for _needle, pretty in OUTCOME_LABELS:
@@ -286,6 +306,14 @@ class Handler(SimpleHTTPRequestHandler):
             html = render_profile_live(self.store.base_dir)
             if html is not None:
                 return self._html(html)
+        if path == "/settings.html":
+            html = render_settings_live(self.store.base_dir)
+            if html is not None:
+                return self._html(html)
+        if path == "/api/settings":
+            if not self._loopback():
+                return self._json({"error": "loopback only"}, 403)
+            return self._json(profile_settings.read_all(self.store.base_dir))
         if path == "/job-tracker.html":
             html = render_tracker_live(self.store.base_dir)
             if html is not None:
@@ -332,7 +360,8 @@ class Handler(SimpleHTTPRequestHandler):
         if not self._loopback():
             return self._json({"error": "loopback only"}, 403)
         if (path not in ("/api/roles/bulk",) and not path.startswith("/api/role/")
-                and not path.startswith("/api/finding/") and path != "/api/persona"):
+                and not path.startswith("/api/finding/")
+                and path not in ("/api/persona", "/api/settings")):
             return self._json({"error": "not found"}, 404)
 
         try:
@@ -347,6 +376,8 @@ class Handler(SimpleHTTPRequestHandler):
             return self._finding(path[len("/api/finding/"):].strip("/"), payload)
         if path == "/api/persona":
             return self._persona(payload)
+        if path == "/api/settings":
+            return self._settings(payload)
 
         role_id = path[len("/api/role/"):].strip("/")
 
@@ -415,6 +446,27 @@ class Handler(SimpleHTTPRequestHandler):
             self.store.log_change(f"persona:{field}", old, new, actor="dashboard")
         return self._json({"ok": True, "field": field, "changed": old != new})
 
+    def _settings(self, payload):
+        """One profile setting: {group, field, value}. group is goals (a section
+        of me/profile.md), accounts (the workspace .env identity) or review
+        (the workspace's config/profile.yaml)."""
+        group, field, value = payload.get("group"), payload.get("field"), payload.get("value")
+        base = self.store.base_dir
+        try:
+            with _write_lock:
+                old, new = profile_settings.set_field(base, group, field, value)
+                if old != new:
+                    self.store.log_change(f"settings:{group}.{field}", json.dumps(old),
+                                          json.dumps(new), actor="dashboard")
+                if group == "goals" and field == "target_roles":
+                    # Role Cat's vocabulary is the numbered Target Roles list, so
+                    # it follows the edit without a restart.
+                    self.editable["role_cat"] = _role_cat_options(base, self.store)
+        except ValueError as exc:
+            return self._json({"error": str(exc)}, 400)
+        return self._json({"ok": True, "group": group, "field": field,
+                           "changed": old != new, "value": new})
+
     def _bulk(self, payload):
         """One field, one value, many rows - the batch behind the dashboard's
         "apply to selected" bar (moving every recommended skip to Closed in one
@@ -476,11 +528,7 @@ def serve(host="127.0.0.1", port=8787, base=None, quiet=False):
     store = Store(base)
     editable = dict(EDITABLE)
     editable["outcomes"] = _outcome_options()
-    try:
-        archetypes = load_archetypes(base, store.to_df())
-        editable["role_cat"] = [""] + [a["label"] for a in archetypes]
-    except Exception:  # noqa: BLE001 - a missing me/profile.md must not break serving
-        editable["role_cat"] = [""]
+    editable["role_cat"] = _role_cat_options(base, store)
 
     # A fresh Handler subclass per server, not the shared base class: Handler.store
     # was a class attribute, so a second serve() call in the same process (as the
@@ -515,6 +563,7 @@ def main():
     store = httpd.mc_store
     print(f"Mission Control writeback server")
     print(f"  dashboard : http://{args.host}:{args.port}/job-tracker.html")
+    print(f"  settings  : http://{args.host}:{args.port}/settings.html")
     print(f"  workspace : {base}")
     print(f"  database  : {store.db_path.relative_to(base)} ({store.count()} roles)")
     print(f"  editable  : {', '.join(httpd.mc_editable)}")
