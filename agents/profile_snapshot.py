@@ -190,6 +190,11 @@ def run_profile_stage(base_dir, log=print, env=None):
         if snap is None:
             out["skipped"].append(label)
             continue
+        if _older_than_stored(snap, store.latest_snapshot(snap["source_key"])):
+            log(f"   {snap['source_key']}: served an older copy than the last snapshot "
+                f"(CDN cache) - kept the last snapshot")
+            out["unchanged"].append(snap["source_key"])
+            continue
         changed, _ = store.save_snapshot_if_changed(snap)
         out["changed" if changed else "unchanged"].append(snap["source_key"])
         log(f"   {snap['source_key']}: {'changed' if changed else 'unchanged'} "
@@ -201,6 +206,16 @@ def run_profile_stage(base_dir, log=print, env=None):
     for reason in skipped:
         log(f"   skipped: {reason}")
     return out
+
+
+def _older_than_stored(snap, latest):
+    """True when a source dates its content (stats["last_modified"]) and this
+    read is older than the stored snapshot - a CDN edge still serving the
+    previous build. Storing it would undo your edit and bring back findings
+    you had already fixed."""
+    new = (snap.get("stats") or {}).get("last_modified")
+    old = ((latest or {}).get("stats") or {}).get("last_modified")
+    return bool(new and old and new < old)
 
 
 def summary(result):

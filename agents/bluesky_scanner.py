@@ -3,9 +3,12 @@ BlueSky collector: your public BlueSky voice, as one snapshot.
 
 Reads the public AppView (public.api.bsky.app), which needs no login: your bio
 and your last 100 feed entries. The AppView indexes every PDS in the network,
-so a custom-PDS handle reads the same way. If the public read fails and an app
-password is configured (BLUESKY_APP_PASSWORD, and BLUESKY_PDS_URL for a custom
-PDS), the collector logs in and reads through your PDS instead.
+so a custom-PDS handle reads the same way. The AppView sits behind a CDN that
+caches each response; every public read carries a throwaway query parameter so
+it goes to the AppView, not a cached copy from before your latest edit. If the
+public read fails and an app password is configured (BLUESKY_APP_PASSWORD, and
+BLUESKY_PDS_URL for a custom PDS), the collector logs in and reads through your
+PDS instead.
 
 Each feed entry is one item:
   post     your own post                                  weight 1.0
@@ -17,6 +20,7 @@ choice to amplify, but not your words. Like, repost and reply counts go in
 `signals`, outside the fingerprint.
 """
 import os
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -29,6 +33,7 @@ DEFAULT_PDS = "https://bsky.social"
 FEED_LIMIT = 100
 REPOST_WEIGHT = 0.5
 TIMEOUT = 20
+CACHE_BUST_PARAM = "_mc"   # the AppView ignores it; its CDN keys on it
 
 
 class BlueSkyScanner:
@@ -44,6 +49,8 @@ class BlueSkyScanner:
 
     def _get(self, endpoint, params):
         headers = {"Authorization": f"Bearer {self.token}"} if self.token else {}
+        if self.api_base == PUBLIC_API:
+            params = {**params, CACHE_BUST_PARAM: time.time_ns()}
         response = self.http.get(f"{self.api_base}/{endpoint}", params=params,
                                  headers=headers, timeout=TIMEOUT)
         response.raise_for_status()
