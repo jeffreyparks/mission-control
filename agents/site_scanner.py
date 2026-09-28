@@ -16,11 +16,19 @@ Captured:
             links, for checking that the site and the other profiles agree
   stats     pages fetched, characters kept, whether the text cap cut anything
 
+GitHub Pages (and most static hosts) serve through a CDN that ignores query
+strings and request cache headers, so a read shortly after a deploy can come
+from an edge still holding the previous build. Each page's Last-Modified header
+is kept, and stats["last_modified"] is the oldest of them: the Profile stage
+uses it to refuse a snapshot older than the one it already has.
+
 robots.txt is honoured: a site that disallows this collector is skipped. Some
 static-site generators wrap robots.txt in the page layout; the rules are read
 out of the HTML so such a site is not mistaken for one with no rules.
 """
 import re
+from datetime import timezone
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from urllib.parse import urljoin, urlparse
 from urllib.robotparser import RobotFileParser
@@ -103,10 +111,15 @@ class SiteScanner:
         pages = [self.url] + [p for p in self._sitemap_pages() if self._allowed(p)]
         identity, items = {}, []
         budget, truncated, fetched = MAX_TEXT_CHARS, False, 0
+        modified = []
 
         for url in pages:
-            html = self._get(url).text
+            response = self._get(url)
+            html = response.text
             fetched += 1
+            stamp = _last_modified(response)
+            if stamp:
+                modified.append(stamp)
             page = parse_page(html, url)
             if url == self.url:
                 identity = page["identity"]
@@ -140,8 +153,20 @@ class SiteScanner:
             "chars": MAX_TEXT_CHARS - budget,
             "truncated": truncated,
             "sections": sum(1 for i in items if i["kind"] == "section"),
+            "last_modified": min(modified) if modified else None,
         }
         return make_snapshot("site", f"site:{self.url}", identity, items, stats)
+
+
+def _last_modified(response):
+    """The response's Last-Modified as a UTC ISO string, or None."""
+    raw = (getattr(response, "headers", None) or {}).get("last-modified")
+    if not raw:
+        return None
+    try:
+        return parsedate_to_datetime(raw).astimezone(timezone.utc).isoformat(timespec="seconds")
+    except (TypeError, ValueError):
+        return None
 
 
 # ---------- parsing ----------

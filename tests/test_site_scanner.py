@@ -34,9 +34,12 @@ PAGE = """<!doctype html><html><head>
 
 
 class FakeResponse:
-    def __init__(self, text="", status=200, content_type="text/html; charset=utf-8"):
+    def __init__(self, text="", status=200, content_type="text/html; charset=utf-8",
+                 last_modified=None):
         self.text, self.status_code = text, status
         self.headers = {"content-type": content_type}
+        if last_modified:
+            self.headers["last-modified"] = last_modified
 
     def raise_for_status(self):
         if self.status_code >= 400:
@@ -115,6 +118,16 @@ def test_same_page_gives_the_same_hash():
     assert first["hash"] == second["hash"]
     edited = _scanner({ROOT: FakeResponse(PAGE.replace("teams", "people"))}).collect()
     assert edited["hash"] != first["hash"]
+
+
+def test_last_modified_is_the_oldest_page_served():
+    routes = {ROOT: FakeResponse(PAGE, last_modified="Mon, 28 Sep 2026 22:34:16 GMT"),
+              "https://me.example/sitemap.xml": FakeResponse(
+                  "<urlset><url><loc>https://me.example/cv/</loc></url></urlset>"),
+              "https://me.example/cv/": FakeResponse(PAGE, last_modified="Sun, 27 Sep 2026 12:00:00 GMT")}
+    snap = _scanner(routes, max_pages=1).collect()
+    assert snap["stats"]["last_modified"] == "2026-09-27T12:00:00+00:00"
+    assert _scanner({ROOT: FakeResponse(PAGE)}).collect()["stats"]["last_modified"] is None
 
 
 def test_robots_disallow_skips_the_site():
@@ -209,3 +222,22 @@ def test_stage_runs_sites_and_survives_an_unreachable_one(tmp_path, monkeypatch)
 
     again = profile_snapshot.run_profile_stage(base, log=lines.append, env={})
     assert again["unchanged"] == ["site:https://me.example/"]
+
+
+def test_stage_refuses_a_stale_cdn_copy(tmp_path, monkeypatch):
+    base = _workspace(tmp_path, "sites:\n  - url: https://me.example/\n")
+    new_build = FakeResponse(PAGE.replace("teams", "people"), last_modified="Mon, 28 Sep 2026 22:34:16 GMT")
+    old_build = FakeResponse(PAGE, last_modified="Sun, 27 Sep 2026 12:00:00 GMT")
+    routes = {ROOT: new_build}
+    monkeypatch.setattr(site_scanner.requests, "Session", lambda: FakeSession(routes))
+    assert profile_snapshot.run_profile_stage(base, log=lambda _: None, env={})["changed"] \
+        == ["site:https://me.example/"]
+
+    routes[ROOT] = old_build  # an edge that has not seen the deploy yet
+    lines = []
+    result = profile_snapshot.run_profile_stage(base, log=lines.append, env={})
+    assert result["changed"] == [] and result["unchanged"] == ["site:https://me.example/"]
+    assert any("older copy" in line for line in lines)
+    from store import Store
+    kept = Store(base).latest_snapshot("site:https://me.example/")
+    assert "people" in profile_snapshot.snapshot_text(kept)

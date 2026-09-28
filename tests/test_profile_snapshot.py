@@ -217,6 +217,20 @@ def test_bluesky_reads_the_public_api_and_weights_reposts(base):
     assert snap["stats"]["read_via"] == "public"
 
 
+def test_bluesky_public_reads_skip_the_cdn_cache(base):
+    seen = []
+
+    class Recording(FakeSession):
+        def get(self, url, params=None, **kw):
+            seen.append(params or {})
+            return super().get(url, **kw)
+
+    session = Recording({"getProfile": FakeResponse(PROFILE), "getAuthorFeed": FakeResponse(FEED)})
+    BlueSkyScanner("me.bsky.social", base, env={}, session=session).collect()
+    busts = [p.get("_mc") for p in seen]
+    assert len(seen) == 2 and all(busts) and busts[0] != busts[1]
+
+
 def test_bluesky_falls_back_to_the_app_password(base):
     public_down = FakeResponse(status=502)
     session = FakeSession({
