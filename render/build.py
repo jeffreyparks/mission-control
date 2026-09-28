@@ -54,7 +54,10 @@ def _asset_version():
 def _env():
     env = Environment(
         loader=FileSystemLoader(str(RENDER)),
-        autoescape=select_autoescape(["html"]),
+        # The templates are named *.html.j2; select_autoescape matches on the
+        # full suffix, so "html" alone left every page unescaped - and the pages
+        # show text scraped from job boards and public profiles.
+        autoescape=select_autoescape(["html", "html.j2"]),
         trim_blocks=True,
         lstrip_blocks=True,
     )
