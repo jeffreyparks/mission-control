@@ -117,7 +117,7 @@ MAX_ARTICLE_CHARS = 6000
 FEED_FULL_TEXT_CHARS = 2000   # feed text this long is the article, not a teaser
 MAX_ENTRIES_PER_SOURCE = 6
 MAX_ARTICLES_TOTAL = 30
-TARGET_PICKS = 8
+TARGET_PICKS = 9   # the target, and the ceiling _clean_picks enforces
 MAX_PICKS_PER_THEME = 3
 # Output budgets. The default 4096 cut the article answer off mid-JSON: up to
 # TARGET_PICKS picks of several sentences each, plus the filter and network
@@ -434,7 +434,8 @@ give this specific person a reason to publish something that is actually his.
 
 HARD RULES ON HONESTY
 - Most articles are not worth a post. Say so by leaving them out.
-- {TARGET_PICKS} picks is the target, not a ceiling to stop at early. Review every
+- {TARGET_PICKS} picks is the target and the maximum - never return more. It is
+  not a ceiling to stop at early, though. Review every
   candidate article before deciding you are done - do not settle for 2 or 3
   strong ones without checking whether the rest of the batch has more that
   genuinely clear the bar. That said, fewer is still better than padded, and
@@ -614,7 +615,7 @@ No markdown, no commentary outside the JSON.
             })
         order = {t: i for i, t in enumerate(TIERS)}
         picks.sort(key=lambda p: order.get(p["tier"], 9))
-        return picks
+        return picks[:TARGET_PICKS]
 
     def build_payload(self, run_date, articles, article_result, repo_result,
                       repos, stats):
@@ -760,6 +761,9 @@ No markdown, no commentary outside the JSON.
             out += [f"- [ ] {item}" for item in s["04_queue"]["items"]]
         else:
             out.append("- [ ] Nothing this week. Do not manufacture work.")
+        candidates = payload.get("raw_articles") or []
+        out += ["", f"## 05 - Every candidate this week ({len(candidates)})", ""]
+        out += [f"- [{a['title']}]({a['url']}) - {a['source']}" for a in candidates]
         out += ["", "---", f"*{st['llm']}*", ""]
         return "\n".join(out)
 

@@ -34,8 +34,9 @@ check("the honesty escape valve (zero is fine) is still present",
       "ZERO picks is a" in src or "zero picks" in src.lower())
 check("fewer-than-padded guidance is still present", "fewer is still better than padded" in src
       or "fewer is better than padded" in src)
-check("nothing truncates the model's own picks list to a fixed count before output",
+check("nothing truncates the model's own picks list to a magic number before output",
       not re.search(r'picks\s*\[\s*:\s*[0-9]+\s*\]', src))
+check("the pick target is also the enforced ceiling", "picks[:TARGET_PICKS]" in src)
 
 # ---------------- a bare JSON array must not kill the run ----------------
 # LLM._extract_json is documented to return "the first JSON object OR ARRAY",

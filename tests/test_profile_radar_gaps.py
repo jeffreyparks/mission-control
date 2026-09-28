@@ -115,3 +115,32 @@ def test_radar_page_labels_gap_picks_and_lists_the_gaps():
     assert "Asked to cover your profile gaps: a/b testing, team leadership" in html
     md = content_radar.ContentRadar.render_markdown({**d, "stats": {**d["stats"], "picks": 1}})
     assert "**Profile gap:** a/b testing" in md
+
+
+def test_picks_are_capped_at_the_target():
+    arts = [{"url": f"u{i}"} for i in range(12)]
+    raw = [{"tier": "supporting", "theme": f"Theme {i}", "source_url": f"u{i}"} for i in range(12)]
+    picks = content_radar.ContentRadar._clean_picks(raw, arts)
+    assert len(picks) == content_radar.TARGET_PICKS == 9
+
+
+def test_radar_page_lists_every_candidate_title_source_and_link():
+    import build
+    d = {"date": "2026-09-28", "window_days": 14, "profile_gaps": [],
+         "stats": {"articles_fetched": 2, "sources_with_entries": 1, "sources_configured": 1, "llm": ""},
+         "sections": {"00_filter": {"text": "f", "title": "t"},
+                      "01_pillar_picks": {"title": "t", "picks": [], "note": ""},
+                      "02_network_signal": {"summary": "", "rows": [], "title": "t"},
+                      "03_repo_signal": {"summary": "", "repos": [], "title": "t"},
+                      "04_queue": {"items": [], "title": "t"}},
+         "raw_articles": [
+             {"source": "Example Feed", "category": "C", "title": "First Example Post",
+              "url": "https://example.com/one", "published": "2026-09-27", "chars": 900},
+             {"source": "Other Feed", "category": "C", "title": "Second Example Post",
+              "url": "https://example.com/two", "published": "2026-09-26", "chars": 900}]}
+    html = build._env().get_template("radar.html.j2").render(d=d, picks=build._radar_picks(d))
+    assert "All 2 articles the picks were chosen from" in html
+    for a in d["raw_articles"]:
+        assert f'href="{a["url"]}"' in html and a["title"] in html and a["source"] in html
+    md = content_radar.ContentRadar.render_markdown({**d, "stats": {**d["stats"], "picks": 0}})
+    assert "- [First Example Post](https://example.com/one) - Example Feed" in md
