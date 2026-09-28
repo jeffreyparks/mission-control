@@ -1,7 +1,7 @@
 [project]
 name = "mission-control"
 version = "0.1.0"
-description = "Add your description here"
+description = "Agentic-system design and LLM evaluation, applied to career development"
 authors = [
     { name = "jeffreyparks", email = "jeff@accolade.digital" }
 ]
