@@ -16,10 +16,10 @@ Later phases, not covered here:
 
 ## The date applied has to be filled in first
 
-When this was written, none of the 17 applied roles in the `default` workspace
-had `date_applied` set, and only 2 had a record in the change log of when they
-became `03 Applied`. Every nudge is timed from `date_applied`, so filling it in
-comes first (step 2 below).
+Nothing set `date_applied` when a role moved to `03 Applied`, so an existing
+workspace can have applied roles with no date at all, and the change log only
+records the move for roles moved since it existed. Every nudge is timed from
+`date_applied`, so filling it in comes first (step 2 below).
 
 ## 1. Data changes (`agents/store.py`)
 
@@ -89,8 +89,9 @@ Nothing is ever hard-deleted.
   supports `--dry-run`.
 - **Unconfirmed dates.** A date counts as unconfirmed while its most recent
   change-log entry came from `backfill`. The page shows an "unconfirmed" badge
-  and a first nudge, "Confirm date applied", until you edit the date. No extra
-  column is needed.
+  and a first nudge, "Confirm date applied", until you edit the date. Saving
+  it unchanged also confirms it: the dashboard logs that as a change with the
+  old and new values equal (`Store.confirm_field`). No extra column is needed.
 - **Going forward.** In `dashboard.py`'s POST handler, when status changes to
   `03 Applied`, fill `date_applied` with today and `stage` with `Applied`, but
   only where each is empty. Each fill is its own logged `set_field`.
@@ -133,7 +134,9 @@ allowed values, length caps, and a single write lock.
   logged `set_field`. `outcome` must be one of the existing outcome options,
   and `close_reason` must be blank or one of `CLOSE_REASONS`. When you close a
   ghosted role, the dialog fills `outcome=Ghosted` and leaves the close reason
-  blank, which the preferences learner correctly ignores.
+  blank, which the preferences learner correctly ignores. Moving a role out of
+  `04 Closed` again (Reopen, or any status change in the tracker) clears its
+  close reason, since why you passed no longer holds; the outcome stays.
 - **Contacts:**
   - `POST /api/contacts` creates one. Required: `org`, `name`. Optional:
     `role_id`, `title`, `kind`, `url`, `email`, `source`, `notes`. `kind` comes
@@ -180,8 +183,10 @@ Layout:
   - Notes, editable.
 - **Close dialog:** an outcome dropdown and an optional close-reason dropdown,
   both filled in from the suggestion.
-- **Recently closed:** a collapsed section listing roles closed in the last 14
-  days, each with a Reopen button that sets status back to `03 Applied`.
+- **Recently closed:** a collapsed section listing applications closed in the
+  last 14 days - roles whose status moved from `03 Applied` to `04 Closed`, not
+  everything closed in the tracker - each with a Reopen button that sets status
+  back to `03 Applied`.
 
 How edits work: like the tracker, the page is read-only until `/api/health`
 responds. After any write, the page reloads. With about 20 rows that's instant,

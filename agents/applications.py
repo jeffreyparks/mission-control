@@ -207,11 +207,9 @@ def bucket(due, today=None):
 
 def suggest_for(store, role_id, today=None):
     """suggest() with its inputs read from the store."""
-    with store.connect() as conn:
-        row = conn.execute("SELECT * FROM roles WHERE id=?", (role_id,)).fetchone()
-    if row is None:
+    role = store.get_role(role_id)
+    if role is None:
         raise KeyError(role_id)
-    role = dict(row)
     return suggest(role,
                    touches=store.touches_for(role_id),
                    contacts=store.contacts_for(role.get("org")),

@@ -156,6 +156,7 @@ def run_render():
     build.render_index(env, intel, radar, base=base)
     build.render_radar(env, radar, base=base)
     build.render_profile(env, base=base)
+    build.render_applications(env, base=base)
     return "html rebuilt"
 
 
