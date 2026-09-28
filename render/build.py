@@ -5,6 +5,7 @@ Pages (all share render/theme.css and the render/_nav.html.j2 shell):
   index.html         home / daily brief, pulls both feeds
   content-radar.html weekly content radar   <- artifacts/content/radar-*.json
   job-tracker.html   daily job tracker      <- artifacts/jobs/intel-*.json
+  applications.html  active applications    <- roles, contacts, touches in the database
   profile.html       public-profile review  <- profile_evaluations in the database
   settings.html      profile settings       <- me/profile.md, .env, config/profile.yaml
 
@@ -221,6 +222,7 @@ def render_index(env, intel, radar, base=None):
     html = env.get_template("index.html.j2").render(
         deltas=_deltas(base=base),
         profile=profile_summary(base=base),
+        applications=applications_summary(base=base),
         intel=intel,
         radar=radar,
         picks=_radar_picks(radar),
@@ -362,6 +364,214 @@ def profile_context(base=None):
     return ctx
 
 
+# ---------------------------------------------------------------- applications
+
+BUCKET_LABELS = {
+    "overdue": "Overdue",
+    "today": "Due today",
+    "week": "This week",
+    "later": "Later",
+    "waiting": "Waiting on them",
+}
+# Fields whose changes belong on an application's timeline.
+COLUMN_LABELS = {"status": "Status", "stage": "Stage", "date_applied": "Date applied",
+                 "outcomes": "Outcome", "close_reason": "Close reason"}
+TIMELINE_FIELDS = set(COLUMN_LABELS)
+RECENTLY_CLOSED_DAYS = 14
+
+
+def _http_url(url):
+    """The url if it is plain http(s), else None - nothing else becomes an href."""
+    url = (url or "").strip()
+    return url if url.lower().startswith(("http://", "https://")) else None
+
+
+def _people_search(org, words):
+    from urllib.parse import quote
+    return ("https://www.linkedin.com/search/results/people/?keywords="
+            + quote(f"{org} {words}".strip()))
+
+
+def _ago(days):
+    if days is None:
+        return None
+    days = max(days, 0)   # a touch dated ahead counts as today
+    return "today" if days == 0 else ("yesterday" if days == 1 else f"{days}d ago")
+
+
+def _due_label(due, today):
+    if due is None:
+        return "no date"
+    days = (due - today).days
+    if days < 0:
+        return f"{-days}d overdue"
+    if days == 0:
+        return "today"
+    return "tomorrow" if days == 1 else f"in {days}d"
+
+
+def _timeline(touches, contacts_by_id, changes):
+    """Touches and the changes that matter, newest first, as {date, kind, text}."""
+    events = []
+    for t in touches:
+        who = contacts_by_id.get(t.get("contact_id"))
+        parts = [{"out": "Sent", "in": "Received"}.get(t.get("direction"), "Touch")]
+        if t.get("channel"):
+            parts.append(t["channel"])
+        if who:
+            parts.append(("to " if t.get("direction") == "out" else "from ") + who["name"])
+        text = " · ".join(parts) + (f": {t['summary']}" if t.get("summary") else "")
+        events.append({"date": t["date"], "kind": "touch", "text": text, "id": t["id"],
+                       "seq": t["id"]})
+    for c in changes:
+        if c.get("field") not in TIMELINE_FIELDS:
+            continue
+        label = COLUMN_LABELS.get(c["field"], c["field"])
+        old, new = c.get("old_value") or "–", c.get("new_value") or "–"
+        text = f"{label} confirmed: {new}" if old == new else f"{label}: {old} → {new}"
+        if (c.get("actor") or "").startswith("backfill"):
+            text += " (estimated)"
+        events.append({"date": (c.get("ts") or "")[:10], "kind": "change", "text": text,
+                       "id": None, "seq": c.get("seq") or 0})
+    events.sort(key=lambda e: (e["date"], e["kind"] == "touch", e["seq"]), reverse=True)
+    return events
+
+
+
+def _application(store, app, role, fit, today):
+    """One active application, as the template shows it."""
+    touches = store.touches_for(role["id"])
+    contacts = store.contacts_for(role.get("org"))
+    changes = store.history(role_id=role["id"], limit=1000)
+    suggestion = app.suggest(role, touches, contacts, changes, today=today)
+    applied = app._day(role.get("date_applied"))
+    by_id = {c["id"]: c for c in contacts}
+
+    last = touches[0] if touches else None
+    last_touch = None
+    if last:
+        who = by_id.get(last.get("contact_id"))
+        bits = [_ago((today - app._day(last["date"])).days), last.get("direction"), last.get("channel")]
+        if who:
+            bits.append(who["name"])
+        last_touch = " · ".join(b for b in bits if b)
+
+    function = (role.get("role_function") or "").strip()
+    intel_role = fit.get(role["id"]) or {}
+    return {
+        "id": role["id"],
+        "org": role.get("org") or "Unknown",
+        "title": role.get("title") or "Untitled",
+        "url": _http_url(role.get("role_link")),
+        "stage": role.get("stage") or "Applied",
+        "date_applied": role.get("date_applied"),
+        "applied_ago": _ago((today - applied).days) if applied else None,
+        "estimate": app.date_is_estimate(changes),
+        "last_touch": last_touch,
+        "next_action": role.get("next_action") or "",
+        "next_action_due": role.get("next_action_due") or "",
+        "notes": role.get("notes") or "",
+        "s": suggestion,
+        "bucket": app.bucket(suggestion.due, today),
+        "due_label": _due_label(suggestion.due, today),
+        "timeline": _timeline(touches, by_id, changes),
+        "contacts": [{**c, "url": _http_url(c.get("url")),
+                      "kind_label": (c.get("kind") or "").replace("_", " ")} for c in contacts],
+        "searches": [("Recruiters", _people_search(role.get("org"), "recruiter")),
+                     (f"{function} leaders" if function else "Hiring managers",
+                      _people_search(role.get("org"), f"head of {function}" if function
+                                     else "hiring manager"))],
+        "fit_score": intel_role.get("fit_score"),
+        "pitch_angle": intel_role.get("pitch_angle"),
+        "top_gaps": intel_role.get("top_gaps") or [],
+    }
+
+
+def _outcome_options():
+    sys.path.insert(0, str(BASE / "agents"))
+    from job_intel import OUTCOME_LABELS
+    return list(dict.fromkeys(pretty for _needle, pretty in OUTCOME_LABELS))
+
+
+def applications_context(base=None, today=None):
+    """Everything applications.html shows. Built from the database; the latest
+    intel json only adds the fit review's score, pitch angle and gaps, and the
+    page renders without it. Shared with dashboard.py."""
+    sys.path.insert(0, str(BASE / "agents"))
+    from datetime import date, timedelta
+
+    import applications as app
+    from store import CLOSE_REASONS, CONTACT_KINDS, STAGES, TOUCH_CHANNELS, TOUCH_DIRECTIONS
+
+    base = base or _default_base()
+    today = app._day(today) or date.today()
+    store = _store(base)
+    intel = _load("intel-*.json", "artifacts/jobs", base=base)
+    fit = {r["store_id"]: r for r in (intel or {}).get("roles", []) if r.get("store_id")}
+
+    cutoff = (today - timedelta(days=RECENTLY_CLOSED_DAYS)).isoformat()
+    with store.connect() as conn:
+        active = [dict(r) for r in conn.execute(
+            "SELECT * FROM roles WHERE status=? ORDER BY row_order", (app.APPLIED_STATUS,))]
+        closed = [dict(r) for r in conn.execute(
+            "SELECT r.id, r.org, r.title, r.outcomes, r.close_reason, MAX(c.ts) closed_at "
+            "FROM roles r JOIN changes c ON c.role_id = r.id "
+            # Applications you closed - the move from Applied - not every role
+            # closed in the tracker, most of which were never applied to.
+            "WHERE r.status='04 Closed' AND c.field='status' AND c.new_value='04 Closed' "
+            "AND c.old_value=? "
+            "GROUP BY r.id HAVING MAX(c.ts) >= ? ORDER BY closed_at DESC",
+            (app.APPLIED_STATUS, cutoff))]
+
+    items = [_application(store, app, role, fit, today) for role in active]
+    order = {b: i for i, b in enumerate(app.BUCKETS)}
+    items.sort(key=lambda a: (order[a["bucket"]], a["s"].due or date.max, a["org"].lower()))
+    groups = [(b, BUCKET_LABELS[b], [a for a in items if a["bucket"] == b]) for b in app.BUCKETS]
+
+    return {
+        "today": today.isoformat(),
+        "built": datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "groups": [g for g in groups if g[2]],
+        "counts": {
+            "active": len(items),
+            "overdue": sum(a["bucket"] == "overdue" for a in items),
+            "soon": sum(a["bucket"] in ("today", "week") for a in items),
+            "waiting": sum(a["bucket"] == "waiting" for a in items),
+            "estimates": sum(a["estimate"] for a in items),
+        },
+        "closed": [{**c, "closed_on": (c["closed_at"] or "")[:10]} for c in closed],
+        "stages": STAGES,
+        "contact_kinds": CONTACT_KINDS,
+        "channels": TOUCH_CHANNELS,
+        "directions": TOUCH_DIRECTIONS,
+        "outcomes": _outcome_options(),
+        "close_reasons": CLOSE_REASONS,
+        "has_intel": bool(intel),
+        "closed_days": RECENTLY_CLOSED_DAYS,
+    }
+
+
+def applications_summary(base=None, today=None):
+    """The Home card's numbers. None if the database cannot be read."""
+    try:
+        ctx = applications_context(base, today=today)
+    except Exception as exc:  # noqa: BLE001 - home must render without it
+        print(f"  applications summary unavailable: {exc}")
+        return None
+    first = next((a for _b, _l, items in ctx["groups"] for a in items), None)
+    return {**ctx["counts"], "next": first}
+
+
+def render_applications(env, write=True, base=None, today=None):
+    """Applications page. Returns (path_or_None, html)."""
+    html = env.get_template("applications.html.j2").render(**applications_context(base, today=today))
+    out = None
+    if write:
+        out = (base or _default_base()) / "artifacts/html" / "applications.html"
+        out.write_text(html)
+    return out, html
+
+
 def render_profile(env, write=True, base=None):
     """Profile page. Returns (path_or_None, html)."""
     html = env.get_template("profile.html.j2").render(**profile_context(base))
@@ -409,12 +619,14 @@ def main():
     intel = _load("intel-*.json", "artifacts/jobs", base=base)
 
     tracker_path, _tracker_html = render_tracker(env, intel, base=base)
+    applications_path, _applications_html = render_applications(env, base=base)
     profile_path, _profile_html = render_profile(env, base=base)
     settings_path, _settings_html = render_settings(env, base=base)
     written = [p for p in (
         render_index(env, intel, radar, base=base),
         render_radar(env, radar, base=base),
         tracker_path,
+        applications_path,
         profile_path,
         settings_path,
     ) if p]

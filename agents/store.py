@@ -660,6 +660,20 @@ class Store:
             self._log(conn, role_id, field, old, value, actor)
         return {"changed": True, "old": old, "new": _norm(value)}
 
+    def confirm_field(self, role_id, field, actor="dashboard"):
+        """Record that a person checked a field and kept its value. set_field
+        logs nothing when the value does not change, but "I looked, and this
+        date is right" is information: it is what turns an estimated Date
+        Applied into a confirmed one. Logged with old == new."""
+        if field not in DB_TO_HEADER:
+            raise ValueError(f"unknown field: {field}")
+        with self.connect() as conn:
+            row = conn.execute(f"SELECT {field} FROM roles WHERE id=?", (role_id,)).fetchone()
+            if row is None:
+                raise KeyError(role_id)
+            self._log(conn, role_id, field, row[field], row[field], actor)
+        return row[field]
+
     def fill_applied_defaults(self, role_id, today=None, actor="dashboard"):
         """When a role moves to "03 Applied", start its application record:
         date_applied is today and stage is "Applied" - each only if empty, so

@@ -68,6 +68,22 @@
       {% endif %}
     </a>
 
+    <a class="homecard" href="applications.html">
+      <div class="k">Daily</div>
+      <h3>Applications</h3>
+      {% if applications and applications.active %}
+      <p>{% if applications.next %}Next: <b>{{ applications.next.s.action }}</b> · {{ applications.next.org }}
+        ({{ applications.next.due_label }}).{% endif %}</p>
+      <div class="kpis">
+        <div class="kpi"><div class="k">Active</div><div class="v">{{ applications.active }}</div></div>
+        <div class="kpi"><div class="k">Overdue</div><div class="v" style="color:var(--bad)">{{ applications.overdue }}</div></div>
+        <div class="kpi"><div class="k">This week</div><div class="v" style="color:var(--warn)">{{ applications.soon }}</div></div>
+      </div>
+      {% else %}
+      <p class="empty">No active applications. Move a role to <b>03 Applied</b> in the Job Tracker.</p>
+      {% endif %}
+    </a>
+
     <a class="homecard" href="profile.html">
       <div class="k">When it changes</div>
       <h3>Profile</h3>

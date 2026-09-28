@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Applications — {{ today }}</title>
+<link rel="stylesheet" href="theme.css?v={{ asset_v }}">
+{% include '_theme.html.j2' %}
+<style>
+  /* page-specific only; theme.css is shared */
+  #livebadge{display:none}
+  body:not(.live) .live-only{display:none !important}
+  .banner{border:1px solid var(--warn-line);background:var(--warn-bg);color:var(--warn-ink);
+    border-radius:var(--radius);padding:10px 14px;font-size:13px;margin:10px 0 0}
+  .app{background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 18px;margin:0 0 10px;box-shadow:var(--shadow)}
+  .app .apphead{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;align-items:start}
+  .app .who{font-size:15px;font-weight:600;color:var(--ink);overflow-wrap:anywhere}
+  .app .who a{color:inherit;text-decoration:none} .app .who a:hover{color:var(--accent)}
+  .app .who .org{color:var(--ink-dim);font-weight:500}
+  .app .meta{font-size:12px;color:var(--ink-mute);margin-top:4px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .stagechip{font-size:11px;font-weight:600;padding:1px 8px;border-radius:999px;
+    background:var(--info-bg);color:var(--info-ink)}
+  .est{font-size:11px;font-weight:600;padding:1px 8px;border-radius:999px;background:var(--warn-bg);color:var(--warn-ink)}
+  .next .act-name{font-size:14px;font-weight:600;color:var(--ink)}
+  .next .due{font-size:12px;color:var(--ink-mute);margin-top:2px}
+  .next.overdue .due{color:var(--bad);font-weight:600}
+  .next.close .act-name{color:var(--warn-ink)}
+  .next .src{font-size:11px;color:var(--ink-mute);margin-left:6px}
+  .quick{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:10px}
+  .act{font-size:12px;font-weight:500;font-family:var(--sans);border:1px solid var(--line);
+    background:var(--bg-card);color:var(--ink-dim);border-radius:6px;padding:3px 10px;cursor:pointer}
+  .act:hover{border-color:var(--ink-mute);color:var(--ink)}
+  .act.primary{border-color:var(--accent);color:var(--accent)}
+  .act.warn{border-color:var(--warn-line);color:var(--warn-ink);background:var(--warn-bg)}
+  .act:disabled{opacity:.5;cursor:default}
+  .form{display:none;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px;padding:10px;
+    border:1px dashed var(--line);border-radius:6px;font-size:12px;color:var(--ink-mute)}
+  .form.on{display:flex}
+  .form label{display:flex;gap:6px;align-items:center}
+  .form .grow{flex:1 1 220px}
+  .form .grow .textfield{width:100%;box-sizing:border-box}
+  details.more{margin-top:10px;border-top:1px solid var(--line-soft);padding-top:8px}
+  details.more summary{cursor:pointer;font-size:12px;color:var(--ink-mute)}
+  details.more summary:hover{color:var(--ink)}
+  .cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:10px}
+  .cols h4{font-size:12px;font-weight:600;color:var(--ink-mute);margin:0 0 6px;text-transform:none}
+  .tl{list-style:none;margin:0;padding:0;font-size:13px;color:var(--ink-dim)}
+  .tl li{padding:4px 0;border-top:1px solid var(--line-soft);display:flex;gap:10px;align-items:baseline}
+  .tl li:first-child{border-top:0}
+  .tl .d{font-family:var(--mono);font-size:11px;color:var(--ink-mute);white-space:nowrap}
+  .tl .t{flex:1;overflow-wrap:anywhere}
+  .tl .change .t{color:var(--ink-mute)}
+  .people{list-style:none;margin:0 0 8px;padding:0;font-size:13px}
+  .people li{padding:4px 0;display:flex;gap:8px;flex-wrap:wrap;align-items:baseline}
+  .people .k{font-size:11px;color:var(--ink-mute)}
+  .links{font-size:12px;display:flex;gap:12px;flex-wrap:wrap;margin:4px 0 0}
+  .pos p{font-size:13px;color:var(--ink-dim);margin:0 0 6px}
+  .pos ul{margin:0;padding-left:18px;font-size:13px;color:var(--ink-dim)}
+  .edit{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--ink-mute);margin-top:8px}
+  .notes{width:100%;box-sizing:border-box;min-height:56px;font-family:var(--sans);font-size:13px}
+  .closedlist{font-size:13px;color:var(--ink-dim)}
+  .closedlist li{padding:6px 0;border-top:1px solid var(--line-soft);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  @media(max-width:760px){.app .apphead,.cols{grid-template-columns:1fr}}
+</style></head>
+<body data-today="{{ today }}">
+
+{% with page='applications', subtitle='Active applications' %}{% include '_nav.html.j2' %}{% endwith %}
+
+<div class="wrap">
+  <header class="masthead">
+    <div class="eyebrow">Nudge it along, or close it</div>
+    <h1>Applications</h1>
+    <p class="standfirst">What to do next on each application, soonest first. The suggestions come
+    from plain rules on dates and touches, not a model. Your own next action always wins.</p>
+    <div class="chips" style="margin-top:18px">
+      <span class="chip on">Built {{ built }}</span>
+      <span class="chip live" id="livebadge">Live · edits save</span>
+    </div>
+    {% if counts.estimates %}
+    <div class="banner">{{ counts.estimates }} date{{ '' if counts.estimates == 1 else 's' }} applied
+      {{ 'is an estimate' if counts.estimates == 1 else 'are estimates' }} from the backfill. Confirm or correct
+      each one; nudges are timed from it.</div>
+    {% endif %}
+  </header>
+
+  <div class="kpis">
+    <div class="kpi"><div class="k">Active</div><div class="v">{{ counts.active }}</div></div>
+    <div class="kpi"><div class="k">Overdue</div><div class="v" style="color:var(--bad)">{{ counts.overdue }}</div></div>
+    <div class="kpi"><div class="k">Due this week</div><div class="v" style="color:var(--warn)">{{ counts.soon }}</div></div>
+    <div class="kpi"><div class="k">Waiting on them</div><div class="v">{{ counts.waiting }}</div></div>
+  </div>
+
+  {% for bucket, label, items in groups %}
+  <section>
+    <div class="sec-label"><b>{{ '%02d' % loop.index }}</b>{{ label }}</div>
+    {% for a in items %}
+    <article class="app" data-id="{{ a.id }}" data-org="{{ a.org }}">
+      <div class="apphead">
+        <div>
+          <div class="who">{% if a.url %}<a href="{{ a.url }}" target="_blank" rel="noopener">{{ a.title }}</a>{% else %}{{ a.title }}{% endif %}
+            <span class="org">· {{ a.org }}</span></div>
+          <div class="meta">
+            <span class="stagechip">{{ a.stage }}</span>
+            {% if a.date_applied %}<span>Applied {{ a.date_applied }} ({{ a.applied_ago }})</span>{% else %}<span>No date applied</span>{% endif %}
+            {% if a.estimate %}<span class="est" title="Estimated by the backfill">unconfirmed</span>{% endif %}
+            <span>{% if a.last_touch %}Last touch {{ a.last_touch }}{% else %}No touches logged{% endif %}</span>
+          </div>
+        </div>
+        <div class="next {{ a.bucket }}{{ ' close' if a.s.kind == 'close' }}" title="{{ a.s.reason }}">
+          <div class="act-name">{{ a.s.action }}{% if a.s.source == 'manual' %}<span class="src">yours</span>{% endif %}</div>
+          <div class="due">{% if a.s.due %}Due {{ a.s.due.isoformat() }} · {% endif %}{{ a.due_label }}</div>
+        </div>
+      </div>
+
+      <div class="quick live-only">
+        {% if a.estimate or not a.date_applied %}<button type="button" class="act primary" data-open="dateform">Confirm date</button>{% endif %}
+        {% if a.s.kind == 'close' %}<button type="button" class="act warn" data-open="closeform" data-outcome="Ghosted">Close as ghosted</button>{% endif %}
+        <button type="button" class="act" data-open="touchform">Log touch</button>
+        <button type="button" class="act" data-snooze="3">Snooze 3d</button>
+        <button type="button" class="act" data-snooze="7">Snooze 7d</button>
+        {% if a.s.source == 'manual' %}<button type="button" class="act" data-clear-next>Done</button>{% endif %}
+        {% if a.s.kind != 'close' %}<button type="button" class="act" data-open="closeform">Close</button>{% endif %}
+        <span class="flash"></span>
+      </div>
+
+      <div class="form dateform live-only">
+        <label>Date applied <input type="date" class="textfield" name="date_applied" value="{{ a.date_applied or today }}"></label>
+        <button type="button" class="act primary" data-save="date">Save</button>
+      </div>
+
+      <div class="form touchform live-only">
+        <label>Date <input type="date" class="textfield" name="date" value="{{ today }}"></label>
+        <label><select class="fieldsel" name="direction">{% for d in directions %}<option value="{{ d }}">{{ {'out': 'I sent', 'in': 'They sent'}.get(d, d) }}</option>{% endfor %}</select></label>
+        <label><select class="fieldsel" name="channel">{% for c in channels %}<option value="{{ c }}">{{ c }}</option>{% endfor %}</select></label>
+        <label><select class="fieldsel" name="contact_id"><option value="">No contact</option>{% for c in a.contacts %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}</select></label>
+        <span class="grow"><input class="textfield" name="summary" maxlength="1000" placeholder="What happened (optional)"></span>
+        <button type="button" class="act primary" data-save="touch">Save</button>
+      </div>
+
+      <div class="form closeform live-only">
+        <label>Outcome <select class="fieldsel" name="outcome"><option value="">(leave as is)</option>{% for o in outcomes %}<option value="{{ o }}">{{ o }}</option>{% endfor %}</select></label>
+        <label>Why you passed <select class="fieldsel" name="close_reason"><option value="">(none)</option>{% for r in close_reasons %}<option value="{{ r }}">{{ r }}</option>{% endfor %}</select></label>
+        <button type="button" class="act warn" data-save="close">Close application</button>
+      </div>
+
+      <details class="more">
+        <summary>Timeline, contacts and positioning</summary>
+        <div class="edit live-only">
+          <label>Stage <select class="fieldsel" name="stage">{% for s in stages %}<option value="{{ s }}"{% if s == a.stage %} selected{% endif %}>{{ s }}</option>{% endfor %}</select></label>
+          <label>Your next action <input class="textfield" name="next_action" maxlength="200" value="{{ a.next_action }}" placeholder="Overrides the suggestion"></label>
+          <label>due <input type="date" class="textfield" name="next_action_due" value="{{ a.next_action_due }}"></label>
+          <button type="button" class="act" data-save="next">Save</button>
+        </div>
+        <div class="cols">
+          <div>
+            <h4>Timeline</h4>
+            <ul class="tl">
+              {% for e in a.timeline %}
+              <li class="{{ e.kind }}"><span class="d">{{ e.date }}</span><span class="t">{{ e.text }}</span>
+                {% if e.kind == 'touch' %}<button type="button" class="act live-only" data-archive-touch="{{ e.id }}" title="Remove from the timeline (kept in the change log)">×</button>{% endif %}</li>
+              {% else %}
+              <li><span class="t">Nothing yet.</span></li>
+              {% endfor %}
+            </ul>
+          </div>
+          <div>
+            <h4>People at {{ a.org }}</h4>
+            <ul class="people">
+              {% for c in a.contacts %}
+              <li><b>{% if c.url %}<a href="{{ c.url }}" target="_blank" rel="noopener">{{ c.name }}</a>{% else %}{{ c.name }}{% endif %}</b>
+                {% if c.title %}<span>{{ c.title }}</span>{% endif %}
+                {% if c.kind_label %}<span class="k">{{ c.kind_label }}</span>{% endif %}
+                {% if c.email %}<span class="k">{{ c.email }}</span>{% endif %}
+                <button type="button" class="act live-only" data-archive-contact="{{ c.id }}" title="Hide this contact (kept in the change log)">×</button></li>
+              {% else %}
+              <li class="k">No one on file yet.</li>
+              {% endfor %}
+            </ul>
+            <div class="links">Find people:
+              {% for label, url in a.searches %}<a href="{{ url }}" target="_blank" rel="noopener">{{ label }}</a>{% endfor %}</div>
+            <div class="form contactform on live-only">
+              <span class="grow"><input class="textfield" name="name" maxlength="200" placeholder="Name"></span>
+              <span class="grow"><input class="textfield" name="title" maxlength="200" placeholder="Title"></span>
+              <select class="fieldsel" name="kind">{% for k in contact_kinds %}<option value="{{ k }}">{{ k|replace('_', ' ') }}</option>{% endfor %}</select>
+              <span class="grow"><input class="textfield" name="url" maxlength="500" placeholder="https://… (profile)"></span>
+              <span class="grow"><input class="textfield" name="email" maxlength="254" placeholder="Email"></span>
+              <button type="button" class="act primary" data-save="contact">Add person</button>
+            </div>
+
+            <h4 style="margin-top:14px">Positioning</h4>
+            <div class="pos">
+              {% if a.pitch_angle or a.top_gaps %}
+              {% if a.fit_score is not none %}<p>Fit {{ a.fit_score }}/100.</p>{% endif %}
+              {% if a.pitch_angle %}<p><b>Pitch</b> {{ a.pitch_angle }}</p>{% endif %}
+              {% if a.top_gaps %}<p><b>Gaps to answer</b></p><ul>{% for g in a.top_gaps %}<li>{{ g }}</li>{% endfor %}</ul>{% endif %}
+              {% else %}
+              <p>No fit review for this role yet.</p>
+              {% endif %}
+            </div>
+
+            <h4 style="margin-top:14px">Notes</h4>
+            <p class="pos" style="white-space:pre-wrap;margin:0">{{ a.notes or '–' }}</p>
+            <div class="edit live-only"><textarea class="textfield notes" name="notes" maxlength="2000">{{ a.notes }}</textarea>
+              <button type="button" class="act" data-save="notes">Save notes</button></div>
+          </div>
+        </div>
+      </details>
+    </article>
+    {% endfor %}
+  </section>
+  {% else %}
+  <p class="empty">No active applications. Move a role to <b>03 Applied</b> in the Job Tracker and it shows up here.</p>
+  {% endfor %}
+
+  {% if closed %}
+  <section>
+    <details>
+      <summary class="sec-label" style="cursor:pointer">Recently closed · last {{ closed_days }} days ({{ closed|length }})</summary>
+      <ul class="closedlist" style="list-style:none;padding:0">
+        {% for c in closed %}
+        <li data-id="{{ c.id }}"><span class="d">{{ c.closed_on }}</span>
+          <b>{{ c.title }}</b> · {{ c.org }}
+          {% if c.outcomes %}<span class="k">{{ c.outcomes }}</span>{% endif %}
+          {% if c.close_reason %}<span class="k">{{ c.close_reason }}</span>{% endif %}
+          <button type="button" class="act live-only" data-reopen>Reopen</button><span class="flash"></span></li>
+        {% endfor %}
+      </ul>
+    </details>
+  </section>
+  {% endif %}
+
+  <footer>
+    <span>roles · contacts · touches in data/mission-control.db{% if not has_intel %} · no fit review yet{% endif %}</span>
+    <span>Built {{ built }}</span>
+  </footer>
+</div>
+
+<script>
+// Optional writeback, as on the tracker: a static copy stays read-only; with the
+// dashboard running, /api/health answers and the controls appear. Every save
+// reloads the page, so what you see is always what the database holds.
+(function(){
+  if(window.location.protocol === 'file:') return;
+  var API = window.location.origin;
+  var TODAY = document.body.dataset.today;
+
+  fetch(API + '/api/health').then(function(r){ return r.ok ? r.json() : Promise.reject(); })
+  .then(function(h){
+    if(!h.ok || !h.editable || !('stage' in h.editable)) return;
+    document.body.classList.add('live');
+    var badge = document.getElementById('livebadge'); if(badge) badge.style.display = 'inline-block';
+    document.querySelectorAll('.app').forEach(wire);
+    document.querySelectorAll('.closedlist li').forEach(wireClosed);
+  }).catch(function(){ /* read-only, as designed */ });
+
+  function post(path, body){
+    return fetch(API + path, {method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body)})
+      .then(function(r){ return r.json().then(function(j){ return r.ok ? j : Promise.reject(j); }); });
+  }
+  // Several writes in order; stops at the first failure.
+  function chain(calls){
+    return calls.reduce(function(p, c){ return p.then(function(){ return post(c[0], c[1]); }); }, Promise.resolve());
+  }
+  function addDays(iso, n){
+    var d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() + n);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function run(el, button, promise){
+    var flash = el.querySelector('.flash');
+    button.disabled = true;
+    promise.then(function(){ window.location.reload(); })
+    .catch(function(err){
+      if(flash){ flash.className = 'flash failed'; flash.textContent = (err && err.error) || 'failed'; }
+      button.disabled = false;
+    });
+  }
+  function val(scope, name){
+    var f = scope.querySelector('[name="' + name + '"]');
+    return f ? f.value.trim() : '';
+  }
+
+  function wire(el){
+    var id = el.dataset.id, role = '/api/role/' + encodeURIComponent(id);
+    function field(name, value){ return [role, {field: name, value: value}]; }
+
+    el.addEventListener('click', function(e){
+      var b = e.target.closest('button'); if(!b || !el.contains(b)) return;
+
+      if(b.dataset.open){
+        el.querySelectorAll('.form:not(.contactform)').forEach(function(f){
+          f.classList.toggle('on', f.classList.contains(b.dataset.open) && !f.classList.contains('on'));
+        });
+        if(b.dataset.outcome){ el.querySelector('.closeform [name="outcome"]').value = b.dataset.outcome; }
+        return;
+      }
+      if(b.dataset.snooze){
+        return run(el, b, post(role, {field: 'next_action_due', value: addDays(TODAY, +b.dataset.snooze)}));
+      }
+      if(b.hasAttribute('data-clear-next')){
+        return run(el, b, chain([field('next_action', ''), field('next_action_due', '')]));
+      }
+      if(b.dataset.archiveTouch){
+        return run(el, b, post('/api/touch/' + b.dataset.archiveTouch, {archived: true}));
+      }
+      if(b.dataset.archiveContact){
+        return run(el, b, post('/api/contact/' + b.dataset.archiveContact, {archived: true}));
+      }
+      var form = b.closest('.form, .edit') || el;
+      switch(b.dataset.save){
+        case 'date':
+          return run(el, b, post(role, {field: 'date_applied', value: val(form, 'date_applied')}));
+        case 'touch':
+          var cid = val(form, 'contact_id');
+          return run(el, b, post('/api/touches', {role_id: id, date: val(form, 'date'),
+            direction: val(form, 'direction'), channel: val(form, 'channel'),
+            contact_id: cid ? parseInt(cid, 10) : null, summary: val(form, 'summary') || null}));
+        case 'close':
+          return run(el, b, post(role + '/close', {outcome: val(form, 'outcome'),
+            close_reason: val(form, 'close_reason')}));
+        case 'next':
+          return run(el, b, chain([field('stage', val(form, 'stage')),
+            field('next_action', val(form, 'next_action')),
+            field('next_action_due', val(form, 'next_action_due'))]));
+        case 'notes':
+          return run(el, b, post(role, {field: 'notes', value: form.querySelector('[name="notes"]').value}));
+        case 'contact':
+          return run(el, b, post('/api/contacts', {org: el.dataset.org, name: val(form, 'name'),
+            title: val(form, 'title') || null, kind: val(form, 'kind'),
+            url: val(form, 'url') || null, email: val(form, 'email') || null}));
+      }
+    });
+  }
+
+  function wireClosed(li){
+    var b = li.querySelector('[data-reopen]'); if(!b) return;
+    b.addEventListener('click', function(){
+      run(li, b, post('/api/role/' + encodeURIComponent(li.dataset.id), {field: 'status', value: '03 Applied'}));
+    });
+  }
+})();
+</script>
+</body></html>

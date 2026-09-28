@@ -61,6 +61,7 @@ sys.path.insert(0, str(BASE))
 from render.build import _env, render_profile as _render_profile_page  # noqa: E402
 from render.build import render_tracker as _render_tracker_page  # noqa: E402
 from render.build import render_settings as _render_settings_page  # noqa: E402
+from render.build import render_applications as _render_applications_page  # noqa: E402
 import profile_settings  # noqa: E402
 import workspace  # noqa: E402
 
@@ -94,6 +95,10 @@ EDITABLE = {
 }
 
 FREE_TEXT_MAX_LEN = {"notes": 2000, "comp_range": 120, "next_action": 200}
+
+# Fields where saving the value unchanged still means something: you checked
+# it. Date Applied starts life as an estimate; keeping it confirms it.
+CONFIRMABLE = {"date_applied"}
 
 # Free-text fields that must hold a calendar date (YYYY-MM-DD) or be empty.
 DATE_FIELDS = {"date_applied", "next_action_due"}
@@ -229,6 +234,17 @@ def render_profile_live(base):
 
 
 FINDING_NOTE_MAX_LEN = 500
+
+
+def render_applications_live(base):
+    """The Applications page, fresh from the database, so every save shows on
+    reload. None if it fails - the static copy on disk is served instead."""
+    try:
+        _path, html = _render_applications_page(_env(), write=False, base=Path(base))
+        return html
+    except Exception as exc:  # noqa: BLE001
+        sys.stderr.write(f"live applications render failed, serving the static file: {exc}\n")
+        return None
 
 
 def render_settings_live(base):
@@ -403,6 +419,10 @@ class Handler(SimpleHTTPRequestHandler):
             html = render_settings_live(self.store.base_dir)
             if html is not None:
                 return self._html(html)
+        if path == "/applications.html":
+            html = render_applications_live(self.store.base_dir)
+            if html is not None:
+                return self._html(html)
         if path == "/api/settings":
             if not self._loopback():
                 return self._json({"error": "loopback only"}, 403)
@@ -504,6 +524,9 @@ class Handler(SimpleHTTPRequestHandler):
             with _write_lock:
                 result = self.store.set_field(role_id, field, value or None, actor="dashboard")
                 filled = _after_write(self.store, role_id, field, value, result)
+                confirmed = field in CONFIRMABLE and value and not result["changed"]
+                if confirmed:
+                    self.store.confirm_field(role_id, field, actor="dashboard")
         except KeyError:
             return self._json({"error": f"unknown role: {role_id}"}, 404)
         except ValueError as exc:
@@ -517,6 +540,7 @@ class Handler(SimpleHTTPRequestHandler):
             "old": result["old"],
             "new": result["new"],
             "filled": filled,
+            "confirmed": bool(confirmed),
         })
 
     def _finding(self, payload, raw_id):

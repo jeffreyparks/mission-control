@@ -89,8 +89,9 @@ Nothing is ever hard-deleted.
   supports `--dry-run`.
 - **Unconfirmed dates.** A date counts as unconfirmed while its most recent
   change-log entry came from `backfill`. The page shows an "unconfirmed" badge
-  and a first nudge, "Confirm date applied", until you edit the date. No extra
-  column is needed.
+  and a first nudge, "Confirm date applied", until you edit the date. Saving
+  it unchanged also confirms it: the dashboard logs that as a change with the
+  old and new values equal (`Store.confirm_field`). No extra column is needed.
 - **Going forward.** In `dashboard.py`'s POST handler, when status changes to
   `03 Applied`, fill `date_applied` with today and `stage` with `Applied`, but
   only where each is empty. Each fill is its own logged `set_field`.
@@ -180,8 +181,10 @@ Layout:
   - Notes, editable.
 - **Close dialog:** an outcome dropdown and an optional close-reason dropdown,
   both filled in from the suggestion.
-- **Recently closed:** a collapsed section listing roles closed in the last 14
-  days, each with a Reopen button that sets status back to `03 Applied`.
+- **Recently closed:** a collapsed section listing applications closed in the
+  last 14 days - roles whose status moved from `03 Applied` to `04 Closed`, not
+  everything closed in the tracker - each with a Reopen button that sets status
+  back to `03 Applied`.
 
 How edits work: like the tracker, the page is read-only until `/api/health`
 responds. After any write, the page reloads. With about 20 rows that's instant,
