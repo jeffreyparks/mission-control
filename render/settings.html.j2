@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Settings</title>
+<link rel="stylesheet" href="theme.css?v={{ asset_v }}">
+{% include '_theme.html.j2' %}
+<style>
+  /* page-specific only; theme.css is shared */
+  .banner{border:1px solid var(--warn-line);background:var(--warn-bg);color:var(--warn-ink);
+    border-radius:var(--radius);padding:10px 14px;font-size:13px;margin:14px 0 0}
+  body.live .banner.readonly{display:none}
+  #livebadge{display:none}
+  .file{font-family:var(--mono);font-size:12px;color:var(--ink-mute);margin:-12px 0 18px}
+  .setgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  .setgrid .wide{grid-column:1 / -1}
+  .card h3{font-size:15px;margin:0 0 4px}
+  .card .help{font-size:12px;color:var(--ink-mute);margin:0 0 10px}
+  .items{display:flex;flex-direction:column;gap:6px}
+  .item{display:flex;gap:6px;align-items:center}
+  .item .n{font-family:var(--mono);font-size:12px;color:var(--ink-mute);min-width:22px;text-align:right}
+  .item .textfield{flex:1;min-width:0}
+  .item .pages{flex:0 0 78px}
+  .mini{font-size:12px;font-family:var(--sans);border:1px solid var(--line);background:var(--bg-card);
+    color:var(--ink-dim);border-radius:6px;padding:3px 8px;cursor:pointer;line-height:1.2}
+  .mini:hover{border-color:var(--ink-mute);color:var(--ink)}
+  .mini:disabled{opacity:.4;cursor:default}
+  .card textarea.textfield{width:100%;box-sizing:border-box;min-height:120px;font-family:var(--sans);
+    font-size:13px;padding:8px;resize:vertical}
+  .card .textfield{max-width:none}          /* theme.css caps it for the tracker's cells */
+  .card input.textfield{padding:5px 8px;font-size:13px}
+  .card .item .pages{max-width:78px}
+  .savebar{display:flex;gap:8px;align-items:center;margin-top:10px;font-size:12px;color:var(--ink-mute)}
+  .save{font-size:12px;font-weight:600;font-family:var(--sans);border:1px solid var(--accent);
+    background:var(--accent-soft);color:var(--accent);border-radius:6px;padding:4px 12px;cursor:pointer}
+  .save:disabled{opacity:.5;cursor:default}
+  body:not(.live) .save,body:not(.live) .mini{display:none}
+  .dirty .save{background:var(--accent);color:var(--bg-card)}
+  .field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+  .field label{font-size:13px;color:var(--ink);font-weight:500}
+  .note{font-size:12px;color:var(--ink-mute)}
+  @media(max-width:800px){.setgrid{grid-template-columns:1fr}}
+</style></head>
+<body>
+
+{% with page='settings', subtitle='Profile settings' %}{% include '_nav.html.j2' %}{% endwith %}
+
+<div class="wrap">
+  <header class="masthead">
+    <div class="eyebrow">Workspace · {{ workspace_name }}</div>
+    <h1>Settings</h1>
+    <p class="standfirst">The profile every scan and judgment reads. Each card saves to the file named
+    above it. Nothing re-runs on save: the next <code>mc run</code> or <code>mc profile</code> picks it up.</p>
+    <div class="chips" style="margin-top:18px"><span class="chip live" id="livebadge">Live · edits save</span></div>
+    <div class="banner readonly">Read-only copy. Start <code>mc dashboard</code> and open this page from it to edit.</div>
+  </header>
+
+  <section>
+    <div class="sec-label"><b>01</b>Career goals</div>
+    <h2>What you want, and what to look for</h2>
+    <p class="file">me/profile.md · the previous version is kept as me/profile.prev.md</p>
+    <div class="setgrid" id="goals"></div>
+  </section>
+
+  <section>
+    <div class="sec-label"><b>02</b>Accounts</div>
+    <h2>Whose public profiles to read</h2>
+    <p class="file">workspace/{{ workspace_name }}/.env</p>
+    <div class="setgrid" id="accounts"></div>
+    <p class="note" style="margin-top:12px">The BlueSky app password is
+    {% if settings.accounts.bluesky_app_password_set %}set{% else %}not set{% endif %}. It is only a fallback
+    for when the public read fails, and it is edited in the file, never here.</p>
+  </section>
+
+  <section>
+    <div class="sec-label"><b>03</b>Review settings</div>
+    <h2>How the Profile review runs</h2>
+    <p class="file">workspace/{{ workspace_name }}/config/profile.yaml · overrides the repo's default</p>
+    <div class="setgrid" id="review"></div>
+  </section>
+</div>
+
+<script id="settings-data" type="application/json">{{ {'settings': settings, 'spec': spec, 'limits': review_limits, 'maxSites': max_sites, 'maxPages': max_site_pages}|tojson }}</script>
+<script>
+(function(){
+  var D = JSON.parse(document.getElementById('settings-data').textContent);
+  var S = D.settings;
+  var live = false, API = window.location.origin;
+
+  function el(tag, attrs, kids){
+    var e = document.createElement(tag);
+    Object.keys(attrs || {}).forEach(function(k){
+      if(k === 'text') e.textContent = attrs[k]; else if(k === 'cls') e.className = attrs[k]; else e.setAttribute(k, attrs[k]);
+    });
+    (kids || []).forEach(function(c){ if(c) e.appendChild(c); });
+    return e;
+  }
+
+  // One card: a heading, help text, an editor, and a Save button. `read()`
+  // returns what to send; the server's answer (normalised) is fed back to `load`.
+  function card(host, opts){
+    var flash = el('span', {cls: 'flash'});
+    var save = el('button', {type: 'button', cls: 'save', text: 'Save'});
+    var c = el('article', {cls: 'card' + (opts.wide ? ' wide' : '')}, [
+      el('h3', {text: opts.title}), opts.help ? el('p', {cls: 'help', text: opts.help}) : null,
+      opts.body, el('div', {cls: 'savebar'}, [save, opts.counter || null, flash])]);
+    c.addEventListener('input', function(){ c.classList.add('dirty'); flash.textContent = ''; });
+    c.addEventListener('mc-change', function(){ c.classList.add('dirty'); flash.textContent = ''; });
+    save.addEventListener('click', function(){
+      save.disabled = true;
+      fetch(API + '/api/settings', {method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({group: opts.group, field: opts.field, value: opts.read()})})
+      .then(function(r){ return r.json().then(function(j){ return r.ok ? j : Promise.reject(j); }); })
+      .then(function(j){
+        opts.load(j.value); c.classList.remove('dirty');
+        flash.className = 'flash saved'; flash.textContent = j.changed ? 'saved' : 'no change';
+      })
+      .catch(function(err){ flash.className = 'flash failed'; flash.textContent = (err && err.error) || 'failed'; })
+      .finally(function(){ save.disabled = false; });
+    });
+    host.appendChild(c);
+    return c;
+  }
+
+  // A reorderable list of text inputs. `row(value)` makes the inputs for one item.
+  function listEditor(values, row, max, numbered){
+    var box = el('div', {cls: 'items'});
+    var add = el('button', {type: 'button', cls: 'mini', text: '+ Add'});
+    function renumber(){
+      Array.prototype.forEach.call(box.children, function(r, i){
+        var n = r.querySelector('.n'); if(n) n.textContent = numbered ? (i + 1) + '.' : '';
+        r.querySelector('.up').disabled = i === 0;
+        r.querySelector('.down').disabled = i === box.children.length - 1;
+      });
+      add.disabled = box.children.length >= max;
+      box.dispatchEvent(new Event('mc-change', {bubbles: true}));
+    }
+    function addRow(value, focus){
+      var inputs = row(value);
+      var up = el('button', {type: 'button', cls: 'mini up', title: 'Move up', text: '↑'});
+      var down = el('button', {type: 'button', cls: 'mini down', title: 'Move down', text: '↓'});
+      var del = el('button', {type: 'button', cls: 'mini', title: 'Remove', text: '×'});
+      var r = el('div', {cls: 'item'}, [numbered ? el('span', {cls: 'n'}) : null].concat(inputs, [up, down, del]));
+      up.onclick = function(){ if(r.previousSibling) box.insertBefore(r, r.previousSibling); renumber(); };
+      down.onclick = function(){ if(r.nextSibling) box.insertBefore(r.nextSibling, r); renumber(); };
+      del.onclick = function(){ r.remove(); renumber(); };
+      inputs[0].addEventListener('keydown', function(e){
+        if(e.key === 'Enter'){
+          e.preventDefault();
+          if(box.children.length < max){
+            var nr = addRow('');
+            box.insertBefore(nr, r.nextSibling); nr.querySelector('input').focus(); renumber();
+          }
+        }
+      });
+      box.appendChild(r);
+      if(focus) inputs[0].focus();
+      return r;
+    }
+    add.onclick = function(){ addRow('', true); renumber(); };
+    function load(vals){ box.innerHTML = ''; (vals || []).forEach(function(v){ addRow(v); }); renumber(); }
+    load(values);
+    return {body: el('div', {}, [box, el('div', {style: 'margin-top:8px'}, [add])]), box: box, load: load};
+  }
+
+  function textInput(value, cap){
+    var i = el('input', {type: 'text', cls: 'textfield', maxlength: cap});
+    i.value = value && value.url !== undefined ? value.url : (value || '');
+    return i;
+  }
+
+  // ---- 01 goals
+  var goals = document.getElementById('goals');
+  D.spec.forEach(function(sp){
+    var key = sp.key, value = S.goals[key];
+    if(sp.kind === 'text'){
+      var ta = el('textarea', {cls: 'textfield', maxlength: sp.cap});
+      ta.value = value || '';
+      var cnt = el('span', {cls: 'count'});
+      function count(){ cnt.textContent = ta.value.length + ' / ' + sp.cap; }
+      ta.addEventListener('input', count); count();
+      card(goals, {group: 'goals', field: key, title: sp.heading, help: sp.help, body: ta, counter: cnt,
+        wide: true, read: function(){ return ta.value; }, load: function(v){ ta.value = v; count(); }});
+    } else {
+      var ed = listEditor(value, function(v){ return [textInput(v, sp.cap)]; }, sp.max, sp.kind === 'numbered');
+      card(goals, {group: 'goals', field: key, title: sp.heading, help: sp.help, body: ed.body,
+        read: function(){
+          return Array.prototype.map.call(ed.box.querySelectorAll('input'), function(i){ return i.value; });
+        }, load: ed.load});
+    }
+  });
+
+  // ---- 02 accounts
+  var accounts = document.getElementById('accounts');
+  [['github_username', 'GitHub username', 'Public repos and your profile README. Blank skips the GitHub scan.'],
+   ['bluesky_handle', 'BlueSky handle', 'e.g. name.bsky.social. Blank skips the BlueSky scan.']].forEach(function(a){
+    var i = textInput(S.accounts[a[0]], 253);
+    card(accounts, {group: 'accounts', field: a[0], title: a[1], help: a[2], body: i,
+      read: function(){ return i.value; }, load: function(v){ i.value = v; }});
+  });
+
+  // ---- 03 review
+  var review = document.getElementById('review');
+  var sites = listEditor(S.review.sites, function(v){
+    var u = textInput(v, 500); u.placeholder = 'https://you.example/';
+    var p = el('input', {type: 'number', cls: 'textfield pages', min: 0, max: D.maxPages, title: 'Extra pages from the sitemap'});
+    p.value = (v && v.max_pages) || 0;
+    return [u, p];
+  }, D.maxSites, false);
+  card(review, {group: 'review', field: 'sites', title: 'Sites', wide: true, body: sites.body,
+    help: 'Personal or portfolio sites to read. The number is how many extra pages to read from the site’s sitemap.xml; 0 reads the one page.',
+    read: function(){
+      return Array.prototype.map.call(sites.box.children, function(r){
+        var f = r.querySelectorAll('input'); return {url: f[0].value, max_pages: f[1].value};
+      });
+    }, load: sites.load});
+  [['linkedin_stale_days', 'LinkedIn export stale after (days)', 'An older export is flagged as stale.'],
+   ['reevaluate_days', 'Re-judge at least every (days)', 'Even when no profile has changed.'],
+   ['pursued_min_fit', 'Pursued at fit score', 'A role at or above this fit (0-100) counts as pursued, applied or not.'],
+   ['pursued_window_days', 'Pursued roles from the last (days)', 'How far back pursued roles are read.']].forEach(function(n){
+    var lim = D.limits[n[0]];
+    var i = el('input', {type: 'number', cls: 'textfield', min: lim[0], max: lim[1]});
+    i.value = S.review[n[0]];
+    card(review, {group: 'review', field: n[0], title: n[1], help: n[2] + ' (' + lim[0] + '–' + lim[1] + ')', body: i,
+      read: function(){ return i.value; }, load: function(v){ i.value = v; }});
+  });
+
+  // Read-only until the dashboard answers, as on the other pages.
+  function setLive(on){
+    document.querySelectorAll('input, textarea').forEach(function(i){ i.disabled = !on; });
+  }
+  setLive(false);
+  if(window.location.protocol === 'file:') return;
+  fetch(API + '/api/health').then(function(r){ return r.ok ? r.json() : Promise.reject(); })
+  .then(function(h){
+    if(!h.ok) return;
+    live = true; setLive(true);
+    document.body.classList.add('live');
+    document.getElementById('livebadge').style.display = 'inline-block';
+    document.querySelectorAll('.card.dirty').forEach(function(c){ c.classList.remove('dirty'); });
+  }).catch(function(){ /* read-only, as designed */ });
+
+  // Unsaved edits are easy to lose on a page this long.
+  window.addEventListener('beforeunload', function(e){
+    if(live && document.querySelector('.card.dirty')){ e.preventDefault(); e.returnValue = ''; }
+  });
+})();
+</script>
+</body></html>

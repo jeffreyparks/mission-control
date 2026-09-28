@@ -62,6 +62,13 @@ Write keywords plainly, without quotes: `marketing science`, not `"marketing sci
 An optional `## Persona` section in `profile.md` says how you want to come across; the Profile
 review judges your voice against it. List personal sites in `workspace/default/config/profile.yaml`.
 
+**Or edit it all in the dashboard.** The **Settings** page (`mc dashboard`, then Settings in the
+top bar) edits every section of `profile.md`, your GitHub and BlueSky accounts, and the Profile
+review settings, one card at a time. Each save changes just that section and keeps the rest of the
+file, comments included; the previous `profile.md` is kept as `profile.prev.md`. Reordering Target
+Roles renumbers them, and the numbers are how Role Cat refers to them. The BlueSky app password
+stays file-only. Nothing re-runs on save: the next `mc run` or `mc profile` uses the new values.
+
 **Where roles come from.** Your target companies' own job boards (Greenhouse, Lever, Ashby), plus
 Built In, Indeed and LinkedIn. Companies, boards and scanning rules are set in
 `workspace/default/config/job-sources.yaml`.
@@ -119,6 +126,8 @@ role twice, and it adds nothing if the page can't be read.
   example, to clear out rejects: filter to `Rec = skip`, **Select all shown**, set Status to
   Closed, pick a close reason, **Apply**. Only dropdown fields can be bulk-edited, and rows
   hidden by a filter are never changed.
+- **Settings** edits your profile, accounts and review settings. See
+  [Tell it what you want](#tell-it-what-you-want).
 - **Light or dark:** the switch in the top bar cycles Auto, Light and Dark.
 - Without the server, the pages still open as read-only files.
 - It only accepts connections from your own machine.
