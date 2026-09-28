@@ -11,7 +11,7 @@ text sent to the AI model that judges each role.
 
 | Page | How often | What's on it |
 |---|---|---|
-| **Job Tracker** | daily | Every role found, with a fit score, a plain-English reason, a recommendation and how long ago it was posted |
+| **Tracker** | daily | Every role found, with a fit score, a plain-English reason, a recommendation and how long ago it was posted |
 | **Content Radar** | weekly | Articles worth reacting to, with a suggested angle for each, and what's new in your GitHub repos |
 | **Profile** | when a profile changes, or weekly | How your LinkedIn, GitHub, BlueSky and sites read for the roles you pursue: scores, findings to fix, draft rewrites |
 | **Home** | daily | What changed since the last run, the radar's top picks, and a Profile summary |

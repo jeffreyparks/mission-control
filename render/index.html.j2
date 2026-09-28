@@ -38,7 +38,7 @@
   <div class="homegrid">
     <a class="homecard" href="job-tracker.html">
       <div class="k">Daily</div>
-      <h3>Job Tracker</h3>
+      <h3>Tracker</h3>
       {% if intel %}
       <p>{{ intel.counts.roles }} roles judged across {{ intel.counts.orgs }} orgs.
       {{ intel.counts.apply }} worth applying to, {{ intel.counts.skip }} honestly not.</p>
@@ -80,7 +80,7 @@
         <div class="kpi"><div class="k">This week</div><div class="v" style="color:var(--warn)">{{ applications.soon }}</div></div>
       </div>
       {% else %}
-      <p class="empty">No active applications. Move a role to <b>03 Applied</b> in the Job Tracker.</p>
+      <p class="empty">No active applications. Move a role to <b>03 Applied</b> in the Tracker.</p>
       {% endif %}
     </a>
 
