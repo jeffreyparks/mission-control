@@ -1,11 +1,42 @@
 # Mission Control
 
-A personal job-search assistant. Give it your resume and what you're looking for, and every day it
-finds new openings at the companies and job boards you care about, reads each one, and tells you
-honestly whether it's worth your time. Once a week it also suggests what to write about.
+A hands-on project in **agentic-system design and LLM evaluation**, built around a use case that
+rewards getting both right: continuous career development.
+
+It's a pipeline of small LLM agents that read the professional landscape (job postings, industry
+writing, and your own public profiles) and turn it into judgements you can act on: which skills and
+roles a field is rewarding, what's worth learning or writing about, and how your profile reads to
+people in that field. Role postings are a big part of it, because they are the clearest public
+signal of what a field values, but the goal is ongoing learning and professional growth, not just
+a job hunt.
 
 Everything runs on your own machine. Your resume, notes and results never leave it, except for the
-text sent to the AI model that judges each role.
+text sent to the AI model that does the judging.
+
+## Why it exists
+
+**To practise building agents that hold up on real, messy data.** Each part is a small problem in
+agent design:
+
+- **Model routing with escalation.** Cheap models handle mechanical labeling; judgements start on a
+  stronger model. Malformed or impossible answers are retried and moved up a tier.
+  See [Models](#models).
+- **LLM-as-judge, calibrated to say no.** The fit prompts make "skip" and "nothing this week"
+  normal answers instead of inflating scores.
+- **Grounded output.** Every profile finding must quote your actual text, and a quote that isn't
+  really there is dropped in code.
+- **Code for facts, models for words.** Counts and evidence are computed deterministically; the
+  model only phrases them.
+- **Cost as a design constraint.** Verdicts are fingerprinted against the input and prompt, and
+  responses are cached, so only new or changed work costs anything.
+- **Human in the loop.** Preferences learned from your decisions are drafted with their evidence
+  and change nothing until you approve them.
+- **Failure isolation.** If one stage fails, the others still finish.
+
+**To evaluate models on a task where the answers can be checked.** The scripts in `tests/evals/`
+compare cheaper open models against frontier verdicts on real prompts. That's how the routing
+tiers were chosen: the fit judgement stays on Claude Sonnet because, in testing, cheaper models
+changed too many verdicts.
 
 ## What you get
 
@@ -123,9 +154,9 @@ role twice, and it adds nothing if the page can't be read.
   Outcomes records what the *employer* did. Keep them apart: the close reasons are what the
   tracker learns from.
 - **Posted** shows how many days ago the board says a role went up, highlighted when it's 3 days
-  old or less, and the **Posted** filter narrows to the last 3, 7 or 14 days. Applying early
-  matters. With no board date, an italic `~Nd` shows days since the tracker first saw the role
-  instead; that's only a lower bound, so the filter ignores it.
+  old or less, and the **Posted** filter narrows to the last 3, 7 or 14 days. With no board date,
+  an italic `~Nd` shows days since the tracker first saw the role instead; that's only a lower
+  bound, so the filter ignores it.
 - **Edit many rows at once** by ticking their checkboxes and using the bar above the table. For
   example, to clear out rejects: filter to `Rec = skip`, **Select all shown**, set Status to
   Closed, pick a close reason, **Apply**. Only dropdown fields can be bulk-edited, and rows
