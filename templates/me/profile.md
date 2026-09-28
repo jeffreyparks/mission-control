@@ -56,6 +56,16 @@
 - <!-- e.g. agentic systems: agents taking real actions in production -->
 - <!-- e.g. llm evaluation: evals as the new experiment design -->
 
+## Content Radar Guidance
+*(Free-text editorial direction for the CONTENT RADAR only - which subjects to
+  pick, which to skip, and the stance to take. The radar follows it over its
+  own breadth rules. It never reaches the job-fit judge, so a strong opinion
+  here cannot cost you a role. Optional.)*
+
+<!-- e.g. Smart glasses are a bad product category. Skip them unless the piece
+     lets me be critical of them.
+     e.g. Prefer practitioner write-ups over vendor announcements. -->
+
 ## Exclude Keywords
 *(Hard stop. A match in a role's TITLE ONLY - never the description - drops the
   posting immediately: it never enters the tracker and never costs an LLM call.

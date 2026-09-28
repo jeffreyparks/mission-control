@@ -62,7 +62,14 @@
   </section>
 
   <section>
-    <div class="sec-label"><b>02</b>Accounts</div>
+    <div class="sec-label"><b>02</b>Content Radar</div>
+    <h2>What to write about, and how</h2>
+    <p class="file">me/profile.md · the previous version is kept as me/profile.prev.md</p>
+    <div class="setgrid" id="radar"></div>
+  </section>
+
+  <section>
+    <div class="sec-label"><b>03</b>Accounts</div>
     <h2>Whose public profiles to read</h2>
     <p class="file">workspace/{{ workspace_name }}/.env</p>
     <div class="setgrid" id="accounts"></div>
@@ -72,7 +79,7 @@
   </section>
 
   <section>
-    <div class="sec-label"><b>03</b>Review settings</div>
+    <div class="sec-label"><b>04</b>Review settings</div>
     <h2>How the Profile review runs</h2>
     <p class="file">workspace/{{ workspace_name }}/config/profile.yaml · overrides the repo's default</p>
     <div class="setgrid" id="review"></div>
@@ -168,10 +175,10 @@
     return i;
   }
 
-  // ---- 01 goals
-  var goals = document.getElementById('goals');
+  // ---- 01 goals, 02 radar (both sections of me/profile.md)
+  var hosts = {goals: document.getElementById('goals'), radar: document.getElementById('radar')};
   D.spec.forEach(function(sp){
-    var key = sp.key, value = S.goals[key];
+    var key = sp.key, value = S.goals[key], goals = hosts[sp.section] || hosts.goals;
     if(sp.kind === 'text'){
       var ta = el('textarea', {cls: 'textfield', maxlength: sp.cap});
       ta.value = value || '';
@@ -189,7 +196,7 @@
     }
   });
 
-  // ---- 02 accounts
+  // ---- 03 accounts
   var accounts = document.getElementById('accounts');
   [['github_username', 'GitHub username', 'Public repos and your profile README. Blank skips the GitHub scan.'],
    ['bluesky_handle', 'BlueSky handle', 'e.g. name.bsky.social. Blank skips the BlueSky scan.']].forEach(function(a){
@@ -198,7 +205,7 @@
       read: function(){ return i.value; }, load: function(v){ i.value = v; }});
   });
 
-  // ---- 03 review
+  // ---- 04 review
   var review = document.getElementById('review');
   var sites = listEditor(S.review.sites, function(v){
     var u = textInput(v, 500); u.placeholder = 'https://you.example/';

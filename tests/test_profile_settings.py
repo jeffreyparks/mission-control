@@ -279,3 +279,31 @@ def test_settings_page_is_served_live(api):
     assert page.status_code == 200
     assert 'id="settings-data"' in page.text and "Head of Widgets" in page.text
     assert 'href="settings.html"' in page.text
+
+
+def test_radar_guidance_is_its_own_section_and_stays_out_of_the_fit_context(ws):
+    import content_radar
+    from context import context_block
+    guidance = "Sprocket phones are a bad product.\nOnly cover them critically."
+    ps.set_goal(ws, "radar_guidance", guidance)
+    assert ps.read_goals(ws)["radar_guidance"] == guidance
+    assert {s["key"]: s["section"] for s in ps.spec()}["radar_guidance"] == "radar"
+
+    radar = content_radar.ContentRadar.__new__(content_radar.ContentRadar)
+    radar.guidance = content_radar.load_radar_guidance(ws)
+    assert radar.guidance == guidance
+    assert guidance in radar.guidance_block() and "OVERRIDES the breadth rules" in radar.guidance_block()
+
+    ctx = context_block(ws)
+    assert "Sprocket phones" not in ctx and "Content Radar Guidance" not in ctx
+    assert "## Exclude Keywords" in ctx and "## Notes" in ctx     # the rest survives
+
+
+def test_template_guidance_placeholder_reads_as_empty(tmp_path):
+    import content_radar
+    (tmp_path / "me").mkdir()
+    (tmp_path / "me/profile.md").write_text(ps.TEMPLATE.read_text())
+    assert content_radar.load_radar_guidance(tmp_path) == ""
+    assert ps.read_goals(tmp_path)["radar_guidance"] == ""
+    radar = content_radar.ContentRadar.__new__(content_radar.ContentRadar)
+    assert radar.guidance_block() == ""

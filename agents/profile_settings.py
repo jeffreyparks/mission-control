@@ -48,6 +48,10 @@ GOAL_SECTIONS = {
                         "become searches, so the strongest lead. Write them bare, without quotes."),
     "watch_topics": ("## Watch Topics", "bullets", 240, 30,
                      "Emerging themes for the Content Radar. Format: topic: why you are watching it."),
+    "radar_guidance": ("## Content Radar Guidance", "text", 3000, None,
+                       "Editorial direction for the Content Radar alone: subjects to skip, stances "
+                       "to take, how to position a pick. It outranks the radar's own breadth rules "
+                       "and never reaches the job-fit judge."),
     "exclude_keywords": ("## Exclude Keywords", "bullets", 80, 60,
                          "A match in a role's title drops it. Whole words, case-insensitive."),
     "career_positioning": ("## Career Positioning", "text", 3000, None,
@@ -58,6 +62,10 @@ GOAL_SECTIONS = {
     "notes": ("## Notes", "text", 3000, None,
               "Anything else the model should weigh."),
 }
+
+# Sections of profile.md the Settings page shows in its own Content Radar
+# section rather than under Career goals. Still saved with group "goals".
+RADAR_KEYS = {"radar_guidance"}
 
 ACCOUNT_KEYS = {"github_username": "GITHUB_USERNAME", "bluesky_handle": "BLUESKY_HANDLE"}
 _GITHUB_RE = re.compile(r"^(?!-)(?!.*--)[A-Za-z0-9-]{1,39}(?<!-)$")
@@ -447,7 +455,8 @@ def read_all(base_dir):
 def spec():
     """What the page needs to draw the goals editors, in profile.md order (a
     list, since the page's JSON has its keys sorted)."""
-    return [{"key": key, "heading": h.lstrip("# "), "kind": kind, "cap": cap, "max": mx, "help": hp}
+    return [{"key": key, "heading": h.lstrip("# "), "kind": kind, "cap": cap, "max": mx, "help": hp,
+             "section": "radar" if key in RADAR_KEYS else "goals"}
             for key, (h, kind, cap, mx, hp) in GOAL_SECTIONS.items()]
 
 
