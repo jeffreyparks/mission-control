@@ -59,12 +59,16 @@ Three lists in `profile.md` control what it looks for:
 
 Write keywords plainly, without quotes: `marketing science`, not `"marketing science"`.
 
+An optional `## Content Radar Guidance` section is free-text direction for the radar alone:
+subjects to skip, stances to take (*"Smart glasses are a bad product; I only write about them
+critically"*). The radar follows it over its own breadth rules, and the job-fit judge never sees it.
+
 An optional `## Persona` section in `profile.md` says how you want to come across; the Profile
 review judges your voice against it. List personal sites in `workspace/default/config/profile.yaml`.
 
 **Or edit it all in the dashboard.** The **Settings** page (`mc dashboard`, then Settings in the
 top bar) edits every section of `profile.md`, your GitHub and BlueSky accounts, and the Profile
-review settings, one card at a time. Each save changes just that section and keeps the rest of the
+review settings, one card at a time, with the radar guidance in its own Content Radar section. Each save changes just that section and keeps the rest of the
 file, comments included; the previous `profile.md` is kept as `profile.prev.md`. Reordering Target
 Roles renumbers them, and the numbers are how Role Cat refers to them. The BlueSky app password
 stays file-only. Nothing re-runs on save: the next `mc run` or `mc profile` uses the new values.

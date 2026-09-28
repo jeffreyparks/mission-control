@@ -31,6 +31,7 @@ from pathlib import Path
 TARGET_HEADING = "## Target Keywords"
 EXCLUDE_HEADING = "## Exclude Keywords"
 WATCH_HEADING = "## Watch Topics"
+RADAR_GUIDANCE_HEADING = "## Content Radar Guidance"
 
 
 def strip_html_comments(text):
@@ -222,3 +223,53 @@ def matches_exclude(text, excludes):
         if pattern and pattern.search(text):
             return str(term)
     return None
+
+
+def _is_heading(line, heading):
+    return line.strip() == heading or line.strip().startswith(heading + " ")
+
+
+def drop_section(text, heading):
+    """`text` without the `heading` section (heading line through the line
+    before the next `## ` heading). Used to keep a section meant for one agent
+    out of the ground truth every other agent reads."""
+    lines, out, inside = (text or "").split("\n"), [], False
+    masked = strip_html_comments(text).split("\n")
+    for line, bare in zip(lines, masked):
+        if _is_heading(bare, heading):
+            inside = True
+            continue
+        if inside and bare.startswith("## "):
+            inside = False
+        if not inside:
+            out.append(line)
+    return "\n".join(out)
+
+
+def load_radar_guidance(base_dir):
+    """Read `## Content Radar Guidance` from <base_dir>/me/profile.md as prose.
+
+    Free-text editorial direction for the Content Radar only: subjects to
+    avoid, stances to take, how to position a pick ("I only write about X
+    critically"). Comments and the `*( ... )*` hint under the heading are
+    dropped. An absent or empty section gives "", and the radar judges on
+    the rest of the profile alone.
+    """
+    path = Path(base_dir) / "me" / "profile.md"
+    if not path.exists():
+        return ""
+    body, inside, hint = [], False, False
+    for line in strip_html_comments(path.read_text()).split("\n"):
+        if not inside:
+            inside = _is_heading(line, RADAR_GUIDANCE_HEADING)
+            continue
+        if line.startswith("## "):
+            break
+        s = line.strip()
+        if not body and not hint and s.startswith("*("):
+            hint = True
+        if hint:
+            hint = not s.endswith(")*")
+            continue
+        body.append(line.rstrip())
+    return re.sub(r"\n\s*\n(\s*\n)+", "\n\n", "\n".join(body)).strip()

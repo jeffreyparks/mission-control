@@ -110,7 +110,7 @@ from bs4 import BeautifulSoup
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from llm import LLM, LLMError, output_budget   # noqa: E402
 from context import context_block      # noqa: E402
-from profile_keywords import load_watch_topics   # noqa: E402
+from profile_keywords import load_radar_guidance, load_watch_topics   # noqa: E402
 
 MAX_AGE_DAYS = 14
 MAX_ARTICLE_CHARS = 6000
@@ -153,6 +153,9 @@ class ContentRadar:
         # Emerging themes from me/profile.md "## Watch Topics". Empty is fine:
         # the radar then judges on the profile alone, exactly as before.
         self.watch_topics = load_watch_topics(self.base_dir)
+        # Free-text editorial direction from me/profile.md "## Content Radar
+        # Guidance": what to avoid, what stance to take. Empty is fine.
+        self.guidance = load_radar_guidance(self.base_dir)
         # Coverage gaps from the Profile review: asks the roles you pursue make
         # that no public profile of yours shows. Empty without an evaluation.
         from profile_eval import profile_gap_topics
@@ -224,6 +227,27 @@ class ContentRadar:
                 + "\n".join(lines) + "\n"
             )
         return block
+
+    def guidance_block(self):
+        """The candidate's own editorial direction, injected into both prompts.
+
+        Placed after the breadth rules and worded to outrank them: when the
+        candidate says a subject is off the table, or only fair game from one
+        stance, a strong article on it is still not a pick - or is a pick only
+        with that stance as its angle. It never outranks the honesty rules."""
+        guidance = getattr(self, "guidance", "")   # absent on radars built without __init__
+        if not guidance:
+            return ""
+        return (
+            "\nCANDIDATE'S EDITORIAL GUIDANCE (from profile.md '## Content Radar Guidance')\n"
+            "The candidate wrote this to steer which subjects you pick and how you\n"
+            "position them. Follow it: it OVERRIDES the breadth rules and the theme\n"
+            "spread above (never the honesty rules). A subject the candidate rules\n"
+            "out is not a pick however strong the article. A subject the candidate\n"
+            "will only cover from a stated stance is a pick only when the angle\n"
+            "takes that stance. When in doubt, leave it out.\n"
+            "<<<\n" + guidance + "\n>>>\n"
+        )
 
     # ---------------- config ----------------
 
@@ -398,6 +422,7 @@ class ContentRadar:
             )
 
         watch_block = self.watch_block()
+        guidance_block = self.guidance_block()
         prompt = f"""{context_block(self.base_dir)}
 
 === TASK: WEEKLY CONTENT RADAR (editorial judgment, not keyword matching) ===
@@ -436,7 +461,7 @@ RULES ON BREADTH (read profile.md's two pillars before you judge)
 - Aim for a spread across at least 3 distinct themes when the batch supports
   it, and prefer a pick that opens a NEW line of authority over a fourth pick
   restating an established one.
-{watch_block}
+{watch_block}{guidance_block}
 Return ONLY a JSON object with this exact shape:
 {{
   "filter": "one short paragraph (2-4 sentences), first person plural or neutral, stating the judgment criterion you applied to THIS week's set. Be concrete about what you rejected and why.",
@@ -505,7 +530,7 @@ This week's content picks:
 
 The candidate's public GitHub repos (user {self.github_user}):
 {chr(10).join(repo_lines) or '- (none found)'}
-
+{self.guidance_block()}
 PART A - repo signal. For EVERY repo above return a verdict:
   "light-touch" = there is a real, small, this-week reason to touch it
                   (a README line, a topic, a tiny example) that is directly

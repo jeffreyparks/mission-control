@@ -8,6 +8,8 @@ import hashlib
 import re
 from pathlib import Path
 
+from profile_keywords import RADAR_GUIDANCE_HEADING, drop_section
+
 
 def _resume_text(base_dir):
     me_dir = Path(base_dir) / "me"
@@ -39,10 +41,14 @@ def _resume_text(base_dir):
 
 
 def load_context(base_dir):
-    """Return the ground-truth block injected into every analysis prompt."""
+    """Return the ground-truth block injected into every analysis prompt.
+
+    The Content Radar Guidance section is left out: it is editorial direction
+    for the radar alone (which injects it as its own block), and a stance such
+    as "I only write about X critically" must not colour a job-fit verdict."""
     base_dir = Path(base_dir)
     goals = (base_dir / "me/profile.md")
-    goals_text = goals.read_text() if goals.exists() else ""
+    goals_text = drop_section(goals.read_text(), RADAR_GUIDANCE_HEADING) if goals.exists() else ""
     return {
         "resume": _resume_text(base_dir),
         "goals": goals_text,
