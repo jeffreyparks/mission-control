@@ -95,6 +95,22 @@
     {% endfor %}
   </section>
 
+  {% set candidates = d.raw_articles or [] %}
+  <section>
+    <div class="sec-label"><b>05</b>Every candidate this week</div>
+    <h2>All {{ candidates|length }} articles the picks were chosen from</h2>
+    {% if candidates %}
+    {% for a in candidates %}
+    <div class="row">
+      <div class="k">{{ a.source }}</div>
+      <div class="v"><a href="{{ a.url }}" target="new" rel="noopener">{{ a.title }}</a></div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <p class="empty">No articles were read this week.</p>
+    {% endif %}
+  </section>
+
   <footer>
     <span>Source of record: artifacts/content/radar-{{ d.date }}.json</span>
     <span>Mission Control · Content Radar</span>

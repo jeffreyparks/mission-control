@@ -15,7 +15,7 @@ def check(name, cond, detail=""):
 templates = {
     "tracker.html.j2": ['{{ r.url }}', '{{ o.best_role.url }}'],
     "index.html.j2": ['{{ r.url }}'],
-    "radar.html.j2": ['{{ p.source_url }}'],
+    "radar.html.j2": ['{{ p.source_url }}', '{{ a.url }}'],
 }
 for name, urls in templates.items():
     src = (REPO / "render" / name).read_text()
