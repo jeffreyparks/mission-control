@@ -134,7 +134,9 @@ allowed values, length caps, and a single write lock.
   logged `set_field`. `outcome` must be one of the existing outcome options,
   and `close_reason` must be blank or one of `CLOSE_REASONS`. When you close a
   ghosted role, the dialog fills `outcome=Ghosted` and leaves the close reason
-  blank, which the preferences learner correctly ignores.
+  blank, which the preferences learner correctly ignores. Moving a role out of
+  `04 Closed` again (Reopen, or any status change in the tracker) clears its
+  close reason, since why you passed no longer holds; the outcome stays.
 - **Contacts:**
   - `POST /api/contacts` creates one. Required: `org`, `name`. Optional:
     `role_id`, `title`, `kind`, `url`, `email`, `source`, `notes`. `kind` comes

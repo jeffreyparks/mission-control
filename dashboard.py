@@ -128,12 +128,24 @@ CLOSED_STATUS = "04 Closed"
 
 
 def _after_write(store, role_id, field, value, result):
-    """Knock-on writes for a field that just changed. Moving a role to Applied
-    starts its application record (date applied, stage) where those are empty.
-    Returns {field: value} for anything filled, for the response."""
-    if field == "status" and value == APPLIED_STATUS and result["changed"]:
-        return store.fill_applied_defaults(role_id, actor="dashboard")
-    return {}
+    """Knock-on writes for a field that just changed. Returns {field: value}
+    for anything it wrote, for the response.
+
+      - Moving a role to Applied starts its application record (date applied,
+        stage) where those are empty.
+      - Reopening a closed role clears its Close Reason: why you passed no
+        longer holds, and a reason left on a live role would read as a
+        preference. Outcomes stays - it may be text you wrote by hand.
+    """
+    if field != "status" or not result["changed"]:
+        return {}
+    written = {}
+    if result["old"] == CLOSED_STATUS and value != CLOSED_STATUS:
+        if store.set_field(role_id, "close_reason", None, actor="dashboard")["changed"]:
+            written["close_reason"] = None
+    if value == APPLIED_STATUS:
+        written.update(store.fill_applied_defaults(role_id, actor="dashboard"))
+    return written
 
 
 # Ceiling on a single bulk write. Not a performance limit - a blast-radius one:

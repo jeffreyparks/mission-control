@@ -239,3 +239,34 @@ def test_unknown_paths_are_404(api):
     _store, _ids, post, _ = api
     for path in ("/api/contact/abc", "/api/touch/", "/api/role/", "/api/nothing"):
         assert post(path, {}).status_code == 404, path
+
+
+# ---------------------------------------------------------------- reopening
+
+def test_reopening_clears_the_close_reason_but_keeps_the_outcome(api):
+    store, ids, post, _ = api
+    post(f"/api/role/{ids['Beta']}/close", {"outcome": "Withdrew", "close_reason": "Comp"})
+    body = post(f"/api/role/{ids['Beta']}", {"field": "status", "value": "03 Applied"}).json()
+    assert body["ok"] and body["filled"]["close_reason"] is None
+    row = _role(store, ids["Beta"])
+    assert (row["status"], row["close_reason"], row["outcomes"]) == ("03 Applied", None, "Withdrew")
+    cleared = [c for c in store.history(role_id=ids["Beta"], limit=20)
+               if c["field"] == "close_reason" and c["new_value"] is None]
+    assert cleared and cleared[0]["old_value"] == "Comp"
+
+
+def test_any_move_out_of_closed_clears_it_including_bulk(api):
+    store, ids, post, _ = api
+    for org in ("Acme", "Beta"):
+        post(f"/api/role/{ids[org]}/close", {"close_reason": "Location"})
+    body = post("/api/roles/bulk", {"ids": [ids["Acme"], ids["Beta"]],
+                                    "field": "status", "value": "01 Open"}).json()
+    assert body["ok"] and all(r["filled"] == {"close_reason": None} for r in body["results"])
+    assert _role(store, ids["Acme"])["close_reason"] is None
+
+
+def test_reopening_without_a_reason_writes_nothing_extra(api):
+    store, ids, post, _ = api
+    post(f"/api/role/{ids['Beta']}/close", {"outcome": "Ghosted"})
+    body = post(f"/api/role/{ids['Beta']}", {"field": "status", "value": "03 Applied"}).json()
+    assert "close_reason" not in body["filled"]
