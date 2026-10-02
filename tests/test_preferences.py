@@ -110,8 +110,9 @@ check("below MIN_DECISIONS nothing leans", small["candidates"] == [])
 class FakeLLM:
     def __init__(self, answer):
         self.answer, self.prompts = answer, []
-    def complete_json(self, prompt, tag=None, validate=None, **_kw):
+    def complete_json(self, prompt, tag=None, validate=None, max_tokens=None, **_kw):
         self.prompts.append(prompt)
+        self.max_tokens = max_tokens
         assert validate(self.answer), "fake answer must pass the validator"
         return self.answer
 
@@ -125,6 +126,14 @@ for c in ev["candidates"]:
 fake = FakeLLM(answer)
 path = prefs.write_draft(work, llm=fake)
 draft = path.read_text()
+check("the verdict budget scales with the candidates",
+      fake.max_tokens == prefs.output_budget(len(ev["candidates"]),
+                                             per_item=prefs.VERDICT_TOKENS_PER_CANDIDATE,
+                                             overhead=prefs.VERDICT_TOKENS_OVERHEAD),
+      str(fake.max_tokens))
+check("a big candidate list gets more than the 4096 default",
+      prefs.output_budget(40, per_item=prefs.VERDICT_TOKENS_PER_CANDIDATE,
+                          overhead=prefs.VERDICT_TOKENS_OVERHEAD) > 4096)
 check("draft written, learned.md untouched", path.name == "learned.draft.md"
       and not (work / "me/learned.md").exists())
 check("kept statement in the draft", "Treat roles at banks as a weak fit" in draft)
