@@ -38,7 +38,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from llm import LLM, LLMError                          # noqa: E402
+from llm import LLM, LLMError, output_budget           # noqa: E402
 from store import PREFERENCE_CLOSE_REASONS, Store      # noqa: E402
 
 DRAFT = "me/learned.draft.md"
@@ -70,6 +70,11 @@ MIN_DISAGREEMENT_SHARE = 0.2
 DRAFT_INTERVAL_DAYS = 7
 
 NOTES_PER_CANDIDATE = 5
+# Output budget per candidate verdict: id, keep, and a one-sentence statement or
+# a short why_dropped. The 4096 default cut the answer off at 19 candidates (over
+# 200 tokens each), so this allows about twice that.
+VERDICT_TOKENS_PER_CANDIDATE = 400
+VERDICT_TOKENS_OVERHEAD = 500
 
 PURSUED_STATUSES = {"02 Researching", "03 Applied"}
 
@@ -396,7 +401,10 @@ def write_draft(base_dir, llm=None, now=None):
         try:
             verdicts = llm.complete_json(
                 _prompt(evidence, profile.read_text() if profile.exists() else ""),
-                tag="preferences", validate=make_validator(evidence))
+                tag="preferences", validate=make_validator(evidence),
+                max_tokens=output_budget(len(evidence["candidates"]),
+                                         per_item=VERDICT_TOKENS_PER_CANDIDATE,
+                                         overhead=VERDICT_TOKENS_OVERHEAD))
         except LLMError as exc:
             print(f"  ! preferences draft failed, previous draft kept: {exc}")
             return None
