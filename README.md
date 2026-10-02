@@ -239,6 +239,9 @@ Each run logs which model handled each kind of call and how many tokens it used.
 - **Evidence:** every finding quotes your actual text; a quote that isn't really there is dropped.
 - **Triage:** accept, dismiss or mark findings fixed on the Profile page. Dismissed stays
   dismissed; fixes are detected on the next review.
+- **Review guidance:** when your dismissals change, the daily run drafts
+  `me/profile-guidance.md` - standing rules for the reviewer, from the findings you dismissed and
+  the reasons you gave. Like learned preferences, it is only a draft until you approve it.
 - **Drafts:** suggested headline, bio and tagline rewrites, checked against your resume. Approved
   text goes to `me/persona.md`; nothing is ever posted for you. Open coverage gaps also feed the
   Content Radar.
@@ -282,6 +285,7 @@ agents/                the pipeline's parts
   job_intel.py           finds, judges and tracks roles
   job_scanner.py         company boards, Built In and JobSpy
   preferences.py         learned preferences from your decisions
+  profile_guidance.py    profile review guidance from your dismissed findings
   posted.py              posting dates, from every board's format
   content_radar.py       the weekly Content Radar
   profile_*.py           the Profile review: snapshots, brief, evaluation, drafts

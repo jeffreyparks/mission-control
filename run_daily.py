@@ -6,6 +6,8 @@ Cadences:
   weekly  - content radar (runs when the newest radar is >= 7 days old)
   weekly  - learned-preferences draft, me/learned.draft.md (>= 7 days old);
             it is only a draft - nothing changes until you approve it
+  on change - profile review guidance draft, me/profile-guidance.draft.md, when
+            your dismissed profile findings have changed; also only a draft
 
 Job roles are judged by Job Intel (LLM fit analysis) by default. Intel sends only
 NEW or EDITED roles to the model and reuses stored verdicts for everything else,
@@ -14,7 +16,7 @@ so a normal day costs close to nothing.
 Usage:
   uv run run_daily.py                 # respect cadences
   uv run run_daily.py --force-radar   # run the radar regardless of cadence
-  uv run run_daily.py --only jobs     # one stage: profiles|jobs|radar|preferences|history|render
+  uv run run_daily.py --only jobs     # one stage: profiles|jobs|radar|preferences|guidance|history|render
   uv run run_daily.py --radar-only    # radar now + rebuild pages, no job scan
   uv run run_daily.py --profile-only  # profile snapshots now + rebuild pages, no job scan
   uv run run_daily.py --refresh-intel # re-judge every role from scratch (full price)
@@ -81,7 +83,7 @@ def log_routing():
     except Exception:  # noqa: BLE001
         return
     for tag in ("job-fit", "role-cat", "role-function", "org-sectors", "content-radar", "preferences",
-                "profile-asks", "profile-ask-merge", "profile-claims", "profile-eval-source",
+                "profile-guidance", "profile-asks", "profile-ask-merge", "profile-claims", "profile-eval-source",
                 "profile-eval-synth", "profile-drafts"):
         ladder = routing.ladder_for_tag(tag)
         target = ladder[0].split("/", 1)[-1] if ladder else "claude CLI default"
@@ -137,6 +139,13 @@ def run_preferences():
             f"uv run agents/preferences.py --approve") if out else "preferences: no draft"
 
 
+def run_guidance():
+    from profile_guidance import write_draft
+    out = write_draft(ws())
+    return (f"profile guidance draft: {out.name} - review, then "
+            f"uv run agents/profile_guidance.py --approve") if out else "profile guidance: no draft"
+
+
 def run_history():
     from history import History
     out = History(ws()).run()
@@ -165,6 +174,7 @@ STAGES = {
     "jobs": run_jobs,
     "radar": run_radar,
     "preferences": run_preferences,
+    "guidance": run_guidance,
     "history": run_history,
     "render": run_render,
 }
@@ -248,6 +258,13 @@ def main():
         stage(f"learned-preferences draft (weekly - {why})", run_preferences)
     else:
         log(f"-> learned-preferences draft skipped ({why})")
+
+    from profile_guidance import draft_is_due as guidance_is_due
+    due, why = guidance_is_due(ws())
+    if due:
+        stage(f"profile review guidance draft ({why})", run_guidance)
+    else:
+        log(f"-> profile review guidance draft skipped ({why})")
 
     stage("history snapshot + deltas (daily)", run_history)
     stage("static html", run_render)

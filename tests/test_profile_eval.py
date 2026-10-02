@@ -374,6 +374,53 @@ def test_findings_lifecycle(base):
     assert {f["title"] for f in store.profile_findings()} == {"No SQL", "Hobby section"}
 
 
+def test_dismiss_reason_survives_reopening(base):
+    store = Store(base)
+    store.save_snapshot_if_changed(_site())
+    _evaluate(base, [SQL_GAP, TONE], keep=["f1", "f2"], force=True)
+    tone = next(f for f in store.profile_findings() if f["title"] == "Hobby section")
+    store.set_finding_state(tone["id"], "dismissed", note="Personal touch is on purpose")
+
+    _evaluate(base, [SQL_GAP, {**TONE, "severity": "high"}], keep=["f1", "f2"], force=True)
+    back = next(f for f in store.profile_findings() if f["title"] == "Hobby section")
+    assert back["state_note"].startswith("reopened")
+    assert back["dismiss_note"] == "Personal touch is on purpose"
+
+    store.set_finding_state(tone["id"], "dismissed")       # no new reason: keeps the old one
+    again = store.profile_findings(states=("dismissed",))[0]
+    assert again["dismiss_note"] == "Personal touch is on purpose"
+
+
+def test_dismiss_reasons_are_backfilled_from_the_change_log(base):
+    store = Store(base)
+    store.save_snapshot_if_changed(_site())
+    _evaluate(base, [SQL_GAP, TONE], keep=["f1", "f2"], force=True)
+    tone = next(f for f in store.profile_findings() if f["title"] == "Hobby section")
+    store.set_finding_state(tone["id"], "dismissed", note="Keep it (deliberately)")
+    with store.connect() as conn:                          # a database from before the column
+        conn.execute("ALTER TABLE profile_findings DROP COLUMN dismiss_note")
+    Store(base)
+    row = store.profile_findings(states=("dismissed",))[0]
+    assert row["dismiss_note"] == "Keep it (deliberately)"
+
+
+def test_approved_guidance_reaches_both_review_prompts(base):
+    store = Store(base)
+    store.save_snapshot_if_changed(_site())
+    (base / "me/profile-guidance.draft.md").write_text("- Never flag hobbies on the site.\n")
+    _, llm = _evaluate(base, [SQL_GAP], keep=["f1"], force=True)
+    assert not any("REVIEW GUIDANCE" in p for _, p in llm.calls)   # a draft is not read
+
+    (base / "me/profile-guidance.md").write_text(
+        "# Profile review guidance\n\n- Never flag hobbies on the site.\n  <!-- evidence: x -->\n")
+    _, llm = _evaluate(base, [SQL_GAP], keep=["f1"], force=True)
+    prompts = {tag: p for tag, p in llm.calls if tag.startswith("profile-eval")}
+    for tag in ("profile-eval-source", "profile-eval-synth"):
+        assert "REVIEW GUIDANCE" in prompts[tag]
+        assert "- Never flag hobbies on the site." in prompts[tag]
+        assert "evidence: x" not in prompts[tag]
+
+
 def test_report(base):
     store = Store(base)
     store.save_snapshot_if_changed(_site())
