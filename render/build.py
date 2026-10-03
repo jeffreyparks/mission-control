@@ -2,7 +2,6 @@
 Render Mission Control artifacts to static HTML.
 
 Pages (all share render/theme.css and the render/_nav.html.j2 shell):
-  index.html         home / daily brief, pulls both feeds
   content-radar.html weekly content radar   <- artifacts/content/radar-*.json
   job-tracker.html   daily job tracker      <- artifacts/jobs/intel-*.json
   applications.html  active applications    <- roles, contacts, touches in the database
@@ -204,38 +203,6 @@ def render_tracker(env, d, write=True, base=None):
     return out, html
 
 
-def _deltas(base=None):
-    """Run-over-run movement from agents/history.py. None when history has not run."""
-    try:
-        sys.path.insert(0, str(BASE / "agents"))
-        from history import get_deltas
-        return get_deltas(base or _default_base())
-    except Exception as exc:  # noqa: BLE001 - the page must render without history
-        print(f"  history deltas unavailable: {exc}")
-        return None
-
-
-def render_index(env, intel, radar, base=None):
-    """Home page. Degrades cleanly when either feed has not run yet."""
-    roles = intel["roles"] if intel else []
-    shortlist = [r for r in roles if r.get("recommendation") == "apply"][:6]
-    html = env.get_template("index.html.j2").render(
-        deltas=_deltas(base=base),
-        profile=profile_summary(base=base),
-        applications=applications_summary(base=base),
-        intel=intel,
-        radar=radar,
-        picks=_radar_picks(radar),
-        top_picks=_radar_picks(radar)[:3],
-        shortlist=shortlist,
-        median_fit=_median_fit(roles),
-        built=datetime.now().strftime("%Y-%m-%d %H:%M"),
-    )
-    out = (base or _default_base()) / "artifacts/html" / "index.html"
-    out.write_text(html)
-    return out
-
-
 # ---------------------------------------------------------------------------
 # profile
 # ---------------------------------------------------------------------------
@@ -263,30 +230,6 @@ def _store(base):
     sys.path.insert(0, str(BASE / "agents"))
     from store import Store
     return Store(base or _default_base())
-
-
-def profile_summary(base=None):
-    """The Home card: weakest dimension, open high-severity findings, date. None
-    before the first evaluation."""
-    try:
-        store = _store(base)
-        ev = store.latest_evaluation()
-    except Exception as exc:  # noqa: BLE001 - home must render without profile data
-        print(f"  profile summary unavailable: {exc}")
-        return None
-    if not ev:
-        return None
-    overall = ev["scores"]["overall"]
-    scored = [(overall[d], d) for d in PROFILE_DIMENSIONS if overall.get(d) is not None]
-    weakest = min(scored)[1] if scored else None
-    findings = store.profile_findings()
-    return {
-        "date": ev["created_at"][:10],
-        "weakest": weakest,
-        "weakest_score": overall.get(weakest) if weakest else None,
-        "open": len(findings),
-        "high": sum(1 for f in findings if f["severity"] == "high"),
-    }
 
 
 def profile_context(base=None):
@@ -341,9 +284,9 @@ def profile_context(base=None):
             banners.append(f"Your LinkedIn export is from {card['export_date']}, so LinkedIn findings "
                            f"describe your profile as it was then. Download a fresh export into me/linkedin/.")
     persona = brief.get("persona", {}).get("source")
-    if persona != "Persona":
-        banners.append(f"Voice was judged against {'your Career Positioning section' if persona == 'Career Positioning' else 'a neutral default'}. "
-                       f"Add a ## Persona section to me/profile.md to say exactly how you want to come across.")
+    if persona != "Career Positioning":
+        banners.append("Voice was judged against a neutral default. "
+                       "Fill in Career Positioning & Persona in Settings to say how you want to come across.")
 
     from profile_drafts import load_approved
     approved = load_approved(base or _default_base())
@@ -551,17 +494,6 @@ def applications_context(base=None, today=None):
     }
 
 
-def applications_summary(base=None, today=None):
-    """The Home card's numbers. None if the database cannot be read."""
-    try:
-        ctx = applications_context(base, today=today)
-    except Exception as exc:  # noqa: BLE001 - home must render without it
-        print(f"  applications summary unavailable: {exc}")
-        return None
-    first = next((a for _b, _l, items in ctx["groups"] for a in items), None)
-    return {**ctx["counts"], "next": first}
-
-
 def render_applications(env, write=True, base=None, today=None):
     """Applications page. Returns (path_or_None, html)."""
     html = env.get_template("applications.html.j2").render(**applications_context(base, today=today))
@@ -587,12 +519,15 @@ def render_settings(env, write=True, base=None):
     is read-only; served by dashboard.py it saves. Returns (path_or_None, html)."""
     base = base or _default_base()
     sys.path.insert(0, str(BASE / "agents"))
+    import fit_rules
     import profile_settings
 
     html = env.get_template("settings.html.j2").render(
         settings=profile_settings.read_all(base), spec=profile_settings.spec(),
         review_limits=profile_settings.REVIEW_NUMBERS, max_sites=profile_settings.MAX_SITES,
-        max_site_pages=profile_settings.MAX_SITE_PAGES, workspace_name=Path(base).name)
+        max_site_pages=profile_settings.MAX_SITE_PAGES,
+        overview=fit_rules.overview(base, DIMENSION_HELP),
+        tracker_review_keys=sorted(profile_settings.TRACKER_REVIEW_KEYS), workspace_name=Path(base).name)
     out = None
     if write:
         out = base / "artifacts/html" / "settings.html"
@@ -623,7 +558,6 @@ def main():
     profile_path, _profile_html = render_profile(env, base=base)
     settings_path, _settings_html = render_settings(env, base=base)
     written = [p for p in (
-        render_index(env, intel, radar, base=base),
         render_radar(env, radar, base=base),
         tracker_path,
         applications_path,

@@ -104,7 +104,7 @@ def test_reads_every_section(ws):
     assert g["technical_areas"] == ["widget modelling", "gadget forecasting", "sprocket design"]
     assert g["target_keywords"] == ["widget science", "gadget analytics", "forecasting"]
     assert g["domain_expertise"] == "I build widget models for mid-size gadget makers."
-    assert g["persona"] == ""
+    assert "persona" not in g
     assert "I am closing this year" in g["notes"]
 
 
@@ -151,9 +151,9 @@ def test_keywords_are_stored_bare_and_deduplicated(ws):
 def test_prose_keeps_its_preamble_and_a_missing_section_is_added(ws):
     ps.set_goal(ws, "domain_expertise", "Two lines.\nOf prose.")
     assert "<!-- a few sentences -->\n\nTwo lines.\nOf prose." in _text(ws)
-    ps.set_goal(ws, "persona", "Plain spoken, evidence first.")
-    assert _text(ws).rstrip().endswith("## Persona\n\nPlain spoken, evidence first.")
-    assert ps.read_goals(ws)["persona"] == "Plain spoken, evidence first."
+    ps.set_goal(ws, "radar_guidance", "Plain spoken, evidence first.")
+    assert _text(ws).rstrip().endswith("## Content Radar Guidance\n\nPlain spoken, evidence first.")
+    assert ps.read_goals(ws)["radar_guidance"] == "Plain spoken, evidence first."
     assert ps.read_goals(ws)["notes"].startswith("- Clean rooms")
 
 

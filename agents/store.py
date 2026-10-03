@@ -185,7 +185,7 @@ CREATE TABLE IF NOT EXISTS changes (
 
 -- What each public profile said, one row per CHANGE (agents/profile_snapshot.py).
 -- A row is written only when `hash` differs from the latest row for that
--- source_key. Not to be confused with profile_snapshot in data/history.db,
+-- source_key. Not to be confused with the old profile_snapshot table,
 -- which holds a daily LinkedIn keyword-coverage number for the home page.
 CREATE TABLE IF NOT EXISTS profile_snapshots (
     id           INTEGER PRIMARY KEY AUTOINCREMENT,

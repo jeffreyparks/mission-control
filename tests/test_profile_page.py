@@ -31,7 +31,7 @@ def _evaluation(store, created, overall, findings, stale=False):
     brief = {"asks": [{"ask": "sql", "roles": 3, "share": 0.6},
                       {"ask": "a/b testing", "roles": 5, "share": 1.0}],
              "with_jd": 5, "pursued": 7, "window_days": 60,
-             "persona": {"source": "Career Positioning", "text": "x"}}
+             "persona": {"source": "default", "text": "x"}}
     eid = store.add_evaluation({
         "created_at": created, "trigger": "forced", "snapshot_ids": {KEY: sid},
         "brief_hash": "b", "brief": brief,
@@ -80,7 +80,7 @@ def test_page_shows_verdict_scores_brief_drift_and_findings(base):
     assert "Verdict from 2026-09-27." in html
     assert "7 pursued roles, 5 with descriptions" in html
     assert "LinkedIn export is from" not in html                       # a stale flag only means something on LinkedIn
-    assert "Career Positioning" in html                                # persona banner
+    assert "neutral default" in html                                   # persona banner
     assert html.count('class="finding"') == 2
     assert "ask: a/b testing (5 roles)" in html
     assert "<blockquote>I design experiments</blockquote>" in html
@@ -107,19 +107,6 @@ def test_static_copy_keeps_triage_hidden(base):
     assert '<body>' in html and 'class="live"' not in html
     assert ".actions{display:none" in html and "body.live .actions{display:flex}" in html
     assert "h.finding_states" in html                                   # buttons wait for the server
-
-
-def test_home_card(base):
-    store = Store(base)
-    assert build.profile_summary(base) is None
-    _evaluation(store, "2026-09-27T12:00:00", OVERALL,
-                [_finding("A"), _finding("B", severity="low")])
-    summary = build.profile_summary(base)
-    assert summary == {"date": "2026-09-27", "weakest": "consistency", "weakest_score": 2,
-                       "open": 2, "high": 1}
-    out = build.render_index(build._env(), None, None, base=base)
-    html = out.read_text()
-    assert 'href="profile.html"' in html and "Weakest:" in html and "LinkedIn keywords" not in html
 
 
 # ---------- dashboard ----------

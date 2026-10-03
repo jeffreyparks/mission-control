@@ -16,7 +16,7 @@ so a normal day costs close to nothing.
 Usage:
   uv run run_daily.py                 # respect cadences
   uv run run_daily.py --force-radar   # run the radar regardless of cadence
-  uv run run_daily.py --only jobs     # one stage: profiles|jobs|radar|preferences|guidance|history|render
+  uv run run_daily.py --only jobs     # one stage: profiles|jobs|radar|preferences|guidance|render
   uv run run_daily.py --radar-only    # radar now + rebuild pages, no job scan
   uv run run_daily.py --profile-only  # profile snapshots now + rebuild pages, no job scan
   uv run run_daily.py --refresh-intel # re-judge every role from scratch (full price)
@@ -146,12 +146,6 @@ def run_guidance():
             f"uv run agents/profile_guidance.py --approve") if out else "profile guidance: no draft"
 
 
-def run_history():
-    from history import History
-    out = History(ws()).run()
-    return f"history: {Path(out).name}" if out else "history: no output"
-
-
 def run_render():
     sys.path.insert(0, str(BASE / "render"))
     import build
@@ -162,7 +156,6 @@ def run_render():
     radar = build._load("radar-*.json", "artifacts/content", base=base)
     intel = build._load("intel-*.json", "artifacts/jobs", base=base)
     tracker_path, _html = build.render_tracker(env, intel, base=base)
-    build.render_index(env, intel, radar, base=base)
     build.render_radar(env, radar, base=base)
     build.render_profile(env, base=base)
     build.render_applications(env, base=base)
@@ -175,7 +168,6 @@ STAGES = {
     "radar": run_radar,
     "preferences": run_preferences,
     "guidance": run_guidance,
-    "history": run_history,
     "render": run_render,
 }
 
@@ -229,15 +221,12 @@ def main():
         return 0 if ok else 1
 
     if args.radar_only:
-        # History is skipped on purpose: it snapshots the day's jobs, and with
-        # no job scan it would record a misleading "nothing changed" day.
         ok = stage("content radar (radar only)", run_radar)
         stage("static html", run_render)
         log("done")
         return 0 if ok else 1
 
     if args.profile_only:
-        # History is skipped for the same reason as --radar-only.
         ok = stage("profile snapshots (profile only)", run_profiles)
         stage("static html", run_render)
         log("done")
@@ -266,7 +255,6 @@ def main():
     else:
         log(f"-> profile review guidance draft skipped ({why})")
 
-    stage("history snapshot + deltas (daily)", run_history)
     stage("static html", run_render)
 
     log("done")

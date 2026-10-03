@@ -38,27 +38,48 @@
   .field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
   .field label{font-size:13px;color:var(--ink);font-weight:500}
   .note{font-size:12px;color:var(--ink-mute)}
+  h3.sub{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mute);margin:26px 0 10px;font-weight:600}
+  .rule{border:1px solid var(--line);border-radius:var(--radius);padding:8px 10px;background:var(--bg-card)}
+  .rule .row{display:flex;gap:6px;align-items:flex-start}
+  .rule textarea.textfield{min-height:54px;flex:1}
+  .rule select{font-size:12px;font-family:var(--sans);border:1px solid var(--line);background:var(--bg-card);
+    color:var(--ink-dim);border-radius:6px;padding:3px 4px}
+  .rule .ev{font-size:12px;color:var(--ink-mute);margin:6px 0 0}
+  .rule.pending{border-style:dashed}
+  .rule.adopted{opacity:.55}
+  .rules{display:flex;flex-direction:column;gap:8px}
+  .draftbox{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+  .draftbox h4{font-size:13px;margin:0 0 4px}
+  .facts{margin:0;padding-left:18px;font-size:13px;color:var(--ink-dim)}
+  .facts li{margin:3px 0}
+  .facts b{color:var(--ink)}
+  details.peek{margin-top:10px}
+  details.peek summary{cursor:pointer;font-size:13px;color:var(--ink-dim)}
+  details.peek pre{white-space:pre-wrap;font-family:var(--mono);font-size:12px;line-height:1.5;
+    background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius);padding:10px;
+    max-height:420px;overflow:auto;margin:8px 0 0}
+  body:not(.live) .rule .mini,body:not(.live) .rule select{display:none}
   @media(max-width:800px){.setgrid{grid-template-columns:1fr}}
 </style></head>
 <body>
 
-{% with page='settings', subtitle='Profile settings' %}{% include '_nav.html.j2' %}{% endwith %}
+{% with page='settings', subtitle='Settings' %}{% include '_nav.html.j2' %}{% endwith %}
 
 <div class="wrap">
   <header class="masthead">
     <div class="eyebrow">Workspace · {{ workspace_name }}</div>
     <h1>Settings</h1>
-    <p class="standfirst">The profile every scan and judgment reads. Each card saves to the file named
+    <p class="standfirst">What the Tracker, the Content Radar and the Profile review read. Each card saves to the file named
     above it. Nothing re-runs on save: the next <code>mc run</code> or <code>mc profile</code> picks it up.</p>
     <div class="chips" style="margin-top:18px"><span class="chip live" id="livebadge">Live · edits save</span></div>
     <div class="banner readonly">Read-only copy. Start <code>mc dashboard</code> and open this page from it to edit.</div>
   </header>
 
   <section>
-    <div class="sec-label"><b>01</b>Career goals</div>
-    <h2>What you want, and what to look for</h2>
-    <p class="file">me/profile.md · the previous version is kept as me/profile.prev.md</p>
-    <div class="setgrid" id="goals"></div>
+    <div class="sec-label"><b>01</b>Tracker</div>
+    <h2>What you want, and how roles are judged</h2>
+    <p class="file">me/profile.md · the previous version is kept as me/profile.prev.md · the last two cards are in workspace/{{ workspace_name }}/config/profile.yaml</p>
+    <div class="setgrid" id="tracker"></div>
   </section>
 
   <section>
@@ -69,24 +90,80 @@
   </section>
 
   <section>
-    <div class="sec-label"><b>03</b>Accounts</div>
-    <h2>Whose public profiles to read</h2>
-    <p class="file">workspace/{{ workspace_name }}/.env</p>
-    <div class="setgrid" id="accounts"></div>
+    <div class="sec-label"><b>03</b>Profile</div>
+    <h2>Whose public profiles to read, and when</h2>
+    <p class="file">handles in workspace/{{ workspace_name }}/.env · sites and time windows in workspace/{{ workspace_name }}/config/profile.yaml, which overrides the repo's default</p>
+    <div class="setgrid" id="profile"></div>
     <p class="note" style="margin-top:12px">The BlueSky app password is
     {% if settings.accounts.bluesky_app_password_set %}set{% else %}not set{% endif %}. It is only a fallback
     for when the public read fails, and it is edited in the file, never here.</p>
   </section>
 
   <section>
-    <div class="sec-label"><b>04</b>Review settings</div>
-    <h2>How the Profile review runs</h2>
-    <p class="file">workspace/{{ workspace_name }}/config/profile.yaml · overrides the repo's default</p>
-    <div class="setgrid" id="review"></div>
+    <div class="sec-label"><b>04</b>Fit rules</div>
+    <h2>Every rule the models follow</h2>
+    <p class="file">Your notes and exclude keywords are edited under Tracker. The learned rules are in me/learned.md and me/profile-guidance.md. Each is shown here exactly as the model reads it, and nothing is used until it is in the approved list.</p>
+
+    <h3 class="sub">Job fit</h3>
+    <div class="setgrid" id="rules-job"></div>
+
+    <div class="setgrid" style="margin-top:14px">
+      <article class="card">
+        <h3>Fixed rules</h3>
+        <p class="help">Applied by code, before or around the model.</p>
+        <ul class="facts">
+          <li><b>Exclude keywords</b> ({{ overview.fixed.exclude_keywords }}): a match in a role's title drops it before any model call.</li>
+          <li><b>Target keywords</b> ({{ overview.fixed.target_keywords }}): raise a role's score on a match in its title or description, and become board searches.</li>
+          <li><b>Minimum match score</b>: {{ overview.fixed.min_match_score if overview.fixed.min_match_score is not none else 'not set' }}, the only threshold. Set in config/job-sources.yaml.</li>
+          <li><b>Live roles judged per run</b>: up to {{ overview.fixed.max_live_roles if overview.fixed.max_live_roles is not none else 200 }}.</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h3>How learned preferences are drawn</h3>
+        <p class="help">From the roles you close or pursue. Python counts, then one model call words the rules.</p>
+        <ul class="facts">
+          <li><b>Window:</b> decisions from the last {{ overview.learning.window_days }} days.</li>
+          <li><b>Pursued</b> means a role you are {{ overview.learning.pursued_statuses|join(' or ') }}, or one an employer has responded on.</li>
+          <li><b>Passed</b> counts only when the close reason is about the role: {{ overview.learning.count_close|join(', ') }}.</li>
+          <li><b>Ignored:</b> {{ overview.learning.ignore_close|join(', ') }}, and a close with no reason.</li>
+          <li>A group needs {{ overview.learning.min_decisions }} decisions and {{ overview.learning.min_leaning }} on the side it leans to. Its pursue rate must fall below {{ overview.learning.avoid_ratio }}× or rise above {{ overview.learning.seek_ratio }}× your overall rate.</li>
+          <li>A pattern the model already follows is left out: you must have overridden it on at least {{ overview.learning.min_disagreements }} roles.</li>
+          <li>A new draft is written every {{ overview.learning.draft_days }} days. It changes nothing until you adopt it.</li>
+        </ul>
+      </article>
+    </div>
+
+    <details class="peek"><summary>What the fit judge reads ({{ '{:,}'.format(overview.fit_prompt|length) }} characters): your profile, notes, resume, approved rules and instructions</summary>
+      <pre>{{ overview.fit_prompt }}</pre></details>
+
+    <h3 class="sub">Profile review</h3>
+    <div class="setgrid" id="rules-profile"></div>
+
+    <div class="setgrid" style="margin-top:14px">
+      <article class="card">
+        <h3>What the review judges</h3>
+        <p class="help">Each source gets a score on these.</p>
+        <ul class="facts">
+          {% for k, v in overview.dimensions.items() %}<li><b>{{ k|capitalize }}:</b> {{ v }}.</li>{% endfor %}
+        </ul>
+      </article>
+      <article class="card">
+        <h3>How review guidance is drawn</h3>
+        <p class="help">From the findings you dismiss on the Profile page.</p>
+        <ul class="facts">
+          <li>A group of dismissals without reasons needs {{ overview.learning.guidance_min_dismissals }} of them, and at least {{ (overview.learning.guidance_min_share * 100)|round|int }}% of its findings dismissed rather than accepted or fixed.</li>
+          <li>A dismissal with a reason can become a rule on its own.</li>
+          <li>A new draft is written when your dismissals change. It changes nothing until you adopt it.</li>
+        </ul>
+      </article>
+    </div>
+
+    <details class="peek"><summary>What the profile reviewer reads as guidance</summary>
+      <pre>{{ overview.guidance_prompt or '(no approved guidance yet)' }}</pre></details>
   </section>
 </div>
 
-<script id="settings-data" type="application/json">{{ {'settings': settings, 'spec': spec, 'limits': review_limits, 'maxSites': max_sites, 'maxPages': max_site_pages}|tojson }}</script>
+<script id="settings-data" type="application/json">{{ {'settings': settings, 'spec': spec, 'limits': review_limits, 'maxSites': max_sites, 'maxPages': max_site_pages, 'trackerReview': tracker_review_keys}|tojson }}</script>
 <script>
 (function(){
   var D = JSON.parse(document.getElementById('settings-data').textContent);
@@ -175,10 +252,10 @@
     return i;
   }
 
-  // ---- 01 goals, 02 radar (both sections of me/profile.md)
-  var hosts = {goals: document.getElementById('goals'), radar: document.getElementById('radar')};
+  // ---- 01 Tracker, 02 Content Radar (sections of me/profile.md)
+  var hosts = {tracker: document.getElementById('tracker'), radar: document.getElementById('radar')};
   D.spec.forEach(function(sp){
-    var key = sp.key, value = S.goals[key], goals = hosts[sp.section] || hosts.goals;
+    var key = sp.key, value = S.goals[key], goals = hosts[sp.section] || hosts.tracker;
     if(sp.kind === 'text'){
       var ta = el('textarea', {cls: 'textfield', maxlength: sp.cap});
       ta.value = value || '';
@@ -190,30 +267,28 @@
     } else {
       var ed = listEditor(value, function(v){ return [textInput(v, sp.cap)]; }, sp.max, sp.kind === 'numbered');
       card(goals, {group: 'goals', field: key, title: sp.heading, help: sp.help, body: ed.body,
+        wide: key === 'watch_topics',
         read: function(){
           return Array.prototype.map.call(ed.box.querySelectorAll('input'), function(i){ return i.value; });
         }, load: ed.load});
     }
   });
 
-  // ---- 03 accounts
-  var accounts = document.getElementById('accounts');
+  // ---- 03 Profile: handles, sites, time windows
+  var profile = document.getElementById('profile');
   [['github_username', 'GitHub username', 'Public repos and your profile README. Blank skips the GitHub scan.'],
    ['bluesky_handle', 'BlueSky handle', 'e.g. name.bsky.social. Blank skips the BlueSky scan.']].forEach(function(a){
     var i = textInput(S.accounts[a[0]], 253);
-    card(accounts, {group: 'accounts', field: a[0], title: a[1], help: a[2], body: i,
+    card(profile, {group: 'accounts', field: a[0], title: a[1], help: a[2], body: i,
       read: function(){ return i.value; }, load: function(v){ i.value = v; }});
   });
-
-  // ---- 04 review
-  var review = document.getElementById('review');
   var sites = listEditor(S.review.sites, function(v){
     var u = textInput(v, 500); u.placeholder = 'https://you.example/';
     var p = el('input', {type: 'number', cls: 'textfield pages', min: 0, max: D.maxPages, title: 'Extra pages from the sitemap'});
     p.value = (v && v.max_pages) || 0;
     return [u, p];
   }, D.maxSites, false);
-  card(review, {group: 'review', field: 'sites', title: 'Sites', wide: true, body: sites.body,
+  card(profile, {group: 'review', field: 'sites', title: 'Sites', wide: true, body: sites.body,
     help: 'Personal or portfolio sites to read. The number is how many extra pages to read from the site’s sitemap.xml; 0 reads the one page.',
     read: function(){
       return Array.prototype.map.call(sites.box.children, function(r){
@@ -222,18 +297,99 @@
     }, load: sites.load});
   [['linkedin_stale_days', 'LinkedIn export stale after (days)', 'An older export is flagged as stale.'],
    ['reevaluate_days', 'Re-judge at least every (days)', 'Even when no profile has changed.'],
-   ['pursued_min_fit', 'Pursued at fit score', 'A role at or above this fit (0-100) counts as pursued, applied or not.'],
+   ['pursued_min_fit', 'Fit score for pursued roles', 'A role at or above this fit (0-100) counts as pursued, applied or not.'],
    ['pursued_window_days', 'Pursued roles from the last (days)', 'How far back pursued roles are read.']].forEach(function(n){
     var lim = D.limits[n[0]];
     var i = el('input', {type: 'number', cls: 'textfield', min: lim[0], max: lim[1]});
     i.value = S.review[n[0]];
-    card(review, {group: 'review', field: n[0], title: n[1], help: n[2] + ' (' + lim[0] + '–' + lim[1] + ')', body: i,
+    var host = D.trackerReview.indexOf(n[0]) >= 0 ? hosts.tracker : profile;
+    card(host, {group: 'review', field: n[0], title: n[1], help: n[2] + ' (' + lim[0] + '–' + lim[1] + ')', body: i,
       read: function(){ return i.value; }, load: function(v){ i.value = v; }});
   });
 
+  // ---- 04 Fit rules: the rules learned from your decisions, approved here.
+  // Each approved rule is a row you can reword, re-file or remove. A pending
+  // draft sits beneath, and "Adopt" copies a draft rule into the list above
+  // (it is only saved, and only read by the model, once you press Save).
+  function rulesCard(host, kind, title, help){
+    var R = S.rules[kind], groups = R.groups;
+    var list = el('div', {cls: 'rules'});
+    var add = el('button', {type: 'button', cls: 'mini', text: '+ Add a rule'});
+    var drafts = el('div', {cls: 'rules'});
+    var body = el('div', {}, [list, el('div', {style: 'margin-top:8px'}, [add])]);
+
+    function addRule(r, focus){
+      var ta = el('textarea', {cls: 'textfield', maxlength: 600, rows: 2});
+      ta.value = r.text || '';
+      var sel = null;
+      if(groups.length){
+        sel = el('select', {title: 'Which way the rule leans'});
+        groups.forEach(function(g){ var o = el('option', {text: g}); o.value = g; sel.appendChild(o); });
+        sel.value = r.group || groups[0];
+      }
+      var del = el('button', {type: 'button', cls: 'mini', title: 'Remove', text: '×'});
+      var row = el('div', {cls: 'row'}, [sel, ta, del]);
+      var box = el('div', {cls: 'rule'}, [row, el('p', {cls: 'ev',
+        text: r.evidence ? 'Evidence: ' + r.evidence : 'Written by you.'})]);
+      box._r = {get: function(){ return {group: sel ? sel.value : null, text: ta.value, evidence: r.evidence || ''}; }};
+      del.onclick = function(){ box.remove(); list.dispatchEvent(new Event('mc-change', {bubbles: true})); refresh(); };
+      if(sel) sel.addEventListener('change', function(){ list.dispatchEvent(new Event('mc-change', {bubbles: true})); });
+      list.appendChild(box);
+      if(focus) ta.focus();
+      return box;
+    }
+    function current(){ return Array.prototype.map.call(list.children, function(b){ return b._r.get(); }); }
+    function load(rs){ list.innerHTML = ''; (rs || []).forEach(function(r){ addRule(r); }); refresh(); }
+
+    function refresh(){
+      var have = {}; current().forEach(function(r){ have[r.text.trim()] = true; });
+      drafts.innerHTML = '';
+      var d = R.draft || [];
+      d.forEach(function(r){
+        var done = !!have[r.text];
+        var adopt = el('button', {type: 'button', cls: 'mini', text: done ? 'Adopted' : 'Adopt'});
+        adopt.disabled = done;
+        adopt.onclick = function(){
+          addRule(r); list.dispatchEvent(new Event('mc-change', {bubbles: true})); refresh();
+        };
+        drafts.appendChild(el('div', {cls: 'rule pending' + (done ? ' adopted' : '')}, [
+          el('div', {cls: 'row'}, [
+            el('div', {style: 'flex:1;font-size:13px', text: (groups.length ? r.group + ': ' : '') + r.text}), adopt]),
+          el('p', {cls: 'ev', text: r.evidence ? 'Evidence: ' + r.evidence : ''})]));
+      });
+      pendingHead.style.display = d.length ? '' : 'none';
+      adoptAll.style.display = d.some(function(r){ return !have[r.text]; }) ? '' : 'none';
+    }
+    var adoptAll = el('button', {type: 'button', cls: 'mini', text: 'Adopt all'});
+    adoptAll.onclick = function(){
+      var have = {}; current().forEach(function(r){ have[r.text.trim()] = true; });
+      (R.draft || []).forEach(function(r){ if(!have[r.text]) addRule(r); });
+      list.dispatchEvent(new Event('mc-change', {bubbles: true})); refresh();
+    };
+    var summary = R.draft ? 'Draft from ' + R.draft_date + (R.draft_summary ? ' · ' + R.draft_summary : '') : '';
+    var pendingHead = el('div', {cls: 'draftbox'}, [
+      el('h4', {text: 'Pending draft'}), el('p', {cls: 'help', text: summary}), drafts,
+      el('div', {style: 'margin-top:8px'}, [adoptAll])]);
+    var notes = (R.draft_notes || []).concat(R.approved_notes || []);
+    if(notes.length){
+      var det = el('details', {cls: 'peek'}, [el('summary', {text: 'Patterns considered but not made into rules'}),
+        el('pre', {text: notes.join('\n\n')})]);
+      pendingHead.appendChild(det);
+    }
+    body.appendChild(pendingHead);
+    add.onclick = function(){ addRule({group: groups[0] || null}, true); list.dispatchEvent(new Event('mc-change', {bubbles: true})); refresh(); };
+    load(R.approved);
+    card(host, {group: 'rules', field: kind, title: title, help: help, body: body, wide: true,
+      read: current, load: load});
+  }
+  rulesCard(document.getElementById('rules-job'), 'learned', 'Learned preferences',
+    'Rules drawn from the roles you pass on and pursue. The fit judge weighs them next to your profile. Reword, re-file or remove any rule; a draft is only used once you adopt it and Save.');
+  rulesCard(document.getElementById('rules-profile'), 'guidance', 'Review guidance',
+    'Rules drawn from the findings you dismiss. The profile reviewer will not raise a finding they rule out. A draft is only used once you adopt it and Save.');
+
   // Read-only until the dashboard answers, as on the other pages.
   function setLive(on){
-    document.querySelectorAll('input, textarea').forEach(function(i){ i.disabled = !on; });
+    document.querySelectorAll('input, textarea, select').forEach(function(i){ i.disabled = !on; });
   }
   setLive(false);
   if(window.location.protocol === 'file:') return;

@@ -199,12 +199,3 @@ def test_saving_the_same_date_confirms_it(server):
     body = requests.post(f"{api}/api/role/{ids['Guess Co']}",
                          json={"field": "stage", "value": "Applied"}, timeout=5).json()
     assert body["confirmed"] is False
-
-
-def test_home_card(ws):
-    _store, _ids, base = ws
-    build.render_index(build._env(), None, None, base=base)
-    html = (base / "artifacts/html/index.html").read_text()
-    assert 'href="applications.html"' in html and "<h3>Applications</h3>" in html
-    summary = build.applications_summary(base, today=TODAY)
-    assert summary["active"] == 4 and summary["next"]["org"] == "Overdue Co"

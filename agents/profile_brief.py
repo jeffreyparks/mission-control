@@ -10,8 +10,8 @@ It blends what you SAY you want with what you DO, weighted toward what you do:
                   pursued_window_days count.
   recurring asks  what those roles' descriptions ask for, counted per role
   stated targets  me/profile.md: Target Keywords, Watch Topics
-  persona         `## Persona` in me/profile.md, else `## Career Positioning`,
-                  else a neutral default - the voice register is judged against
+  persona         `## Career Positioning` in me/profile.md, else a neutral
+                  default - the voice register is judged against
   learned         me/learned.md, the preferences you approved
   claims          what your resume says you have done, for the proof check
 
@@ -40,7 +40,7 @@ TOP_ASKS = 25
 MIN_ROLES_WITH_JD = 5
 ASK_BATCH = 10
 MAX_CLAIMS = 20
-PERSONA_HEADINGS = ("## Persona", "## Career Positioning")
+PERSONA_HEADINGS = ("## Career Positioning",)
 NEUTRAL_PERSONA = ("A senior practitioner: specific, evidence-led and credible to a hiring "
                    "manager, without hype or filler.")
 

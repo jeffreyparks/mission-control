@@ -87,14 +87,12 @@ check("build_payload survives None results",
 check("build_payload survives raw list results",
       radar.build_payload("2026-09-21", arts, [one_pick], [], [], stats)["stats"]["picks"] == 1)
 
-# render_radar (the full weekly page) must show every pick, not a subset -
-# only the HOME PAGE teaser is deliberately capped at 3.
+# render_radar (the full weekly page) must show every pick, not a subset.
 build_src = (REPO / "render" / "build.py").read_text()
 radar_fn = build_src[build_src.find("def render_radar"):build_src.find("def render_radar") + 400]
 check("the full radar page renders every pick, unsliced",
       "picks=_radar_picks(d)" in radar_fn and "[:3]" not in radar_fn)
-check("only the home-page teaser stays capped at 3 (a different, deliberate design choice)",
-      "top_picks=_radar_picks(radar)[:3]" in build_src)
+
 
 shutil.rmtree(work, ignore_errors=True)
 

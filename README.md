@@ -45,7 +45,6 @@ changed too many verdicts.
 | **Tracker** | daily | Every role found, with a fit score, a plain-English reason, a recommendation and how long ago it was posted |
 | **Content Radar** | weekly | Articles worth reacting to, with a suggested angle for each, and what's new in your GitHub repos |
 | **Profile** | when a profile changes, or weekly | How your LinkedIn, GitHub, BlueSky and sites read for the roles you pursue: scores, findings to fix, draft rewrites |
-| **Home** | daily | What changed since the last run, the radar's top picks, and a Profile summary |
 
 See [How it reviews your profile](#how-it-reviews-your-profile).
 
@@ -94,12 +93,13 @@ An optional `## Content Radar Guidance` section is free-text direction for the r
 subjects to skip, stances to take (*"Smart glasses are a bad product; I only write about them
 critically"*). The radar follows it over its own breadth rules, and the job-fit judge never sees it.
 
-An optional `## Persona` section in `profile.md` says how you want to come across; the Profile
+The `## Career Positioning` section in `profile.md` also says how you want to come across; the Profile
 review judges your voice against it. List personal sites in `workspace/default/config/profile.yaml`.
 
 **Or edit it all in the dashboard.** The **Settings** page (`mc dashboard`, then Settings in the
-top bar) edits every section of `profile.md`, your GitHub and BlueSky accounts, and the Profile
-review settings, one card at a time, with the radar guidance in its own Content Radar section. Each save changes just that section and keeps the rest of the
+top bar) is organised in three sections, one card at a time: **Tracker** (About Me, target roles and keywords, key skills,
+positioning and persona, notes, and the fit score and window for pursued roles), **Content Radar**
+(watch topics and guidance) and **Profile** (GitHub and BlueSky handles, sites, and time windows). A fourth section, **Fit rules**, puts every rule the models follow in one place: your notes and exclude keywords, the rules learned from your decisions and from the profile findings you dismiss (each with its evidence, and each only used once you adopt it), the fixed rules, how the learned ones are drawn, and the exact text the fit judge and profile reviewer read. Each save changes just that section and keeps the rest of the
 file, comments included; the previous `profile.md` is kept as `profile.prev.md`. Reordering Target
 Roles renumbers them, and the numbers are how Role Cat refers to them. The BlueSky app password
 stays file-only. Nothing re-runs on save: the next `mc run` or `mc profile` uses the new values.
@@ -115,7 +115,7 @@ Built In, Indeed and LinkedIn. Companies, boards and scanning rules are set in
 | `mc run` | The normal daily run |
 | `mc run --force-radar` | Run the weekly Content Radar now (it normally runs once every 7 days) |
 | `mc run --radar-only` | Run the Content Radar now and rebuild the pages, with no job scan |
-| `mc run --only jobs` | Run one stage: `profiles`, `jobs`, `radar`, `preferences`, `history` or `render` |
+| `mc run --only jobs` | Run one stage: `profiles`, `jobs`, `radar`, `preferences` or `render` |
 | `mc run --refresh-open` | Re-judge every role you haven't closed; closed roles keep their verdicts |
 | `mc run --refresh-intel` | Re-judge every role, closed ones included (the most expensive run there is) |
 | `mc run --max-live 50` | Judge at most 50 newly found roles this run (the default limit is 200) |
@@ -161,7 +161,7 @@ role twice, and it adds nothing if the page can't be read.
   example, to clear out rejects: filter to `Rec = skip`, **Select all shown**, set Status to
   Closed, pick a close reason, **Apply**. Only dropdown fields can be bulk-edited, and rows
   hidden by a filter are never changed.
-- **Settings** edits your profile, accounts and review settings. See
+- **Settings** edits the Tracker, Content Radar and Profile settings. See
   [Tell it what you want](#tell-it-what-you-want).
 - **Light or dark:** the switch in the top bar cycles Auto, Light and Dark.
 - Without the server, the pages still open as read-only files.
@@ -293,7 +293,6 @@ agents/                the pipeline's parts
   {linkedin,github,bluesky,site}_scanner.py   the Profile's collectors
   llm.py, routing.py     AI calls and model tiers
   store.py               the tracker database
-  history.py             what changed between runs
 render/                page templates and styles
 config/                starter config, copied into each new workspace
 templates/me/          starter profile, copied into each new workspace

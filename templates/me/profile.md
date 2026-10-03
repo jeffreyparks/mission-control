@@ -79,9 +79,10 @@
 - <!-- e.g. intern -->
 
 ## Career Positioning
-*(How you want to be perceived professionally. Free text - no scanner parses
-  this; it goes to the model as part of your ground truth, so it shapes the
-  fit reads and the content angles.)*
+*(How you want to be perceived professionally, and the voice you want to come
+  across in. Free text - no scanner parses this; it goes to the model as part
+  of your ground truth, so it shapes the fit reads and the content angles, and
+  the Profile review judges your voice against it.)*
 
 - <!-- e.g. Measurement leader who ships production systems -->
 - <!-- e.g. Bridge between causal inference theory and commercial impact -->

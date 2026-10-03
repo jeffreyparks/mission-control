@@ -14,7 +14,6 @@ def check(name, cond, detail=""):
 
 templates = {
     "tracker.html.j2": ['{{ r.url }}', '{{ o.best_role.url }}'],
-    "index.html.j2": ['{{ r.url }}'],
     "radar.html.j2": ['{{ p.source_url }}', '{{ a.url }}'],
 }
 for name, urls in templates.items():
@@ -28,11 +27,6 @@ for name, urls in templates.items():
 
 nav = (REPO / "render" / "_nav.html.j2").read_text()
 check("internal nav links do NOT get target=new", 'target="new"' not in nav)
-
-idx_src = (REPO / "render" / "index.html.j2").read_text()
-check("the internal 'Open the radar' link does NOT get target=new",
-      'href="content-radar.html"' in idx_src and
-      'target="new"' not in idx_src[idx_src.find('href="content-radar.html"'):idx_src.find('href="content-radar.html"') + 60])
 
 print()
 print("FAILURES:", fails if fails else "none")
