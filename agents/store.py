@@ -287,6 +287,18 @@ def _same(a, b):
     return str(a).strip() == str(b).strip()
 
 
+
+def _source_changed(source_key, raised, current):
+    """Has the profile a finding is about changed since it was raised?
+
+    raised and current are {source_key: snapshot_id} for the evaluation that
+    last raised the finding and for this one. A source not judged this time
+    (its review failed) has not changed. A finding about no one source (all
+    sources) changes when any judged source did."""
+    if source_key:
+        return source_key in current and current[source_key] != raised.get(source_key)
+    return any(raised.get(k) != v for k, v in current.items())
+
 class Store:
     def __init__(self, base_dir):
         self.base_dir = Path(base_dir)
@@ -446,14 +458,18 @@ class Store:
             the new wording, severity and rank
           - a dismissed finding stays dismissed; it only reopens if its
             severity has risen, and keeps your reason in dismiss_note
-          - an open or accepted finding NOT raised this time becomes fixed
+          - an open or accepted finding NOT raised this time becomes fixed -
+            but only when its source has changed since the finding was last
+            raised. The reviewer's wording varies run to run; with the profile
+            the same, a finding it skipped is not fixed, just not mentioned,
+            and stays as it was ("held")
           - a fixed finding raised again reopens, marked came_back
 
-        Returns {"new": n, "kept": n, "fixed": n, "reopened": n}.
+        Returns {"new": n, "kept": n, "fixed": n, "reopened": n, "held": n}.
         """
         now = now or datetime.now().isoformat(timespec="seconds")
         rank_of = {"low": 0, "medium": 1, "high": 2}
-        counts = {"new": 0, "kept": 0, "fixed": 0, "reopened": 0}
+        counts = {"new": 0, "kept": 0, "fixed": 0, "reopened": 0, "held": 0}
         seen = set()
         fields = ("dimension", "source_key", "severity", "title", "quote", "url", "ask",
                   "ask_roles", "fix", "rank")
@@ -483,12 +499,20 @@ class Store:
                     f"UPDATE profile_findings SET evaluation_id=?, state=?, came_back=?, state_note=?, "
                     f"{','.join(f'{k}=?' for k in fields)} WHERE id=?",
                     [evaluation_id, state, came_back, note, *values, row["id"]])
+            snapshots = {r["id"]: json.loads(r["snapshot_ids"] or "{}") for r in conn.execute(
+                "SELECT id, snapshot_ids FROM profile_evaluations")}
+            current = snapshots.get(evaluation_id, {})
             for row in conn.execute(
-                    "SELECT id, fingerprint FROM profile_findings WHERE state IN ('open','accepted')").fetchall():
-                if row["fingerprint"] not in seen:
-                    conn.execute("UPDATE profile_findings SET state='fixed', state_note=? WHERE id=?",
-                                 (f"resolved by evaluation {evaluation_id}", row["id"]))
-                    counts["fixed"] += 1
+                    "SELECT id, fingerprint, source_key, evaluation_id FROM profile_findings "
+                    "WHERE state IN ('open','accepted')").fetchall():
+                if row["fingerprint"] in seen:
+                    continue
+                if not _source_changed(row["source_key"], snapshots.get(row["evaluation_id"], {}), current):
+                    counts["held"] += 1
+                    continue
+                conn.execute("UPDATE profile_findings SET state='fixed', state_note=? WHERE id=?",
+                             (f"resolved by evaluation {evaluation_id}", row["id"]))
+                counts["fixed"] += 1
         return counts
 
     def set_evaluation_drafts(self, evaluation_id, drafts):
