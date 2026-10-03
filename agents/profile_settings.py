@@ -36,13 +36,17 @@ TEMPLATE = Path(__file__).resolve().parent.parent / "templates/me/profile.md"
 # key -> (heading, kind, item or text length cap, max items, help)
 # kind: "numbered" list, "bullets" list, or "text" (free prose).
 GOAL_SECTIONS = {
+    "domain_expertise": ("## Domain Expertise", "text", 3000, None,
+                         "What you actually do, at what scale, for whom. The fit judge leans on this most."),
+    "career_positioning": ("## Career Positioning", "text", 3000, None,
+                           "How you want to be perceived professionally, and the voice you want to come "
+                           "across in. Shapes the fit reads and content angles, and the Profile "
+                           "review judges your voice against it."),
     "target_roles": ("## Target Roles", "numbered", 160, 12,
                      "In priority order. The number is how the tracker's Role Cat refers to "
                      "each one, so reordering renumbers them."),
     "technical_areas": ("## Key Technical Areas", "bullets", 160, 40,
                         "Core skills and domains you want roles to match on."),
-    "domain_expertise": ("## Domain Expertise", "text", 3000, None,
-                         "What you actually do, at what scale, for whom. The fit judge leans on this most."),
     "target_keywords": ("## Target Keywords", "bullets", 80, 60,
                         "Raise a role's score and become board searches. Only the first 8 or so "
                         "become searches, so the strongest lead. Write them bare, without quotes."),
@@ -54,18 +58,22 @@ GOAL_SECTIONS = {
                        "and never reaches the job-fit judge."),
     "exclude_keywords": ("## Exclude Keywords", "bullets", 80, 60,
                          "A match in a role's title drops it. Whole words, case-insensitive."),
-    "career_positioning": ("## Career Positioning", "text", 3000, None,
-                           "How you want to be perceived professionally."),
-    "persona": ("## Persona", "text", 2000, None,
-                "Optional. How you want to come across; the Profile review judges your voice "
-                "against it. Falls back to Career Positioning when empty."),
     "notes": ("## Notes", "text", 3000, None,
               "Anything else the model should weigh."),
 }
 
-# Sections of profile.md the Settings page shows in its own Content Radar
-# section rather than under Career goals. Still saved with group "goals".
-RADAR_KEYS = {"radar_guidance"}
+# What the Settings page calls a section, where that differs from its heading in
+# profile.md (the file keeps its headings so existing profiles still parse).
+LABELS = {"domain_expertise": "About Me", "technical_areas": "Key Skills",
+          "career_positioning": "Career Positioning & Persona"}
+
+# Sections of profile.md the Settings page shows under Content Radar; every
+# other one is under Tracker. Still saved with group "goals".
+RADAR_KEYS = {"watch_topics", "radar_guidance"}
+
+
+# Review numbers the Settings page shows under Tracker; the rest are under Profile.
+TRACKER_REVIEW_KEYS = {"pursued_min_fit", "pursued_window_days"}
 
 ACCOUNT_KEYS = {"github_username": "GITHUB_USERNAME", "bluesky_handle": "BLUESKY_HANDLE"}
 _GITHUB_RE = re.compile(r"^(?!-)(?!.*--)[A-Za-z0-9-]{1,39}(?<!-)$")
@@ -444,19 +452,30 @@ def set_review(base_dir, key, value):
 
 # ---------------------------------------------------------------- together
 
-GROUPS = {"goals": set_goal, "accounts": set_account, "review": set_review}
+def set_rules(base_dir, kind, value):
+    """The approved learned preferences or profile review guidance, as a list of
+    {group, text, evidence}. Returns (old, new) as the approved lists."""
+    import fit_rules
+    old = fit_rules.read(base_dir, kind)["approved"]
+    fit_rules.write(base_dir, kind, value)
+    return old, fit_rules.read(base_dir, kind)["approved"]
+
+
+GROUPS = {"goals": set_goal, "accounts": set_account, "review": set_review, "rules": set_rules}
 
 
 def read_all(base_dir):
+    import fit_rules
     return {"goals": read_goals(base_dir), "accounts": read_accounts(base_dir),
-            "review": read_review(base_dir)}
+            "review": read_review(base_dir),
+            "rules": {kind: fit_rules.read(base_dir, kind) for kind in fit_rules.KINDS}}
 
 
 def spec():
     """What the page needs to draw the goals editors, in profile.md order (a
     list, since the page's JSON has its keys sorted)."""
-    return [{"key": key, "heading": h.lstrip("# "), "kind": kind, "cap": cap, "max": mx, "help": hp,
-             "section": "radar" if key in RADAR_KEYS else "goals"}
+    return [{"key": key, "heading": LABELS.get(key, h.lstrip("# ")), "kind": kind, "cap": cap, "max": mx, "help": hp,
+             "section": "radar" if key in RADAR_KEYS else "tracker"}
             for key, (h, kind, cap, mx, hp) in GOAL_SECTIONS.items()]
 
 

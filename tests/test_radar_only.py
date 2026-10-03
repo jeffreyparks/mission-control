@@ -1,6 +1,6 @@
 """`run_daily.py --radar-only` runs the content radar and the page rebuild - nothing else.
 
-It must skip the job scan, profiles and history, and run the radar even when
+It must skip the job scan, profiles, and run the radar even when
 the weekly cadence says it is not due.
 """
 import sys
@@ -19,7 +19,7 @@ def check(name, cond, detail=""):
         fails.append(name)
 
 ran = []
-for name in ("profiles", "jobs", "radar", "history", "render"):
+for name in ("profiles", "jobs", "radar", "render"):
     setattr(run_daily, f"run_{name}", lambda n=name: ran.append(n))
 run_daily.radar_is_due = lambda: (False, "3d until next radar")
 run_daily.log_routing = lambda: None

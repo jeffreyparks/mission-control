@@ -172,12 +172,10 @@ def test_too_few_descriptions_fall_back_to_stated_keywords(base):
     assert not any(tag == "profile-asks" for tag, _ in llm.calls)
 
 
-def test_persona_prefers_persona_then_positioning_then_default(base):
-    assert profile_brief.load_persona(base)["source"] == "Career Positioning"
-    text = (base / "me/profile.md").read_text()
-    (base / "me/profile.md").write_text(text + "\n## Persona\n- Voice: dry, specific\n")
+def test_persona_is_career_positioning_else_default(base):
     persona = profile_brief.load_persona(base)
-    assert persona == {"source": "Persona", "text": "- Voice: dry, specific"}
+    assert persona == {"source": "Career Positioning",
+                       "text": "A measurement leader who ships causal systems."}
     (base / "me/profile.md").write_text("# Profile\n")
     assert profile_brief.load_persona(base)["source"] == "default"
 

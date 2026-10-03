@@ -7,8 +7,8 @@ swappable unit:
 
     workspace/
       default/                 <- your real data (the default workspace)
-        artifacts/{jobs,content,profiles,history,html}
-        data/{mission-control.db,history.db,llm-cache}
+        artifacts/{jobs,content,profiles,html}
+        data/{mission-control.db,llm-cache}
         me/{profile.md,resume.txt,linkedin/}
         config/                <- optional per-workspace overrides
       ariel/                   <- someone else's data, same shape
@@ -31,7 +31,6 @@ SUBDIRS = (
     "artifacts/jobs",
     "artifacts/content",
     "artifacts/profiles",
-    "artifacts/history",
     "artifacts/html",
     "data",
     "me",

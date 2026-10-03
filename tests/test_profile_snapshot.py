@@ -1,5 +1,5 @@
-"""Profile snapshots: collectors, the fingerprint, change-only storage, and the
-home page's LinkedIn coverage number. No network - every HTTP call is faked."""
+"""Profile snapshots: collectors, the fingerprint, change-only storage.
+No network - every HTTP call is faked."""
 import csv
 import io
 import json
@@ -17,7 +17,6 @@ sys.path.insert(0, str(REPO / "agents"))
 import profile_snapshot  # noqa: E402
 from bluesky_scanner import BlueSkyScanner  # noqa: E402
 from github_scanner import GitHubScanner  # noqa: E402
-from history import History  # noqa: E402
 from linkedin_scanner import LinkedInScanner  # noqa: E402
 from profile_snapshot import fingerprint, make_snapshot  # noqa: E402
 from store import Store  # noqa: E402
@@ -401,25 +400,3 @@ def test_collectors_follow_the_workspace_identity(base):
     found, skipped = profile_snapshot.collectors(base, env={"GITHUB_USERNAME": "me"})
     assert [label for label, _ in found] == ["github", "linkedin"]
     assert skipped == ["bluesky (no BLUESKY_HANDLE)", "sites (none in config/profile.yaml)"]
-
-
-# ---------- home page coverage ----------
-
-def test_history_reads_linkedin_coverage_from_the_snapshot(base):
-    _write_zip(base / "me/linkedin/linkedin-export.zip")
-    Store(base).save_snapshot_if_changed(LinkedInScanner(base).collect())
-
-    history = History(base)
-    assert history.snapshot_linkedin_capture(date="2026-09-27") == 1
-    row = history.conn.execute(
-        "SELECT coverage_pct FROM profile_snapshot WHERE date='2026-09-27'").fetchone()
-    # experiment design (about), causal (position text: 'causal team' - not 'causal inference'),
-    # marketing science (headline), python (skill). The post's words do not count.
-    assert row["coverage_pct"] == 75.0
-    history.close()
-
-
-def test_history_without_a_linkedin_snapshot_records_nothing(base):
-    history = History(base)
-    assert history.snapshot_linkedin_capture() == 0
-    history.close()

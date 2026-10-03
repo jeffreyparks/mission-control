@@ -56,7 +56,7 @@ mc run [--force-radar] [--radar-only] [--profile-only] [--only STAGE] [--refresh
     --force-radar    run the weekly content radar now
     --radar-only     content radar now + rebuild pages, no job scan
     --profile-only   profile snapshots now + rebuild pages, no job scan
-    --only STAGE     one stage: profiles | jobs | radar | history | render
+    --only STAGE     one stage: profiles | jobs | radar | render
     --refresh-intel  re-judge every role instead of reusing cached verdicts
     --refresh-open   re-judge only roles not yet closed; closed ones keep their verdicts
     --no-intel       legacy keyword scanner instead of LLM fit

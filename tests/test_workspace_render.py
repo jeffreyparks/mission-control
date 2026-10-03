@@ -39,11 +39,10 @@ check("build.py --user exits 0", result.returncode == 0, result.stderr[-500:])
 
 alt_html = work / "artifacts/html"
 check("tracker rendered into the alt workspace", (alt_html / "job-tracker.html").exists())
-check("index rendered into the alt workspace", (alt_html / "index.html").exists())
 check("theme.css copied into the alt workspace", (alt_html / "theme.css").exists())
 
 # The default workspace must be untouched by a render aimed at another one.
-default_index = REPO / "workspace/default/artifacts/html/index.html"
+default_index = REPO / "workspace/default/artifacts/html/job-tracker.html"
 before = default_index.read_text() if default_index.exists() else None
 check("the default workspace is not touched",
       before is None or "Acme" not in before)
@@ -57,7 +56,7 @@ if (alt_html / "job-tracker.html").exists():
 # never paints in the wrong theme first.
 # content-radar.html is only rendered when there is radar data, which this
 # fixture does not provide - checked when present, not demanded.
-for name in ("index.html", "content-radar.html", "job-tracker.html"):
+for name in ("content-radar.html", "job-tracker.html"):
     page = alt_html / name
     if not page.exists():
         continue
