@@ -58,6 +58,10 @@ enabled = true
 #   candidate's voice and checked for invented claims in Python. Top tier.
 "profile-drafts" = "T4"
 
+# profile-guidance: turn dismissed profile findings, and your reasons, into standing
+#   rules for the reviewer. A draft you approve; same shape as preferences.
+"profile-guidance" = "T3"
+
 # preferences: the weekly learned-preferences draft (agents/preferences.py).
 #   One call a week, and it shapes what the fit judge reads, so it is judged
 #   at the same tier as job-fit.

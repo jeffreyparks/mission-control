@@ -235,7 +235,8 @@ CREATE TABLE IF NOT EXISTS profile_findings (
     rank           INTEGER,
     came_back      INTEGER NOT NULL DEFAULT 0,
     state          TEXT NOT NULL DEFAULT 'open',
-    state_note     TEXT
+    state_note     TEXT,
+    dismiss_note   TEXT
 );
 
 CREATE TABLE IF NOT EXISTS meta (
@@ -327,6 +328,24 @@ class Store:
         have = {row["name"] for row in conn.execute("PRAGMA table_info(profile_evaluations)")}
         if "drafts" not in have:
             conn.execute("ALTER TABLE profile_evaluations ADD COLUMN drafts TEXT")
+        have = {row["name"] for row in conn.execute("PRAGMA table_info(profile_findings)")}
+        if "dismiss_note" not in have:
+            conn.execute("ALTER TABLE profile_findings ADD COLUMN dismiss_note TEXT")
+            Store._backfill_dismiss_notes(conn)
+
+    @staticmethod
+    def _backfill_dismiss_notes(conn):
+        """Recover the reason for each dismissal from the change log, where
+        set_finding_state wrote it as "dismissed (<note>)". The log is the only
+        copy for a finding that has since reopened."""
+        notes = {}
+        for row in conn.execute("SELECT field, new_value FROM changes WHERE field LIKE 'finding:%:state' "
+                                "ORDER BY ts, seq"):
+            value = row["new_value"] or ""
+            if value.startswith("dismissed (") and value.endswith(")"):
+                notes[row["field"].split(":")[1]] = value[len("dismissed ("):-1]
+        for finding_id, note in notes.items():
+            conn.execute("UPDATE profile_findings SET dismiss_note=? WHERE id=?", (note, finding_id))
 
     @staticmethod
     def _add_missing_columns(conn):
@@ -438,7 +457,7 @@ class Store:
           - a finding seen before (same fingerprint) keeps its state, and takes
             the new wording, severity and rank
           - a dismissed finding stays dismissed; it only reopens if its
-            severity has risen
+            severity has risen, and keeps your reason in dismiss_note
           - an open or accepted finding NOT raised this time becomes fixed -
             but only when its source has changed since the finding was last
             raised. The reviewer's wording varies run to run; with the profile
@@ -540,8 +559,13 @@ class Store:
                 raise KeyError(finding_id)
             if row["state"] == state and (row["state_note"] or None) == note:
                 return {"changed": False, "old": row["state"], "new": state}
-            conn.execute("UPDATE profile_findings SET state=?, state_note=? WHERE id=?",
-                         (state, note, finding_id))
+            # dismiss_note is the reason you gave for dismissing, kept apart from
+            # state_note so reopening cannot erase it - profile_guidance.py learns
+            # from it. Dismissing again without a reason keeps the earlier one.
+            conn.execute("UPDATE profile_findings SET state=?, state_note=?, "
+                         "dismiss_note=CASE WHEN ? AND ? IS NOT NULL THEN ? ELSE dismiss_note END "
+                         "WHERE id=?",
+                         (state, note, state == "dismissed", note, note, finding_id))
             self._log(conn, None, f"finding:{finding_id}:state", row["state"],
                       state + (f" ({note})" if note else ""), actor)
         return {"changed": True, "old": row["state"], "new": state}

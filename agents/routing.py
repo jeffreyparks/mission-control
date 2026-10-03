@@ -43,6 +43,7 @@ FALLBACK_TAGS = {
     "close-reason": "T1",
     "role-function": "T1",
     "preferences": "T3",
+    "profile-guidance": "T3",
     "content-radar": "T2",
 }
 

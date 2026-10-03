@@ -77,6 +77,27 @@ def learned_block(base_dir):
     )
 
 
+def guidance_block(base_dir):
+    """The APPROVED profile review guidance (me/profile-guidance.md), or "".
+
+    Written by agents/profile_guidance.py from the findings you dismissed, as a
+    draft you approve - an unapproved draft is never read here. HTML comments
+    (evidence and review notes) are stripped, as in learned_block."""
+    path = Path(base_dir) / "me/profile-guidance.md"
+    if not path.exists():
+        return ""
+    text = re.sub(r"<!--.*?-->", "", path.read_text(), flags=re.S)
+    text = "\n".join(line for line in text.splitlines() if line.strip()).strip()
+    if not text:
+        return ""
+    return (
+        "REVIEW GUIDANCE (from findings the candidate dismissed, and why):\n"
+        "Do not raise a finding these rules rule out. They never override the\n"
+        "target brief's asks.\n"
+        f"{text}\n"
+    )
+
+
 def context_block(base_dir, max_resume_chars=6000):
     ctx = load_context(base_dir)
     return (
