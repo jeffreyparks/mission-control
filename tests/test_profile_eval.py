@@ -357,7 +357,12 @@ def test_findings_lifecycle(base):
     open_now = store.profile_findings()
     assert [f["title"] for f in open_now] == ["SQL is nowhere on the site"]
 
-    # SQL gap not raised: fixed
+    # SQL gap not raised, site unchanged: the reviewer just skipped it - held open
+    (_, _), _ = _evaluate(base, [TONE], keep=["f1"], force=True)
+    assert [f["title"] for f in store.profile_findings()] == ["SQL is nowhere on the site"]
+
+    # SQL gap not raised after the site changed: fixed
+    store.save_snapshot_if_changed(_site(text="I design experiments and causal studies."))
     _evaluate(base, [TONE], keep=["f1"], force=True)
     assert store.profile_findings() == []
     fixed = store.profile_findings(states=("fixed",))
@@ -372,6 +377,17 @@ def test_findings_lifecycle(base):
     # a dismissed finding whose severity rises reopens
     _evaluate(base, [SQL_GAP, {**TONE, "severity": "high"}], keep=["f1", "f2"], force=True)
     assert {f["title"] for f in store.profile_findings()} == {"No SQL", "Hobby section"}
+
+
+def test_fixed_needs_a_change_to_the_findings_own_source():
+    from store import _source_changed
+    raised = {"site:a": 1, "github:b": 5}
+    assert not _source_changed("site:a", raised, {"site:a": 1, "github:b": 6})   # other source moved
+    assert _source_changed("site:a", raised, {"site:a": 2, "github:b": 5})
+    assert not _source_changed("site:a", raised, {"github:b": 6})                # site not judged
+    assert _source_changed("site:a", {}, {"site:a": 1})                          # no record: old rule
+    assert _source_changed(None, raised, {"site:a": 1, "github:b": 6})           # all-sources finding
+    assert not _source_changed(None, raised, {"site:a": 1, "github:b": 5})
 
 
 def test_report(base):

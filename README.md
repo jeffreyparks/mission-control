@@ -238,7 +238,8 @@ Each run logs which model handled each kind of call and how many tokens it used.
   counted in code, not by the model.
 - **Evidence:** every finding quotes your actual text; a quote that isn't really there is dropped.
 - **Triage:** accept, dismiss or mark findings fixed on the Profile page. Dismissed stays
-  dismissed; fixes are detected on the next review.
+  dismissed; a finding counts as fixed when the profile it's about has changed and the next
+  review no longer raises it.
 - **Drafts:** suggested headline, bio and tagline rewrites, checked against your resume. Approved
   text goes to `me/persona.md`; nothing is ever posted for you. Open coverage gaps also feed the
   Content Radar.

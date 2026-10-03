@@ -471,7 +471,7 @@ def evaluate(base_dir, force=False, llm=None, log=print, now=None):
     counts = store.sync_findings(evaluation_id, findings, now=record["created_at"])
     log(f"   evaluation {evaluation_id}: {len(findings)} findings "
         f"({counts['new']} new, {counts['kept']} standing, {counts['fixed']} fixed, "
-        f"{counts['reopened']} reopened)")
+        f"{counts['reopened']} reopened, {counts['held']} held - profile unchanged)")
     try:
         draft_for_latest(base_dir, llm=llm, log=log, now=now)
     except Exception as exc:  # noqa: BLE001 - drafts must not sink a stored evaluation
