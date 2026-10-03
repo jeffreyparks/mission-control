@@ -121,6 +121,11 @@ def _today_line(now=None):
             f"never flag them as future or impossible.")
 
 
+def _guidance(text):
+    """The approved review guidance, set off by blank lines; nothing when there is none."""
+    return f"\n{text}" if text else ""
+
+
 def _brief_block(brief):
     asks = "\n".join(
         f"  - {a['ask']}" + (f"  ({a['roles']} of {brief['with_jd']} pursued roles)" if a["roles"] else "")
@@ -157,7 +162,7 @@ def _items_block(snap):
     return keyed, "\n\n".join(lines)
 
 
-def _source_prompt(brief, snap, coverage, items_text, now=None):
+def _source_prompt(brief, snap, coverage, items_text, now=None, guidance=""):
     identity = "\n".join(f"  {k}: {v}" for k, v in snap["identity"].items())
     covered = [a for a, by in coverage.items() if by.get(snap["source_key"])]
     missing = [a for a, by in coverage.items() if not by.get(snap["source_key"])]
@@ -166,7 +171,7 @@ roles below would read it. Judge THIS source only: {snap['source']} ({snap['sour
 {_today_line(now)}
 
 {_brief_block(brief)}
-
+{_guidance(guidance)}
 EXACT-MATCH COVERAGE ON THIS SOURCE (computed, may miss synonyms):
   mentioned: {', '.join(covered) or '(none)'}
   not found: {', '.join(missing) or '(none)'}
@@ -265,9 +270,10 @@ def _profile_url(snap):
     return None
 
 
-def judge_source(llm, brief, snap, coverage, log=print, now=None):
+def judge_source(llm, brief, snap, coverage, log=print, now=None, guidance=""):
     keyed, items_text = _items_block(snap)
-    data = llm.complete_json(_source_prompt(brief, snap, coverage, items_text, now=now),
+    data = llm.complete_json(_source_prompt(brief, snap, coverage, items_text, now=now,
+                                            guidance=guidance),
                              tag="profile-eval-source", validate=_source_validator, max_tokens=8000)
     tags = {keyed[k]["id"]: v for k, v in data["item_tags"].items() if k in keyed and v in TAGS}
     asks = {a["ask"]: a["roles"] for a in brief["asks"]}
@@ -286,7 +292,7 @@ def judge_source(llm, brief, snap, coverage, log=print, now=None):
 
 # ---------- synthesis ----------
 
-def _synth_prompt(brief, snaps, results, now=None):
+def _synth_prompt(brief, snaps, results, now=None, guidance=""):
     identities = "\n\n".join(
         f"[{s['source_key']}]\n" + "\n".join(f"  {k}: {str(v)[:600]}" for k, v in s["identity"].items())
         for s in snaps)
@@ -305,7 +311,7 @@ their sources, for the roles below.
 {_today_line(now)}
 
 {_brief_block(brief)}
-
+{_guidance(guidance)}
 PER-SOURCE RESULTS (scores 1-5; shares are computed):
 {per_source}
 
@@ -322,7 +328,8 @@ Do four things:
   2. Write a 2-3 sentence verdict for the candidate: is the profile on target, and
      what is the single most important thing to change?
   3. Rank the candidate findings by importance, keeping each distinct problem once:
-     list the refs to keep, most important first; leave out duplicates and trivia.
+     list the refs to keep, most important first; leave out duplicates, trivia,
+     and any the review guidance rules out.
   4. Add consistency findings (at most 4): places where sources disagree on role,
      level or focus. Each quotes the exact identity words it is about.
 
@@ -352,8 +359,8 @@ def _synth_validator(refs):
     return validate
 
 
-def synthesise(llm, brief, snaps, results, log=print, now=None):
-    prompt = _synth_prompt(brief, snaps, results, now=now)
+def synthesise(llm, brief, snaps, results, log=print, now=None, guidance=""):
+    prompt = _synth_prompt(brief, snaps, results, now=now, guidance=guidance)
     by_ref = {f["_ref"]: f for r in results for f in r["findings"]}
     data = llm.complete_json(prompt, tag="profile-eval-synth",
                              validate=_synth_validator(set(by_ref)), max_tokens=6000)
@@ -416,6 +423,7 @@ def should_evaluate(store, brief, snaps, config, force=False, now=None):
 
 def evaluate(base_dir, force=False, llm=None, log=print, now=None):
     """Build the brief, decide, judge, store. Returns (evaluation_id or None, why)."""
+    from context import guidance_block
     from llm import LLM
     from profile_brief import build_brief
     from profile_snapshot import load_config
@@ -437,16 +445,18 @@ def evaluate(base_dir, force=False, llm=None, log=print, now=None):
     log(f"   evaluating ({why}): {len(snaps)} sources, {len(brief['asks'])} asks "
         f"from {brief['with_jd']} role descriptions")
     coverage = coverage_matrix(brief, snaps)
+    guidance = guidance_block(base_dir)
     results = []
     for snap in snaps:
         try:
-            results.append(judge_source(llm, brief, snap, coverage, log=log, now=now))
+            results.append(judge_source(llm, brief, snap, coverage, log=log, now=now,
+                                        guidance=guidance))
         except Exception as exc:  # noqa: BLE001 - one source must not sink the evaluation
             log(f"   {snap['source_key']}: evaluation failed - {exc}")
     if not results:
         return None, "every source failed to evaluate"
     judged = [s for s in snaps if s["source_key"] in {r["source_key"] for r in results}]
-    synth = synthesise(llm, brief, judged, results, log=log, now=now)
+    synth = synthesise(llm, brief, judged, results, log=log, now=now, guidance=guidance)
 
     stats = llm.stats
     record = {
