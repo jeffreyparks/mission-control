@@ -214,11 +214,11 @@ def _evidence_line(c):
     if c["kind"] == "pattern":
         return f"{c['group']} = {c['value']}: dismissed {c['dismissed']}, upheld {c['upheld']}"
     where = f"{c['dimension']} on {c['source']}" + (f", ask '{c['ask']}'" if c.get("ask") else "")
-    return f"dismissed '{c['title']}' ({where}) because: {c['reason']}"
+    return f'dismissed "{c["title"]}" ({where}) because: {c["reason"]}'
 
 
 def _label(c):
-    return c["value"] if c["kind"] == "pattern" else f"'{c['title']}'"
+    return c["value"] if c["kind"] == "pattern" else f'"{c["title"]}"'
 
 
 def render_draft(evidence, verdicts, now=None):
